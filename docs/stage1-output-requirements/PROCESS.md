@@ -63,6 +63,7 @@ docs/stage1-output-requirements/
   reviews/review-iter-NN.md           fact-check and review of iteration NN
   fixes/fix-iter-NN.md                the fixer's response to review NN, remark by remark
   oscillation/check-after-iter-NN.md  loop and oscillation check
+  FROZEN_ITEMS.md                     items frozen after oscillation, awaiting the human's decision
 ```
 
 Agents write only the files assigned to them. Agents do not commit or push; the orchestrator does that.
@@ -102,7 +103,7 @@ Version: vNN · Iteration: NN · Status: draft | under review | converged
 0. **Author** researches and writes `v00`.
 1. **Reviewer** (a new agent each iteration) fact-checks and reviews the current version and writes `reviews/review-iter-NN.md`.
 2. If the verdict is `NO_REMARKS`, the loop ends. Otherwise a **fixer** (a new agent) addresses every remark, either fixing it or declining it with evidence. It may rewrite the document if needed. It writes the new version, its snapshot and `fixes/fix-iter-NN.md`.
-3. An **oscillation checker** (a new agent) runs after iterations 4, 8, 12 and so on, and after the final iteration. It looks for items that keep changing back and forth.
+3. An **oscillation checker** (a new agent) runs after iterations 4, 8, 12 and so on, and after the final iteration. It looks for items that keep changing back and forth. Oscillating items are frozen and handed to the human (section 10).
 
 The orchestrator may stop the loop after 12 iterations if it has not converged, and hand the question back to the human.
 
@@ -124,6 +125,20 @@ These are **not** remarks: stylistic preferences, alternative wordings with the 
 
 A remark that an earlier fixer declined with a justification may be raised again only with new evidence showing that the justification is wrong.
 
-## 10. Binding resolutions after oscillation
+## 10. Frozen items after oscillation
 
-When an oscillation check reports `OSCILLATION_DETECTED`, it gives a binding resolution for each oscillating item. Fixers must apply these resolutions. Reviewers may reopen a resolved item only for a verifiable factual defect (misquote, broken link, wrong citation metadata, a newer superseding source), not for a difference of opinion or wording.
+When an oscillation check reports `OSCILLATION_DETECTED`:
+
+- Each oscillating item (a requirement, a source, or a section) is **frozen** in its current state. The oscillation checker does not pick a winner.
+- The checker records each frozen item in `FROZEN_ITEMS.md`: the item ID, the version-by-version trace of the back-and-forth, the remarks and fixes that drove it, and the competing positions with their evidence (quotes and links). The human decides these items later; agents do not.
+- The checker marks each frozen item in `OUTPUT_REQUIREMENTS.md` with the line `- Status: FROZEN (see FROZEN_ITEMS.md, OSC-NN-n)`. That marker line is the only change the checker makes to the requirements document.
+- Fixers must not change a frozen item.
+- Reviewers do not raise remarks on frozen items, and these items never count toward the verdict. A reviewer who finds a factual defect in a frozen item (misquote, broken link, wrong citation metadata, a newer superseding source) lists it under "Notes on frozen items (for the human)" in the review. The orchestrator copies those notes into `FROZEN_ITEMS.md`.
+- An item stays frozen until the human decides it.
+
+## 11. Practical notes for agents
+
+- Load the web tools with `ToolSearch` (query `select:WebSearch,WebFetch`).
+- `WebFetch` answers through a small summarising model, so its output is not proof of verbatim wording. To check a quote word for word, download the page or PDF with `curl` (it goes through the configured proxy) and search the text: `pdftotext` and Python `pypdf` are installed. PubMed E-utilities and PubMed Central are reachable.
+- Some sites may be unreachable from this environment; for example `cr.minzdrav.gov.ru` reset the connection during setup. Retry once, then look for an official copy elsewhere (a society website, a journal publication of the same guideline, PMC, CyberLeninka, eLibrary). Record unreachable sites in the search log.
+- Put downloaded files in a fresh directory under your scratchpad or `/tmp`, never inside the repository.
