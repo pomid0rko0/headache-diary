@@ -1,5 +1,5 @@
 # Headache diary — output requirements (Stage 1)
-Version: v11 · Iteration: 11 · Status: under review
+Version: v12 · Iteration: 12 · Status: under review
 
 ## 1. Scope and exclusions
 
@@ -341,9 +341,11 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 - Statement: The diary output SHOULD provide a chronological list of preventive (and, separately, acute) treatments with start and stop dates, dose changes, treatment duration, the response summary from OUT-018 or OUT-023 for each treatment, adverse effects during each treatment, and the reason for stopping, grouped by drug class.
 - Audience: clinicians (primary), patients.
 - Rationale: The number and classes of failed preventives determine eligibility for later treatments and for the EHF categories of resistant and refractory migraine; establishing failure (lack of efficacy or tolerability) is pivotal; adverse effects are a major reason for discontinuation; patients are advised to bring a list of medicines tried.
-- Evidence basis: Graded national guideline (NICE CG150 1.3.24, technology appraisal criteria); consensus (EHF 2020); international trial-methodology guideline (IHS); patient summary of a graded guideline (AAN/AHS 2026). Strength: SHOULD.
+- Evidence basis: Graded national guideline (NICE CG150 1.3.24, technology appraisal criteria); consensus (EHF 2020); international trial-methodology guideline (IHS); patient summary of a graded guideline (AAN/AHS 2026). The grouping by drug class rests on the EHF consensus (2020), which names the number of failed classes of medications as one of the main criteria for resistant and refractory migraine; the reason the consensus group gives for choosing drug classes rather than single medications is stated to be based on expert opinion. Strength: SHOULD.
 - Evidence:
   - [S-013] "Establishing drug failure or contraindication is pivotal to identifying resistant or refractory migraine." (Discussion, "Drug failure")
+  - [S-013] "One of the main criteria to define resistance and refractoriness to treatment is the number of failed classes of medications." (Discussion, "Drug failure", second paragraph, first sentence)
+  - [S-013] "The Consensus group agreed to select failure of drug classes, rather than single medications, since a patient who fails a drug has a very low probability of responding to another drug within the same class based on expert opinion." (Discussion, "Drug failure", second paragraph, third sentence)
   - [S-015] "only if at least 3 preventive medicines have not worked or are not tolerated or are unsuitable because of safety concerns" (recommendation 1.3.24)
   - [S-002] "In clinical practice, AEs are a major problem in preventive migraine treatment, and they often lead to discontinuation of treatment." (section 1.3.4, comments, p. 1038)
   - [S-019] "Bring a list of your current medications and medications you have tried in the past to your appointment." (section "How can I best prepare for my appointments?", p. 3)
@@ -460,6 +462,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
   - [S-007] "When using a classical trial design, the primary endpoint should be the change from baseline in the number of weekly attacks for the entire double-blind phase." (section 4.2.3, p. 25 of the accepted manuscript)
   - [S-007] "Since attacks of cluster headache are of short duration, time to effect provides a critical expression of efficacy." (section 3.6.3, comments, p. 20 of the accepted manuscript)
   - [S-007] "Pain-freedom at 15 minutes without recurrence of any level of pain within 3 hours in the 1st treated attack." (section 3.7 "Primary endpoint", Recommendations, p. 21 of the accepted manuscript)
+  - [S-007] The list items "Percentage of attacks with need for rescue therapy" and "Number of attacks per day during the study period" (section 3.8 "Secondary endpoints", Recommendations, list B "Additional secondary endpoints", items c and d, p. 22 of the accepted manuscript; section 3 concerns attack-treatment trials)
   - [S-015] "When using a subcutaneous or nasal triptan, ensure the person is offered an adequate supply of triptans calculated according to their history of cluster bouts" (recommendation 1.3.37)
   - [S-014] "Every patient with active cluster headache requires frequent follow-up both to ensure that optimum acute and preventative treatments are maintained and to monitor for treatment toxicity." (section on cluster headache, follow-up)
 - Caveats: [S-007] "Due to the natural disease course of ECH, the attack frequency may decrease at the end of a bout and bout duration is highly variable (51)." (section 4.2.1, p. 25 of the accepted manuscript). Changes near the end of a bout should not be read as treatment effect.
@@ -560,7 +563,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 
 ## 4. Withdrawn requirements
 
-None (as of v11).
+None (as of v12).
 
 ## 5. Sources
 
@@ -731,4 +734,9 @@ Known gaps after v00:
   - R11b-01: OUT-014, the breakdown by individual drug now has quoted support from the classification standard. Five [S-001] quotes were added to Evidence: 8.2, note 1 (p. 122, coding according to the specific medication(s) overused), and the notes to subtypes 8.2.2 (note 1, p. 123), 8.2.3.2 (note 1, p. 124), 8.2.4 (note 1, p. 124) and 8.2.5 (note 2, p. 124), which provide for the individual triptans, NSAIDs, opioids and combination analgesics to be specified in parenthesis. One sentence was added to the Evidence basis: the breakdown by drug class and by individual drug rests on these ICHD-3 notes. No day criterion is quoted. The Statement, the Rationale, the existing quotes (including the SEN 2026 and FDA quotes added in v06 and v07) and the strength (MUST) are unchanged.
   - R11b-02: Section 6, Finnish row: the wrong statement that no current Käypä hoito migraine guideline was listed is replaced by a record of the Käypä hoito recommendation "Migreeni" (Duodecim and Finnish Neurological Society working group; published 28.03.2024; status "päivityksessä"; https://www.kaypahoito.fi/hoi36050), found and not used, because its diary statements carry no evidence-level tag and add no output beyond existing requirements. No source was added.
   - Other changes: section 4 now reads "None (as of v11)."
+  - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 24 SHOULD, 4 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. Sources: 46 entries in section 5 (S-001 to S-046), counted as rows of the section 5 table. 45 of them are cited in section 3, counted as distinct [S-NNN] tags in section 3; S-026 is kept only as a superseded entry. No requirement or source added or withdrawn.
+- v12 (iteration 12, 2026-10-20): Fixes for review iteration 12 (both remarks addressed; see fixes/fix-iter-12.md). Every added quote was checked by script against the text downloaded from the source: the Europe PMC full text of PMC7296705 (S-013) and the S-007 accepted manuscript at the URL listed in section 5. S-007 p. 22 was also checked on a page render.
+  - R12-01: OUT-024, the grouping by drug class now has quoted support. Two [S-013] quotes from Discussion, "Drug failure", second paragraph, were added to Evidence. The first sentence states that the number of failed classes of medications is one of the main criteria for resistant and refractory migraine. The third sentence states that the consensus group chose failure of drug classes rather than single medications, for a reason it states is based on expert opinion. One sentence was added to the Evidence basis: the grouping by drug class rests on the EHF consensus (2020), and the reason the consensus group gives for choosing classes rather than single medications is stated to be based on expert opinion. The Statement, the Rationale, the existing quotes and the strength (SHOULD) are unchanged.
+  - R12-02: OUT-031, the Statement elements "attacks per day" and "the need for rescue treatment" now have quoted support. The [S-007] list items "Percentage of attacks with need for rescue therapy" and "Number of attacks per day during the study period" were added to Evidence (section 3.8 "Secondary endpoints", Recommendations, list B "Additional secondary endpoints", items c and d, p. 22 of the accepted manuscript). The Statement, the Rationale, the Evidence basis, the [S-007] section 3.7 quote added in v01 (R01-09), the "Definitions of terms" location corrected in v05 (R05-01) and the strength (SHOULD) are unchanged.
+  - Other changes: section 4 now reads "None (as of v12)."
   - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 24 SHOULD, 4 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. Sources: 46 entries in section 5 (S-001 to S-046), counted as rows of the section 5 table. 45 of them are cited in section 3, counted as distinct [S-NNN] tags in section 3; S-026 is kept only as a superseded entry. No requirement or source added or withdrawn.
