@@ -1,5 +1,5 @@
 # Headache diary — output requirements (Stage 1)
-Version: v03 · Iteration: 03 · Status: under review
+Version: v04 · Iteration: 04 · Status: under review
 
 ## 1. Scope and exclusions
 
@@ -59,7 +59,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
   - [S-002] "Use of a diary during the baseline phase is also important for assessing [...] subject compliance with the diary." (section 1.1.4, comments, p. 1029)
   - [S-022] "As trials for prophylactic treatment are longer than trials for acute treatment, it is possible that a missing data problem will arise due to missing diary entries or patients discontinuing the study." (section 5.2.5.2, lines 464–465, p. 13)
   - [S-027] "De werkgroep verwacht dat niet alle patiënten 100% respons kunnen halen, maar 80% respons rate zal voldoende inzicht geven." (module "Digitale dagboeken", Waarden en voorkeuren van patiënten). Translation: "The working group expects that not all patients can achieve a 100% response, but an 80% response rate will give sufficient insight."
-  - [S-013] "For refractory migraine, chart review alone is not sufficient and a minimum period of observation of 6 months is required together with completed diaries." (section "Proposed updated definition of resistant and refractory migraine")
+  - [S-013] "For refractory migraine, chart review alone is not sufficient and a minimum period of observation of 6 months is required together with completed diaries." (Results, paragraph beginning "Refractory migraine is defined", the third paragraph after Table 3 "Proposed updated definition of resistant and refractory migraine")
 - Caveats: The 80% figure in [S-027] is working-group opinion, and trial exclusion rules for incomplete diaries are designed for trials; neither is a validated clinical cut-off.
 
 **Group B — Headache frequency and its course over time**
@@ -388,7 +388,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 - Statement: The diary output SHOULD report, per reporting period, the number of days on which headache affected paid work or school, household work and social or leisure activities, including days with severe functional impairment, expressed in days per period, and SHOULD allow comparison with the baseline period.
 - Audience: clinicians, patients, researchers.
 - Rationale: Impact on daily life determines the need for and priority of treatment and is the baseline against which treatment is evaluated; lost productive time is naturally expressed in days per month; impact on work, education, family and social life is part of the consultation checklist in SIGN 155; EHF ascertains debilitating headache by its interference with work, school, family and social activities.
-- Evidence basis: Expert/consensus guidance (Lifting The Burden/EHF); national guidelines (SIGN 155 patient-information checklist, based on the experience of the guideline development group; SBCe, Brazil; SPC, Portugal); consensus (EHF 2020). Strength: SHOULD.
+- Evidence basis: Expert/consensus guidance (Lifting The Burden/EHF); national guidelines (SIGN 155 patient-information checklist, based on the experience of the guideline development group; SPC, Portugal); consensus (SBCe, Brazil; EHF 2020). Strength: SHOULD.
 - Evidence:
   - [S-014] "Assessment of a headache disorder requires more than diagnosis: there needs to be some measure of impact on the patient’s life and lifestyle, both as a prelude to planning best management and to establish the baseline against which to evaluate treatment." (section "The Headache-Attributed Lost Time (HALT) Indices")
   - [S-014] "the result is expressed by a number with intuitively meaningful units (eg, days/month)." (section "The Headache-Attributed Lost Time (HALT) Indices")
@@ -543,7 +543,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 
 ## 4. Withdrawn requirements
 
-None (as of v03).
+None (as of v04).
 
 ## 5. Sources
 
@@ -658,3 +658,8 @@ Known gaps after v00:
   - R03-01: S-036, "Type and grading" now names the grading system: grades of recommendation I, II, IIa, IIb and III (Table 1.1) and levels of evidence A, B and C (Table 1.2), as adopted by the Portuguese Directorate-General of Health. The source sentence (section 1 "Introdução", PDF p. 7) is quoted with an English translation, the Directorate-General document is identified as the source's reference 5 (PDF p. 80), and the entry notes that the passages quoted in OUT-026 and OUT-027 (PDF p. 16) carry no grade. No requirement text changed, because the evidence-basis lines of OUT-026 and OUT-027 claim no grade for S-036.
   - Other changes: S-036 DOI added (10.46531/sinapse/GU/200048/2021, printed on PDF p. 5 of the source and confirmed in Crossref), as PROCESS.md section 3 requires a DOI where one exists; section 4 now reads "as of v03".
   - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 23 SHOULD, 5 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. 44 sources (unchanged). No requirement added or withdrawn.
+- v04 (iteration 04, 2026-10-20): Fixes for review iteration 04 (both remarks addressed; see fixes/fix-iter-04.md). No quote text changed. The source wording named in the corrected location was checked against the downloaded full text.
+  - R04-01: OUT-003, the location of the [S-013] quote ("For refractory migraine, chart review alone is not sufficient ...") corrected. The old location, section "Proposed updated definition of resistant and refractory migraine", names the caption of Table 3, not a section. The new location is the Results section, in the paragraph beginning "Refractory migraine is defined", which is the third paragraph after Table 3. The quote and the requirement are unchanged.
+  - R04-02: OUT-027, Evidence basis: "SBCe, Brazil" (S-037) moved from "national guidelines (…)" to "consensus (…)", in line with its type in section 5, "Consensus statement (national society)". The strength stays SHOULD.
+  - Other changes: section 4 now reads "None (as of v04)."
+  - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 23 SHOULD, 5 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. 44 sources (unchanged). No requirement or source added or withdrawn.
