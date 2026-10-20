@@ -110,7 +110,7 @@ Version: vNN · Iteration: NN · Status: draft | under review | converged
    - Re-checks belong to iteration NN and do not count as separate iterations.
 3. An **oscillation checker** (a new agent) runs after iterations 4, 8, 12 and so on, and after the final iteration. It looks for items that keep changing back and forth. Oscillating items are frozen and handed to the human (section 10).
 
-The orchestrator may stop the loop after 12 iterations if it has not converged, and hand the question back to the human.
+The orchestrator may stop the loop after 32 iterations if it has not converged, and hand the question back to the human.
 
 ## 9. What counts as a remark
 
