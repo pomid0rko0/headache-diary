@@ -1,5 +1,5 @@
 # Headache diary — output requirements (Stage 1)
-Version: v04 · Iteration: 04 · Status: under review
+Version: v05 · Iteration: 05 · Status: under review
 
 ## 1. Scope and exclusions
 
@@ -29,19 +29,19 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 **Group A — Reporting frame, labelling and reliability**
 
 ### OUT-001 Defined reporting periods that allow like-for-like comparison
-- Statement: Every summary output MUST state the reporting period it covers (start date, end date and length). Frequency outputs MUST be available per calendar month or per 28-day (4-week) period, the periods used in ICHD-3 "Definition of terms" [S-001] and in the IHS trial guidelines [S-002][S-005], and the output MUST allow comparison of periods of equal length (for example a pre-treatment baseline period against a later period of the same length).
+- Statement: Every summary output MUST state the reporting period it covers (start date, end date and length). Frequency outputs MUST be available per calendar month or per 28-day (4-week) period, the periods used in ICHD-3 "Definitions of terms" [S-001] and in the IHS trial guidelines [S-002][S-005], and the output MUST allow comparison of periods of equal length (for example a pre-treatment baseline period against a later period of the same length).
 - Audience: patients, primary-care clinicians, specialists, researchers.
 - Rationale: The core measures of headache burden are defined per period ("commonly one month"), and treatment effects are judged by comparing periods. Comparisons are only interpretable when the compared periods are of equal length and clearly dated.
 - Evidence basis: Classification standard (ICHD-3) and international trial-methodology guidelines (IHS); consensus-based. Strength: MUST.
 - Evidence:
-  - [S-001] "Headache days: Number of days during an observed period of time (commonly one month) affected by headache for any part or the whole of the day." (Definition of terms, p. 210)
-  - [S-001] "Frequency of attacks: The rate of occurrence of attacks of headache (or pain) (qv) per time period (commonly one month)." (Definition of terms, p. 209)
+  - [S-001] "Headache days: Number of days during an observed period of time (commonly one month) affected by headache for any part or the whole of the day." (Definitions of terms, p. 210)
+  - [S-001] "Frequency of attacks: The rate of occurrence of attacks of headache (or pain) (qv) per time period (commonly one month)." (Definitions of terms, p. 209)
   - [S-005] "The time periods for analyses of efficacy should be equivalent. Thus, if a baseline period is 28 days, the final 28 days of the treatment period should be assessed." (section "Primary endpoints", comments, p. 810)
   - [S-002] "The primary endpoint in controlled trials of preventive treatment of episodic migraine should be the change from baseline in migraine days per unit time." (section 1.3.1, recommendation a, p. 1035)
 - Caveats: Calendar months differ in length; when calendar months are shown, the output should make the number of days in each period visible so that readers can judge comparability.
 
 ### OUT-002 Labelling of the definitions behind each measure
-- Statement: Outputs that report migraine days, headache days, moderate/severe headache days or attacks SHOULD state which published definition of each measure they follow (for example ICHD-3 "Definition of terms" [S-001], IHS trial guidelines [S-002][S-003], or the 2026 eDelphi consensus definition of a migraine day [S-043]).
+- Statement: Outputs that report migraine days, headache days, moderate/severe headache days or attacks SHOULD state which published definition of each measure they follow (for example ICHD-3 "Definitions of terms" [S-001], IHS trial guidelines [S-002][S-003], or the 2026 eDelphi consensus definition of a migraine day [S-043]).
 - Audience: clinicians, researchers.
 - Rationale: There is no single universally adopted definition of a migraine day; different definitions give different numbers. A reader can compare a diary value with guideline or trial values only if the definition used is visible.
 - Evidence basis: International trial-methodology guideline (IHS) and expert consensus (eDelphi; Dutch national guideline working group). Strength: SHOULD.
@@ -65,12 +65,12 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 **Group B — Headache frequency and its course over time**
 
 ### OUT-004 Headache days per reporting period
-- Statement: The diary output MUST report the number of headache days per reporting period, with "headache days" as defined in ICHD-3 "Definition of terms" [S-001], shown for every period in the selected time range.
+- Statement: The diary output MUST report the number of headache days per reporting period, with "headache days" as defined in ICHD-3 "Definitions of terms" [S-001], shown for every period in the selected time range.
 - Audience: patients, primary-care clinicians, specialists, researchers.
 - Rationale: Monthly headache days underlie the classification of chronic headache disorders, the choice to start preventive treatment and the assessment of its effect. A graded recommendation (Japan) names headache days as the first information a headache diary provides, and national guidelines in several languages name headache days as the core diary measure.
 - Evidence basis: Classification standard (ICHD-3); graded national guideline (Japan: strong recommendation, certainty of evidence B); national guidelines and consensus (Russia; SFEMC, France; DMKG/ÖKSG/SKG). Strength: MUST.
 - Evidence:
-  - [S-001] "Headache days: Number of days during an observed period of time (commonly one month) affected by headache for any part or the whole of the day." (Definition of terms, p. 210)
+  - [S-001] "Headache days: Number of days during an observed period of time (commonly one month) affected by headache for any part or the whole of the day." (Definitions of terms, p. 210)
   - [S-031] "頭痛ダイアリーからは頭痛日数，服薬日数，治療効果など，頭痛診療を行ううえで多くの情報を得ることができる．" (CQ I-10, recommendation, p. 32) Translation: "From a headache diary, much information for headache care can be obtained, such as the number of headache days, the number of medication days and the treatment effect." Grade shown in the source: "強い推奨/エビデンスの確実性 B" (strong recommendation / certainty of evidence B).
   - [S-033] "[...] помогает пациенту и врачу отличить один вариант ГБ от другого (например, приступ мигрени от эпизода ГБН), установить число дней с ГБ в месяц и число дней с приемом лекарственных препаратов с обезболивающим действием в месяц." (section 2.5, p. 26) Translation: "[Keeping a headache diary before the consultation] helps the patient and the physician to distinguish one type of headache from another (for example, a migraine attack from an episode of tension-type headache) and to establish the number of headache days per month and the number of days per month with intake of medicines with an analgesic effect."
   - [S-024] "l'agenda des crises, qui permet d'évaluer le nombre de jours de céphalées mensuels et l'utilisation de médicaments de crise" (section "Les outils", p. 400) Translation: "the attack diary, which makes it possible to evaluate the number of monthly headache days and the use of acute medication"
@@ -98,12 +98,12 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
   - [S-010] "In this Position Statement, we advocate for raising the standards of migraine prevention by setting ambitious treatment goals aimed at optimal outcomes, such as migraine freedom or very low number of days with migraine or moderate/severe headache." (Abstract)
 
 ### OUT-007 Number of attacks per reporting period
-- Statement: The diary output SHOULD report the number of attacks per reporting period separately from the number of headache or migraine days, with "frequency of attacks" as defined in ICHD-3 "Definition of terms" [S-001].
+- Statement: The diary output SHOULD report the number of attacks per reporting period separately from the number of headache or migraine days, with "frequency of attacks" as defined in ICHD-3 "Definitions of terms" [S-001].
 - Audience: clinicians, researchers.
 - Rationale: Attack frequency and days with headache are distinct measures; IHS trial methodology gives reduction in migraine attacks the highest priority among secondary outcomes, and the EMA guideline in force uses attack frequency as the primary prophylaxis endpoint.
 - Evidence basis: Classification standard (ICHD-3 definitions); international trial-methodology guideline (IHS); regulatory guidance (EMA, 2007, in force). Strength: SHOULD.
 - Evidence:
-  - [S-001] "Frequency of attacks: The rate of occurrence of attacks of headache (or pain) (qv) per time period (commonly one month)." (Definition of terms, p. 209)
+  - [S-001] "Frequency of attacks: The rate of occurrence of attacks of headache (or pain) (qv) per time period (commonly one month)." (Definitions of terms, p. 209)
   - [S-002] "The secondary outcome with highest priority is the reduction in migraine attacks." (section 1.3.2.0, p. 1035)
   - [S-021] "The recommended primary endpoint is the frequency of attacks within a pre-specified period, e.g., the mean frequency of attacks per 4 weeks or during the final 4 weeks of a 3-month study duration." (section "Migraine prophylaxis trials", p. 5)
 - Caveats: The draft revision of the EMA guideline [S-022] moves the primary prophylaxis endpoint to monthly migraine days; attack counts remain useful as a secondary measure.
@@ -175,7 +175,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 - Evidence basis: National guideline (SFEMC, France); classification standard comment (ICHD-3). Evidence for aura-specific treatment effects is weak. Strength: MAY.
 - Evidence:
   - [S-025] "Pour la migraine avec aura, l'objectif est également de réduire la fréquence, la durée et la gravité des auras, mais on manque d'études de qualité sur l'efficacité des médicaments spécifiquement destinés à cet effet." (section "Quels sont les objectifs du traitement prophylactique de la migraine ?", p. 413) Translation: "For migraine with aura, the aim is also to reduce the frequency, duration and severity of auras, but there is a lack of good-quality studies on the efficacy of drugs specifically intended for this purpose."
-  - [S-001] "After an initial consultation, use of an aura diary may clarify the diagnosis." (1.2 Migraine with aura, end of comments, p. 21)
+  - [S-001] "After an initial consultation, use of an aura diary may clarify the diagnosis." (1.2 Migraine with aura, comments, end of the paragraph beginning "Patients often find it hard to describe their aura symptoms", p. 21)
 
 **Group D — Acute medication use and medication overuse**
 
@@ -443,7 +443,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 - Rationale: Cluster headache is defined by bouts and remissions; attack frequency is measured per week in trial methodology and time to effect is critical because attacks are short; NICE ties the supply of acute treatment to the history of bouts; patients with active cluster headache need frequent follow-up.
 - Evidence basis: Classification standard (ICHD-3 definitions); international trial-methodology guideline (IHS 2022, consensus-based); graded national guideline (NICE CG150 1.3.37); expert guidance (Lifting The Burden/EHF). Strength: SHOULD.
 - Evidence:
-  - [S-001] "Cluster period: The time during which cluster headache attacks occur regularly and at least once every other day (also referred to as cluster bout)." (Definition of terms, p. 209)
+  - [S-001] "Cluster period: The time during which cluster headache attacks occur regularly and at least once every other day (also referred to as cluster bout)." (Definitions of terms, p. 209)
   - [S-007] "When using a classical trial design, the primary endpoint should be the change from baseline in the number of weekly attacks for the entire double-blind phase." (section 4.2.3, p. 25 of the accepted manuscript)
   - [S-007] "Since attacks of cluster headache are of short duration, time to effect provides a critical expression of efficacy." (section 3.6.3, comments, p. 20 of the accepted manuscript)
   - [S-007] "Pain-freedom at 15 minutes without recurrence of any level of pain within 3 hours in the 1st treated attack." (section 3.7 "Primary endpoint", Recommendations, p. 21 of the accepted manuscript)
@@ -543,7 +543,7 @@ Requirements are grouped by topic. RFC 2119 words are used (MUST, SHOULD, MAY, S
 
 ## 4. Withdrawn requirements
 
-None (as of v04).
+None (as of v05).
 
 ## 5. Sources
 
@@ -662,4 +662,9 @@ Known gaps after v00:
   - R04-01: OUT-003, the location of the [S-013] quote ("For refractory migraine, chart review alone is not sufficient ...") corrected. The old location, section "Proposed updated definition of resistant and refractory migraine", names the caption of Table 3, not a section. The new location is the Results section, in the paragraph beginning "Refractory migraine is defined", which is the third paragraph after Table 3. The quote and the requirement are unchanged.
   - R04-02: OUT-027, Evidence basis: "SBCe, Brazil" (S-037) moved from "national guidelines (…)" to "consensus (…)", in line with its type in section 5, "Consensus statement (national society)". The strength stays SHOULD.
   - Other changes: section 4 now reads "None (as of v04)."
+  - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 23 SHOULD, 5 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. 44 sources (unchanged). No requirement or source added or withdrawn.
+- v05 (iteration 05, 2026-10-20): Fixes for review iteration 05 (the single remark addressed; see fixes/fix-iter-05.md). No quote text or strength changed, and no requirement changed in substance; in four Statements only the name of the cited ICHD-3 heading was corrected. The corrected labels were checked against the ICHD-3 PDF downloaded from the URL listed for S-001.
+  - R05-01 (a): the ICHD-3 glossary heading [S-001] was written in the singular, but the source reads "Definitions of terms" (PDF p. 209). It is corrected at all nine places: in the Statements of OUT-001, OUT-002, OUT-004 and OUT-007, and in the locations of the [S-001] quotes in OUT-001 (two quotes), OUT-004, OUT-007 and OUT-031. Page numbers are unchanged.
+  - R05-01 (b): OUT-013, the location of the [S-001] quote "After an initial consultation, use of an aura diary may clarify the diagnosis." changed from "end of comments" to the end of the comment paragraph beginning "Patients often find it hard to describe their aura symptoms" (p. 21, unchanged). Six further comment paragraphs follow that paragraph on p. 21, so the sentence is not at the end of the 1.2 comments.
+  - Other changes: section 4 now reads "None (as of v05)."
   - Totals: 39 requirements (OUT-001 to OUT-039), counted by the primary strength, that is, the first RFC 2119 term in each requirement's "Strength:" line: 10 MUST, 23 SHOULD, 5 MAY, 1 SHOULD NOT. Clauses of other strengths inside a statement are not counted separately. 44 sources (unchanged). No requirement or source added or withdrawn.
