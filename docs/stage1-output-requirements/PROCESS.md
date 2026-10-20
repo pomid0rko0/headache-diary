@@ -61,6 +61,8 @@ docs/stage1-output-requirements/
   history/vNN.md                      snapshot of OUTPUT_REQUIREMENTS.md for each version
                                       (v00 = initial draft, vNN = after the fix of iteration NN)
   reviews/review-iter-NN.md           fact-check and review of iteration NN
+  reviews/review-iter-NNb.md          first re-check of iteration NN (only after a NO_REMARKS review)
+  reviews/review-iter-NNc.md          second re-check of iteration NN (only after a NO_REMARKS re-check)
   fixes/fix-iter-NN.md                the fixer's response to review NN, remark by remark
   oscillation/check-after-iter-NN.md  loop and oscillation check
   FROZEN_ITEMS.md                     items frozen after oscillation, awaiting the human's decision
@@ -95,14 +97,17 @@ Version: vNN · Iteration: NN · Status: draft | under review | converged
 ## 7. Stable identifiers
 
 - Requirements are numbered `OUT-NNN` and sources `S-NNN`. Never renumber or reuse an ID. A removed requirement moves to "Withdrawn requirements" with its reason and the iteration in which it was withdrawn.
-- Review remarks are numbered `R{iteration}-{n}`, for example `R03-07`.
+- Review remarks are numbered `R{iteration}-{n}`, for example `R03-07`. Remarks from re-checks carry the re-check letter: `R07b-01`, `R07c-02`.
 - Oscillation findings are numbered `OSC-{iteration}-{n}`.
 
 ## 8. The loop
 
 0. **Author** researches and writes `v00`.
 1. **Reviewer** (a new agent each iteration) fact-checks and reviews the current version and writes `reviews/review-iter-NN.md`.
-2. If the verdict is `NO_REMARKS`, the loop ends. Otherwise a **fixer** (a new agent) addresses every remark, either fixing it or declining it with evidence. It may rewrite the document if needed. It writes the new version, its snapshot and `fixes/fix-iter-NN.md`.
+2. If the verdict is `NO_REMARKS`, the same version is re-checked by a new, independent reviewer (`review-iter-NNb.md`). If that re-check also returns `NO_REMARKS`, one more new reviewer re-checks it (`review-iter-NNc.md`). So there are at most two extra re-checks, run one after another.
+   - The loop ends only when the review and both re-checks all return `NO_REMARKS`.
+   - As soon as any of them returns `REMARKS`, no further re-check runs, and a **fixer** (a new agent) addresses every remark of that review. It fixes each remark or declines it with evidence, and may rewrite the document if needed. It writes the new version, its snapshot and `fixes/fix-iter-NN.md`. The loop then continues with iteration NN+1.
+   - Re-checks belong to iteration NN and do not count as separate iterations.
 3. An **oscillation checker** (a new agent) runs after iterations 4, 8, 12 and so on, and after the final iteration. It looks for items that keep changing back and forth. Oscillating items are frozen and handed to the human (section 10).
 
 The orchestrator may stop the loop after 12 iterations if it has not converged, and hand the question back to the human.
