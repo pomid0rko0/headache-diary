@@ -1,5 +1,5 @@
 # Headache diary — output requirements (Stage 1)
-Version: v18 · Iteration: 18 · Status: under review
+Version: v18 · Iteration: 18 · Status: converged (review 19 and re-checks 19b, 19c: no remarks; final oscillation check: none)
 
 ## 1. Scope and exclusions
 
