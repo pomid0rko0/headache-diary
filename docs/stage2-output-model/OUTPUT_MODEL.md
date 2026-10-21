@@ -1,5 +1,5 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v03 · Iteration: 03 · Status: under review
+Version: v04 · Iteration: 04 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
 
 ## 1. Scope and exclusions
@@ -197,6 +197,12 @@ pred reportedTogether(c : OutputContext, Ks : ℙ (ℙ PeriodValue), sc : TypeSc
 ```
 
 `reportedPerPeriod(c, K, sc)` holds when some output produced for c contains a view with a series of consecutive periods that spans the selected time range at the selected granularity, and shows, for every period of that series, a value of kind K with type scope sc (E-006, E-012). Where Stage 1 says "per reporting period" without naming a granularity, the availability invariant requires `reportedPerPeriod` for contexts of at least one granularity; where Stage 1 names calendar months or 28-day periods (OUT-001), at least one of these two.
+
+OUT-001 names calendar months and 28-day periods for its frequency outputs ("Frequency outputs MUST be available per calendar month or per 28-day (4-week) period"). The model reads these as the frequency measures of OUT-004 to OUT-007, as OUT-009 names them ("frequency measures (OUT-004 to OUT-007)"): headache days, migraine days, moderate/severe headache days and attacks. Each part of a Stage 1 statement keeps its own strength (Stage 2 PROCESS.md section 4):
+
+- Whether a measure is provided at all keeps the level of its own requirement: MUST for headache days, and for migraine days for patients with migraine (INV-014, INV-015); SHOULD for moderate/severe headache days and attacks (INV-016, INV-017).
+- Availability per calendar month or 28-day period, for every period of the selected time range, is MUST wherever the measure is provided. For headache days, and for migraine days for patients with migraine (the condition of OUT-005), this is INV-014 and INV-015; for moderate/severe headache days and attacks it is INV-108 (`provides(K)`), as in their comparisons of equal-length periods (INV-037), per headache type (INV-028) and in response comparisons (INV-057).
+- The exploratory measures of residual burden of OUT-008 (headache-free days, symptom-free days, periods without migraine days) and the aura counts of OUT-013 are not read as frequency outputs. OUT-008 itself calls its measures "exploratory measures of residual burden", and OUT-013 belongs to Stage 1 group C, not to group B on headache frequency. See ISS-04.
 
 ### 3.5 Conditions of applicability
 
@@ -495,15 +501,18 @@ element DefinitionLabel extends Item {
 enum LabelledMeasure ::= headacheDaysMeasure | migraineDaysMeasure | moderateSevereHeadacheDaysMeasure | attacksMeasure
 given PublishedDefinition       -- a published definition of a measure, identified by publication and section
 const ichd3HeadacheDays, ichd3FrequencyOfAttacks : PublishedDefinition   -- ICHD-3 "Definitions of terms": Headache days; Frequency of attacks
+const ihs2025MigraineDay : PublishedDefinition   -- IHS position statement 2025 [S-010]: the definitions of a migraine day that its panel adopts
 pred isMeasure(m : PeriodValue, lm : LabelledMeasure) ≙
   (lm = headacheDaysMeasure ∧ m ∈ HeadacheDays) ∨ (lm = migraineDaysMeasure ∧ m ∈ MigraineDays) ∨
   (lm = moderateSevereHeadacheDaysMeasure ∧ m ∈ ModerateSevereHeadacheDays) ∨ (lm = attacksMeasure ∧ m ∈ AttackCount)
+pred labelledAs(v : View, lm : LabelledMeasure, d : PublishedDefinition) ≙
+  (∃ l ∈ v.content ∩ DefinitionLabel • l.measure = lm) ∧ ∀ l ∈ v.content ∩ DefinitionLabel • l.measure = lm ⇒ l.definition = d
 ```
-- Meaning: States which published definition a view follows for headache days, migraine days, moderate/severe headache days or attacks, for example ICHD-3 "Definitions of terms" [S-001], the IHS trial guidelines [S-002][S-003] or the 2026 eDelphi consensus definition of a migraine day [S-043]. For clinicians and researchers.
+- Meaning: States which published definition a view follows for headache days, migraine days, moderate/severe headache days or attacks, for example ICHD-3 "Definitions of terms" [S-001], the IHS trial guidelines [S-002][S-003] or the 2026 eDelphi consensus definition of a migraine day [S-043]. For clinicians and researchers. `labelledAs(v, lm, d)` holds when the view states a definition for the measure lm and every definition it states for lm is d.
 - Conformance: SHOULD, for each of these measures shown in a view (INV-008). For headache days the label names ICHD-3 (MUST, INV-009); for attacks it names ICHD-3 "frequency of attacks" (SHOULD, INV-010).
 - Realises: OUT-002, OUT-004, OUT-005, OUT-006, OUT-007, OUT-028
-- Evidence: Stage 1 OUT-002, OUT-004, OUT-005, OUT-006, OUT-007, OUT-028.
-- Notes: `PublishedDefinition` is a given set because Stage 1 names examples, not a closed list.
+- Evidence: Stage 1 OUT-002, OUT-004, OUT-005, OUT-006, OUT-007, OUT-028. The definitions of a migraine day of the IHS position statement 2025 (`ihs2025MigraineDay`) are not named in Stage 1; [S-010] quoted in E-018.
+- Notes: `PublishedDefinition` is a given set because Stage 1 names examples, not a closed list. `ihs2025MigraineDay` is named because the count on which the IHS 2025 control levels rest follows it (E-018), and INV-031 relates that count to the migraine days of a view only where the view's label names it.
 
 ### E-012 PeriodValue
 - Definition:
@@ -580,6 +589,7 @@ type MigraineDays == {m : DayCount | m.measure = migraineDays}
 - Conformance: MUST be available for every period of the selected time range for patients with migraine, `hasType(ctx, c1)` (INV-015); its definition label SHOULD be shown (INV-008).
 - Realises: OUT-001, OUT-002, OUT-005
 - Evidence: Stage 1 OUT-001, OUT-002, OUT-005.
+- Notes: Relations: INV-031 (not more than the count of E-018 shown for the same period and scope, where the view's definition label for migraine days names the definition of [S-010] on which that count rests). Published definitions of a migraine day count different days (OUT-002 Rationale), so migraine days are related to no count that rests on another definition.
 
 ### E-017 ModerateSevereHeadacheDays
 - Definition:
@@ -587,21 +597,23 @@ type MigraineDays == {m : DayCount | m.measure = migraineDays}
 type ModerateSevereHeadacheDays == {m : DayCount | m.measure = moderateSevereHeadacheDays}
 ```
 - Meaning: The number of days in the reporting period with headache of moderate or severe intensity, under the definition named by the view's definition label. For clinicians, researchers and patients.
-- Conformance: SHOULD be available per reporting period (INV-016); definition label SHOULD (INV-008).
-- Realises: OUT-002, OUT-006
-- Evidence: Stage 1 OUT-002, OUT-006.
+- Conformance: SHOULD be available per reporting period, at calendar-month or 28-day granularity (INV-016); wherever the diary provides it, MUST be available for every period of the selected time range per calendar month or per 28-day period (INV-108, OUT-001); definition label SHOULD (INV-008).
+- Realises: OUT-001, OUT-002, OUT-006
+- Evidence: Stage 1 OUT-001, OUT-002, OUT-006.
 
 ### E-018 MigraineOrModerateSevereHeadacheDays
 - Definition:
 ```omn
 type MigraineOrModerateSevereHeadacheDays == {m : DayCount | m.measure = migraineOrModerateSevereHeadacheDays}
 ```
-- Meaning: The number of days in the reporting period with migraine or moderate-to-severe headache, the single count on which the control levels of the IHS position statement 2025 rest. For clinicians and patients.
+- Meaning: The number of days in the reporting period with migraine or moderate-to-severe headache, the single count on which the control levels of the IHS position statement 2025 rest, with migraine days as that statement defines them: under the definitions of a migraine day that its panel adopts for the assessment of its control levels (`ihs2025MigraineDay`, E-011). For clinicians and patients.
 - Conformance: SHOULD be shown with every responder label that applies the IHS position statement 2025 control levels (INV-062); no availability of its own.
 - Realises: OUT-020
-- Evidence: Stage 1 OUT-020 (the named criterion "IHS position statement 2025 control levels" and the requirement to show the values it rests on). The count on which the control levels rest:
+- Evidence: Stage 1 OUT-020 (the named criterion "IHS position statement 2025 control levels" and the requirement to show the values it rests on). The count on which the control levels rest, and the definition of a migraine day it follows:
   - [S-010] "Modest Control. This is defined as four to six days with migraine or moderate-to-severe headache per month." (section "Setting goals of migraine burden while on treatment", p. 6)
-- Notes: Relations: INV-031 (it lies between the larger of the migraine-day and moderate/severe-day counts and their sum). See ISS-05.
+  - [S-010] "The assessment of the above goals requires a clear definition of migraine day. The panel decided to adopt the following three definitions of a migraine day, as modified from van der Arend et al. (45), in subjects with a diagnosis of migraine:" (same section, p. 6, the paragraph directly after the four control levels, which are "the above goals"; in the PDF text layer line ends break "definition" and "following". The three definitions that follow classify a day from what the patient reports and are not quoted, section 1, item 3.)
+  - [S-010] "We included in our definitions of treatment goals also moderate-to-severe headache days as a proxy of migraine days [...]" (same section, p. 6, the paragraph after the three definitions; the omitted words describe the days included)
+- Notes: Relations: INV-031 (in one view, for the same period and scope, the count is not lower than the migraine days shown where the view's definition label for migraine days names `ihs2025MigraineDay`, `labelledAs`, E-011). Published definitions of a migraine day count different days (OUT-002 Rationale), so the count is not related to migraine days that follow another definition. [S-010] includes moderate-to-severe headache days as a proxy of migraine days and adopts no definition of them, while the moderate/severe headache days of a view follow the definition its label names (OUT-002, E-017); so the count is related neither to moderate/severe headache days nor to the sum of migraine days and moderate/severe headache days. See ISS-05.
 
 ### E-019 EventCount and AttackCount
 - Definition:
@@ -614,9 +626,9 @@ enum CountedEvent ::= attacks | auras
 type AttackCount == {m : EventCount | m.event = attacks}
 ```
 - Meaning: The number of attacks (frequency of attacks as defined in ICHD-3 "Definitions of terms" [S-001]) or of auras (E-027) in the reporting period, shown as a value of its own, separately from headache or migraine days. For clinicians and researchers.
-- Conformance: attacks SHOULD be available per reporting period (INV-017); definition label SHOULD (INV-008, INV-010).
-- Realises: OUT-002, OUT-007, OUT-013
-- Evidence: Stage 1 OUT-002, OUT-007, OUT-013.
+- Conformance: attacks SHOULD be available per reporting period, at calendar-month or 28-day granularity (INV-017); wherever the diary provides attack counts, they MUST be available for every period of the selected time range per calendar month or per 28-day period (INV-108, OUT-001); definition label SHOULD (INV-008, INV-010). Aura counts are MAY (E-027).
+- Realises: OUT-001, OUT-002, OUT-007, OUT-013
+- Evidence: Stage 1 OUT-001, OUT-002, OUT-007, OUT-013.
 - Notes: Being a separate element type from `DayCount`, an attack count is never merged with a day count ("separately from the number of headache or migraine days"). OUT-007 Caveat (the EMA draft moves the primary endpoint to migraine days) does not constrain the output.
 
 ### E-020 HeadacheFreeDays
@@ -731,7 +743,7 @@ type AuraDuration == {m : DurationSummary | m.kind = auraDuration}
 - Conformance: MAY, per reporting period, for patients with migraine with aura, `hasType(ctx, c1_2)`.
 - Realises: OUT-013
 - Evidence: Stage 1 OUT-013.
-- Notes: Being separate element kinds, aura values are never merged with headache values.
+- Notes: Being separate element kinds, aura values are never merged with headache values. Aura counts are not read as frequency outputs in the sense of OUT-001 ("Frequency outputs MUST be available per calendar month or per 28-day (4-week) period"; section 3.4), so their availability per calendar month or 28-day period is not required; see ISS-04.
 
 ### E-028 AcuteDrugClass
 - Definition:
@@ -1522,29 +1534,34 @@ axiom screeningName(hads) = "HADS" ∧ screeningName(phq9) = "PHQ-9" ∧ screeni
 - Definition:
 ```omn
 element MenstrualRelationView extends View {
-  cycles : seq1 →CycleLine  core               -- consecutive menstrual cycles, earliest first
+  cycles : seq1 →CycleLine  core               -- the lines of the view, earliest first: consecutive menstrual cycles, preceded by a
+                                               --   lead-in when the view shows no first day of menstruation on or before the first day of its period
   completeCycles : ℕ  derived MUST             -- the number of complete cycles the view covers
 }
 element CycleLine extends Item {
-  cycle : DateSpan  core                        -- from the first day of menstruation to the day before the next one; for a cycle
-                                                --   that has not ended, to the last day of the period the view covers
-  complete : 𝔹  core                            -- the cycle has ended: it is shown to the day before the next first day of menstruation
-  menstruationDays : set1 Date  MUST
-  firstDayOfMenstruation : Date  derived MUST   -- day 1
-  perimenstrualWindow : DateSpan  derived MUST  -- ICHD-3 appendix A1.1: day 1 ± 2 (days −2 to +3)
-  migraineDays : set Date  MUST                 -- the migraine days of the cycle
-  attacks : set →AttackMark  MUST               -- the migraine attacks of the cycle
+  cycle : DateSpan  core                        -- from the first day of menstruation (day 1) or, for a lead-in, from the first day of the
+                                                --   period the view covers; to the day before the next first day of menstruation or, for a
+                                                --   line that has not ended, to the last day of the period the view covers
+  dayOneShown : 𝔹  core                         -- the line begins on a first day of menstruation that it shows; false for a lead-in
+  complete : 𝔹  core                            -- the line has ended: it is shown to the day before the next first day of menstruation
+  menstruationDays : set Date  MUST             -- the days of menstruation of the line; not empty when its day 1 is shown
+  firstDayOfMenstruation : opt Date  derived MUST when self.dayOneShown    -- day 1
+  perimenstrualWindow : opt DateSpan  derived MUST when self.dayOneShown   -- ICHD-3 appendix A1.1: day 1 ± 2 (days −2 to +3)
+  nextWindowDays : opt DateSpan  derived MUST when self.complete           -- the days of the line in the perimenstrual window of
+                                                                           --   the next menstruation (its days −2 and −1)
+  migraineDays : set Date  MUST                 -- the migraine days of the line
+  attacks : set →AttackMark  MUST               -- the migraine attacks of the line
 }
 const windowDaysBefore : ℕ ≙ 2                  -- day −2 is 2 days before day 1
 const windowDaysAfter : ℕ ≙ 2                   -- day +3 is 2 days after day 1, because there is no day 0
 ```
-- Meaning: For patients who menstruate, migraine attacks and migraine days in relation to the days of menstruation across consecutive cycles, with the perimenstrual window of ICHD-3 appendix A1.1 distinguished from the other days of the cycle, and the number of complete cycles the view covers. For clinicians and patients.
-- Conformance: MUST be available for subjects who menstruate (INV-086); `completeCycles` MUST.
+- Meaning: For patients who menstruate, migraine attacks and migraine days in relation to the days of menstruation across consecutive cycles, with the perimenstrual window of ICHD-3 appendix A1.1 distinguished from the other days of the cycle, and the number of complete cycles the view covers. For clinicians and patients. A line whose first day of menstruation is not shown (`dayOneShown` false) is a *lead-in*: the days from the first day of the covered period to the day before the earliest first day of menstruation the view shows, or to the end of the covered period when the view shows none. A lead-in is shown when no first day of menstruation on or before the first day of the covered period is known from the summarised diary information, for example when an adolescent's first menstruation (menarche) falls within the covered period, or when the diary information gives no first day for the menstruation in progress on that day. No first day of menstruation that the diary information gives lies in a lead-in. A lead-in is not a menstrual cycle: it shows no day 1 and no window of its own, and it is never counted as a complete cycle.
+- Conformance: MUST be available for subjects who menstruate (INV-086); `completeCycles` MUST. In every line: `menstruationDays`, `migraineDays` and `attacks` MUST; `firstDayOfMenstruation` and `perimenstrualWindow` MUST in every line that shows its day 1; `nextWindowDays` MUST in every line that has ended.
 - Realises: OUT-030, OUT-035
 - Evidence: Stage 1 OUT-030. The window, not stated in Stage 1:
   - [S-001] "Occurring exclusively on day 1 ± 2 (i.e. days −2 to +3)" (A1.1.1 Pure menstrual migraine without aura, diagnostic criterion B, p. 190; the "±" and "−" signs are glyphs without a text mapping in the PDF text layer); the same window appears in A1.1.2 criterion B ("Occurring on day 1 ± 2 (i.e. days −2 to +3)", p. 190)
   - [S-001] "The first day of menstruation is day 1 and the preceding day is day −1; there is no day 0." (A1.1.1, note 2, p. 190; the text layer breaks "preceding" at a line end)
-- Notes: Relations: INV-087. For every cycle line, in whichever view it is shown (here, or in the patient-facing overview, INV-105): day 1 is the first menstruation day; the window runs from 2 days before to 2 days after day 1; a cycle that has not ended is shown to the end of the period its view covers; its attacks are shown in the same view and lie in the cycle. Every attack mark is an attack of exactly one cycle line shown in the same view, and it is marked as in the window exactly when its onset is a window day of a menstruation that its cycle line shows: day 1 to day 1 + 2 of its own cycle (days +1 to +3), or, for a cycle that has ended, its last two days, which are days −2 and −1 of the next menstruation. A cycle that has ended shows the first day of the next menstruation, the day after its last day, whether or not the next cycle is shown in the view (for example when it begins after the covered period). In this view: the cycles shown are exactly the cycles that overlap the covered period, consecutive and shown in the view; the first is the cycle in progress on the first day of the covered period, which may have begun before it, and the last reaches the last day of the covered period, so that every day of the covered period lies in a cycle shown; only the last cycle can be one that has not ended; `completeCycles` is the number of cycles that have ended and lie wholly within the period the view covers. Reading "complete cycles the view covers" as cycles that have ended and lie wholly within the covered period is the model's; a cycle that began before the covered period, or ends after it, is shown but not counted. Only the window of the criterion is shown; the frequency criterion ("in at least two out of three menstrual cycles") is a diagnostic criterion and is not applied by the view. A prospective diary is not mandatory for the clinical diagnosis of A1.1.1 and A1.1.2 (OUT-030 Caveats); the view states no diagnosis.
+- Notes: Relations: INV-087. For every cycle line, in whichever view it is shown (here, or in the patient-facing overview, INV-105): a line that shows its day 1 begins on it, and day 1 is its first menstruation day; its window runs from 2 days before to 2 days after day 1; a lead-in begins on the first day of the period its view covers and ends before every first day of menstruation shown in the same output; a line that has not ended is shown to the end of the period its view covers; a line that has ended shows the first day of the next menstruation, the day after its last day, whether or not the next cycle is shown in the view (for example when it begins after the covered period), and shows its own last two days, which are days −2 and −1 of that menstruation, as the window days of the next menstruation (`nextWindowDays`); its migraine days and attacks lie in the line, and its attacks are shown in the same view. So every day of a line that lies in the window of a menstruation the view shows is shown as a window day, in the window of its own day 1 or in `nextWindowDays`: this distinguishes the window for the migraine days of the line as well as for its attacks, including days −2 and −1 of a menstruation whose cycle is not shown. Every attack mark is an attack of exactly one cycle line shown in the same view, and it is marked as in the window exactly when its onset is a window day of a menstruation that its line shows: day 1 to day 1 + 2 of its own cycle (days +1 to +3), or, for a line that has ended, one of its `nextWindowDays`. In this view: the lines shown are exactly the lines that overlap the covered period, consecutive and shown in the view; the first is either the cycle in progress on the first day of the covered period, which may have begun before it, or a lead-in from that day; every later line shows its day 1; the last line reaches the last day of the covered period, so that every day of the covered period lies in a line shown; only the last line can be one that has not ended; `completeCycles` is the number of lines that show their day 1, have ended and lie wholly within the period the view covers. Reading "complete cycles the view covers" as cycles that have ended and lie wholly within the covered period is the model's; a cycle that began before the covered period, or ends after it, is shown but not counted, and a lead-in is never counted. A lead-in rests on the summarised diary information, as every value of the view does: it states that this information gives no first day of menstruation for its days. It therefore represents a covered period that begins before the subject's first menstruation, or before the first menstruation for which the diary information gives a first day, without a false date, as a lower day count represents missing diary days (E-032 Notes). It cannot remove a cycle from the view: it lies only at the start of the covered period, it ends before the earliest day 1 that the output shows, and every later line shows its day 1. Only the window of the criterion is shown; the frequency criterion ("in at least two out of three menstrual cycles") is a diagnostic criterion and is not applied by the view. A prospective diary is not mandatory for the clinical diagnosis of A1.1.1 and A1.1.2 (OUT-030 Caveats); the view states no diagnosis.
 
 ### E-061 AttackMark
 - Definition:
@@ -1554,11 +1571,11 @@ element AttackMark extends Item {
   inPerimenstrualWindow : 𝔹  derived MUST
 }
 ```
-- Meaning: A migraine attack shown by its onset date as an attack of a menstrual cycle shown in the same view (in the menstrual-relation view or the patient-facing overview), marked as inside or outside the perimenstrual window.
+- Meaning: A migraine attack shown by its onset date as an attack of a cycle line (a menstrual cycle or a lead-in, E-060) shown in the same view (in the menstrual-relation view or the patient-facing overview), marked as inside or outside the perimenstrual window of the menstruations that its line shows.
 - Conformance: MUST within E-060.
 - Realises: OUT-030
 - Evidence: Stage 1 OUT-030.
-- Notes: Relations: INV-087 (in every view in which an attack mark is shown, the mark is an attack of exactly one cycle line of that view, and it shows the attack as in the window exactly when its onset falls in the perimenstrual window of a menstruation that this cycle line shows: its own day 1, or, for a cycle that has ended, the next day 1).
+- Notes: Relations: INV-087 (in every view in which an attack mark is shown, the mark is an attack of exactly one cycle line of that view, and it shows the attack as in the window exactly when its onset falls in the perimenstrual window of a menstruation that this cycle line shows: its own day 1, or, for a line that has ended, the next day 1, whose window days within the line are its `nextWindowDays`). An attack in a lead-in is therefore in the window only on days −2 and −1 of the earliest day 1 that the view shows. The mark states nothing about the window of a menstruation whose first day the view does not show: one before the earliest day 1 that the view shows, which is possible only for an attack in a lead-in, or one after the last day of a line that has not ended.
 
 ### E-062 ClusterView
 - Definition:
@@ -1656,7 +1673,7 @@ element PatientOverview extends View { }
 - Conformance: SHOULD be available for patient, parent and caregiver audiences (INV-095); content SHOULD (INV-105).
 - Realises: OUT-035
 - Evidence: Stage 1 OUT-035.
-- Notes: Migraine days are included as OUT-035 states them; see ISS-03. The relationship to menstruation is shown by cycle lines (E-060) that overlap the covered period; INV-087 defines them in this view as in the menstrual-relation view, and every attack mark shown here is an attack of one of these cycle lines.
+- Notes: Migraine days are included as OUT-035 states them; see ISS-03. The relationship to menstruation is shown by cycle lines (E-060) that overlap the covered period; INV-087 defines them in this view as in the menstrual-relation view, and every attack mark shown here is an attack of one of these cycle lines. A cycle line of the overview may be a lead-in (E-060), for example in an overview of a week before an adolescent's first menstruation.
 
 ## 6. Invariants
 
@@ -1844,20 +1861,34 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 ```omn
 ∃ g ∈ MonthlyKind • ∀ c ∈ Ctx • c.granularity = g ⇒ reportedPerPeriod(c, ModerateSevereHeadacheDays, allTypes)
 ```
-- Reading: Days with headache of moderate or severe intensity are available per reporting period.
+- Reading: Days with headache of moderate or severe intensity are available per reporting period, per calendar month or per 28-day period.
 - Conformance: SHOULD. Scope: repertoire.
 - Realises: OUT-001, OUT-006
 - Evidence: Stage 1 OUT-001, OUT-006.
+- Notes: SHOULD is the level of OUT-006 for providing the measure at all. Wherever the diary provides it, its availability per calendar month or 28-day period is MUST (INV-108, OUT-001; section 3.4).
 
 ### INV-017 Attacks per reporting period
 - Predicate:
 ```omn
 ∃ g ∈ MonthlyKind • ∀ c ∈ Ctx • c.granularity = g ⇒ reportedPerPeriod(c, AttackCount, allTypes)
 ```
-- Reading: The number of attacks is available per reporting period, as a value of its own.
+- Reading: The number of attacks is available per reporting period, per calendar month or per 28-day period, as a value of its own.
 - Conformance: SHOULD. Scope: repertoire.
 - Realises: OUT-001, OUT-007
 - Evidence: Stage 1 OUT-001, OUT-007.
+- Notes: SHOULD is the level of OUT-007 for providing the measure at all. Wherever the diary provides it, its availability per calendar month or 28-day period is MUST (INV-108, OUT-001; section 3.4).
+
+### INV-108 Moderate/severe headache days and attacks per calendar month or 28-day period, where provided
+- Predicate:
+```omn
+∀ K ∈ {ModerateSevereHeadacheDays, AttackCount} • provides(K) ⇒
+  ∃ g ∈ MonthlyKind • ∀ c ∈ Ctx • c.granularity = g ⇒ reportedPerPeriod(c, K, allTypes)
+```
+- Reading: Wherever the diary provides moderate/severe headache days, they are available for every period of the selected time range per calendar month or per 28-day period (at least one of the two); the same holds for the number of attacks.
+- Conformance: MUST. Scope: repertoire.
+- Realises: OUT-001, OUT-006, OUT-007
+- Evidence: Stage 1 OUT-001 ("Frequency outputs MUST be available per calendar month or per 28-day (4-week) period"), OUT-009 ("frequency measures (OUT-004 to OUT-007)"), OUT-006, OUT-007.
+- Notes: The SHOULD of OUT-006 and OUT-007 governs whether the diary provides these measures at all (INV-016, INV-017); the MUST of OUT-001 governs their availability per calendar month or 28-day period once they are provided (section 3.4). Each measure may use its own monthly granularity. `provides(K)` is the "where provided" of section 3.5, as in INV-028, INV-037 and INV-057. The invariant is placed with INV-016 and INV-017, whose measures it concerns.
 
 ### INV-018 Intensity summary per reporting period
 - Predicate:
@@ -2034,18 +2065,18 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
   (∀ a ∈ daysOf(v, moderateSevereHeadacheDays, p, sc); b ∈ daysOf(v, headacheDays, p, sc) • a ≤ b) ∧
   (∀ a ∈ daysOf(v, headacheFreeDays, p, sc); b ∈ daysOf(v, headacheDays, p, sc) • a + b ≤ p.lengthDays) ∧
   (∀ a ∈ daysOf(v, symptomFreeDays, p, sc); b ∈ daysOf(v, headacheFreeDays, p, sc) • a ≤ b) ∧
-  (∀ u ∈ daysOf(v, migraineOrModerateSevereHeadacheDays, p, sc); a ∈ daysOf(v, migraineDays, p, sc);
-       b ∈ daysOf(v, moderateSevereHeadacheDays, p, sc) • a ≤ u ∧ b ≤ u ∧ u ≤ a + b) ∧
+  (labelledAs(v, migraineDaysMeasure, ihs2025MigraineDay) ⇒
+     ∀ u ∈ daysOf(v, migraineOrModerateSevereHeadacheDays, p, sc); a ∈ daysOf(v, migraineDays, p, sc) • a ≤ u) ∧
   (∀ n ∈ daysOf(v, migraineDays, p, sc) •
      (∃ mk ∈ v.content ∩ MigraineFreePeriodMark • mk.period = p ∧ mk.typeScope = sc) ⇒ n = 0) ∧
   ((∃ mk ∈ v.content ∩ MigraineFreePeriodMark • mk.typeScope = sc) ∧ 0 ∈ daysOf(v, migraineDays, p, sc) ⇒
      ∃ mk ∈ v.content ∩ MigraineFreePeriodMark • mk.period = p ∧ mk.typeScope = sc)
 ```
-- Reading: In one view, for the same period and scope: moderate/severe headache days do not exceed headache days; headache-free days and headache days together do not exceed the period length; symptom-free days do not exceed headache-free days; days with migraine or moderate-to-severe headache lie between the larger of the migraine-day and moderate/severe-day counts and their sum; a period marked as without migraine days shows no migraine days, and a view that marks such periods marks every period whose migraine-day count is 0.
+- Reading: In one view, for the same period and scope: moderate/severe headache days do not exceed headache days; headache-free days and headache days together do not exceed the period length; symptom-free days do not exceed headache-free days; where the view states that its migraine days follow the definition of a migraine day of the IHS position statement 2025, the days with migraine or moderate-to-severe headache, which rest on that definition, are not fewer than the migraine days; a period marked as without migraine days shows no migraine days, and a view that marks such periods marks every period whose migraine-day count is 0.
 - Conformance: definitional (E-017, E-018, E-020, E-021, E-022). Scope: output.
 - Realises: OUT-006, OUT-008, OUT-020
-- Evidence: Stage 1 OUT-008 (symptom-free days defined as "the days free of premonitory, aura, headache, and postdromal symptoms" [S-002]), OUT-006, OUT-020; [S-010] the count of E-018.
-- Notes: The relations are inequalities: days without diary information are neither headache days nor headache-free days, and the definitions say nothing about them. Migraine days are not related to headache days because published migraine-day definitions differ (OUT-002).
+- Evidence: Stage 1 OUT-008 (symptom-free days defined as "the days free of premonitory, aura, headache, and postdromal symptoms" [S-002]), OUT-006, OUT-020; OUT-002 Rationale ("There is no single universally adopted definition of a migraine day; different definitions give different numbers."); [S-010] the count of E-018 and the definition of a migraine day on which it rests, quoted in E-018.
+- Notes: The relations are inequalities: days without diary information are neither headache days nor headache-free days, and the definitions say nothing about them. Every relation compares counts whose definitions the output names and which are nested under them. A moderate/severe headache day is, under the published definitions, a day with headache, and so a headache day as ICHD-3 defines it (OUT-004, INV-009). A headache-free day has no headache. A symptom-free day is free of headache by the definition quoted in Stage 1 OUT-008. The mark of a period without migraine days refers to the migraine days shown in the same view. Migraine days are not related to headache days because published migraine-day definitions differ (OUT-002). For the same reason, migraine days are related to the count of E-018 only where the view's label states that they follow the definition of [S-010] on which that count rests (`labelledAs`, E-011). The count of E-018 is related neither to moderate/severe headache days nor to the sum of the two counts: [S-010] adopts no definition of a moderate-to-severe headache day, and the view's moderate/severe headache days follow the definition its label names (E-018 Notes).
 
 ### INV-032 Intensity values lie on their scale
 - Predicate:
@@ -2820,26 +2851,32 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 - Predicate:
 ```omn
 (∀ cl : CycleLine •
-   (¬ cl.complete ⇒ cl.cycle.to = viewOf(cl).covers.end) ∧
-   cl.firstDayOfMenstruation = cl.cycle.from ∧ cl.firstDayOfMenstruation = min cl.menstruationDays ∧
+   (¬ cl.complete ⇒ cl.cycle.to = viewOf(cl).covers.end ∧ cl.nextWindowDays = ∅) ∧
+   (cl.complete ⇒ cl.nextWindowDays =
+      {DateSpan(from ↦ max {plusDays(cl.cycle.to, 1 − windowDaysBefore), cl.cycle.from}, to ↦ cl.cycle.to)}) ∧
+   (cl.dayOneShown ⇒ cl.menstruationDays ≠ ∅ ∧ cl.cycle.from = min cl.menstruationDays ∧
+      cl.firstDayOfMenstruation = {cl.cycle.from} ∧
+      cl.perimenstrualWindow = {DateSpan(from ↦ plusDays(cl.cycle.from, − windowDaysBefore),
+                                         to ↦ plusDays(cl.cycle.from, windowDaysAfter))}) ∧
+   (¬ cl.dayOneShown ⇒ cl.cycle.from = viewOf(cl).covers.start ∧ cl.firstDayOfMenstruation = ∅ ∧ cl.perimenstrualWindow = ∅ ∧
+      ∀ cl₂ : CycleLine • ∀ d ∈ cl₂.firstDayOfMenstruation • cl.cycle.to < d) ∧
    (∀ d ∈ cl.menstruationDays • inSpan(d, cl.cycle)) ∧ (∀ d ∈ cl.migraineDays • inSpan(d, cl.cycle)) ∧
-   cl.perimenstrualWindow = DateSpan(from ↦ plusDays(cl.firstDayOfMenstruation, − windowDaysBefore),
-                                     to ↦ plusDays(cl.firstDayOfMenstruation, windowDaysAfter)) ∧
    ∀ a ∈ cl.attacks • a ∈ viewOf(cl).content ∧ inSpan(a.onset, cl.cycle)) ∧
 (∀ a : AttackMark • (∃₁ cl ∈ viewOf(a).content ∩ CycleLine • a ∈ cl.attacks) ∧
    (a.inPerimenstrualWindow ⇔ ∃ cl ∈ viewOf(a).content ∩ CycleLine • a ∈ cl.attacks ∧
-      (inSpan(a.onset, cl.perimenstrualWindow) ∨ (cl.complete ∧ plusDays(cl.cycle.to, 1 − windowDaysBefore) ≤ a.onset)))) ∧
+      ((∃ w ∈ cl.perimenstrualWindow • inSpan(a.onset, w)) ∨ (∃ w ∈ cl.nextWindowDays • inSpan(a.onset, w))))) ∧
 (∀ v : MenstrualRelationView • v.content ∩ CycleLine = ran v.cycles ∧
-   v.completeCycles = #{cl ∈ ran v.cycles | cl.complete ∧ v.covers.start ≤ cl.cycle.from ∧ cl.cycle.to ≤ v.covers.end} ∧
-   (∀ i ∈ dom v.cycles • i < #v.cycles ⇒ v.cycles(i).complete ∧ v.cycles(i + 1).cycle.from = next(v.cycles(i).cycle.to)) ∧
+   v.completeCycles = #{cl ∈ ran v.cycles | cl.dayOneShown ∧ cl.complete ∧ v.covers.start ≤ cl.cycle.from ∧ cl.cycle.to ≤ v.covers.end} ∧
+   (∀ i ∈ dom v.cycles • i < #v.cycles ⇒ v.cycles(i).complete ∧ v.cycles(i + 1).dayOneShown ∧
+      v.cycles(i + 1).cycle.from = next(v.cycles(i).cycle.to)) ∧
    (∀ cl ∈ ran v.cycles • cl.cycle.from ≤ v.covers.end ∧ v.covers.start ≤ cl.cycle.to) ∧
    first(v.cycles).cycle.from ≤ v.covers.start ∧ v.covers.end ≤ last(v.cycles).cycle.to)
 ```
-- Reading: Every cycle line, in whichever view it is shown, begins on its first day of menstruation (day 1), shows its menstruation days and migraine days within the cycle, and, if the cycle has not ended, is shown to the last day of the period its view covers. The perimenstrual window of a cycle runs from 2 days before to 2 days after day 1 (days −2 to +3, there being no day 0). The attacks of a cycle are shown in the same view and lie in the cycle. Every attack mark, in whichever view it is shown, is an attack of exactly one cycle line of that view, and it is marked as in the window exactly when its onset is a window day of a menstruation that this cycle line shows: one of days +1 to +3 of its own menstruation, or, if the cycle has ended, one of its last two days, which are days −2 and −1 of the next menstruation (whose day 1 is the day after the cycle's last day). The menstrual-relation view shows, as its own items and as its only cycle lines, the consecutive cycles that overlap its period: the first is the cycle in progress on the first day of the period, the last reaches the last day of the period, and every cycle except the last has ended. The number of complete cycles stated is the number of these cycles that have ended and lie wholly within the period the view covers.
+- Reading: Every cycle line, in whichever view it is shown, either begins on its first day of menstruation (day 1), which it shows, or is a lead-in: it begins on the first day of the period its view covers, shows no day 1 and no window of its own, and ends before every first day of menstruation that the output shows. A line shows its menstruation days and migraine days within the line, and, if it has not ended, is shown to the last day of the period its view covers. The perimenstrual window of a cycle runs from 2 days before to 2 days after day 1 (days −2 to +3, there being no day 0). A line that has ended (a cycle or a lead-in) shows its days that lie in the window of the next menstruation, whose day 1 is the day after its last day: its last two days, days −2 and −1 of that menstruation. The attacks of a line are shown in the same view and lie in the line. Every attack mark, in whichever view it is shown, is an attack of exactly one cycle line of that view, and it is marked as in the window exactly when its onset is a window day of a menstruation that this line shows: one of days +1 to +3 of its own menstruation, or, if the line has ended, one of days −2 and −1 of the next menstruation. The menstrual-relation view shows, as its own items and as its only cycle lines, the consecutive lines that overlap its period: the first is the cycle in progress on the first day of the period or a lead-in from that day, every later line shows its day 1, the last reaches the last day of the period, and every line except the last has ended. The number of complete cycles stated is the number of these lines that show their day 1, have ended and lie wholly within the period the view covers.
 - Conformance: definitional (E-060, E-061). Scope: output.
 - Realises: OUT-030, OUT-035
 - Evidence: Stage 1 OUT-030; OUT-035 ("where relevant, the relationship to menstruation"); [S-001] A1.1 quoted in E-060 (window "day 1 ± 2 (i.e. days −2 to +3)"; "The first day of menstruation is day 1 and the preceding day is day −1; there is no day 0").
-- Notes: The window of a menstruation begins two days before its day 1, in the previous cycle. An attack is therefore matched against the window of its own cycle's menstruation (its days +1 to +3) and, through the day after the last day of a cycle that has ended, against the window of the next menstruation (its days −2 and −1). This holds whether or not the next cycle is shown, for example when the next menstruation begins after the period the view covers, so that the mark of every attack shown is correct under ICHD-3 A1.1. `plusDays(cl.cycle.to, 1 − windowDaysBefore)` is day −2 of the next menstruation; the attack's onset lies in its cycle, so it is at most the cycle's last day (day −1). Because the cycles of the menstrual-relation view are exactly those that overlap its covered period, every day of the covered period lies in one of them, and the number of complete cycles does not depend on a choice of which cycles to show. The first cycle may begin before the covered period, and a cycle that has ended may end after it; neither is counted in `completeCycles`. The relations of the derived attributes (`firstDayOfMenstruation`, `perimenstrualWindow`, `inPerimenstrualWindow`) and the attachment of every attack mark to one cycle line hold in every view, including the patient-facing overview (INV-105); the structure of a sequence of cycles and `completeCycles` belong to the menstrual-relation view.
+- Notes: The window of a menstruation begins two days before its day 1, in the previous line. A line that has ended therefore shows, as `nextWindowDays`, its days that are days −2 and −1 of the next menstruation: `plusDays(cl.cycle.to, 1 − windowDaysBefore)` is day −2 of the next menstruation and `cl.cycle.to` is day −1; the span is cut at the first day of the line, so that it contains only days of the line. Migraine days and attacks are thus matched against the window of the line's own menstruation (its days +1 to +3) and against the window of the next menstruation (its days −2 and −1). This holds whether or not the next cycle is shown, for example when the next menstruation begins after the period the view covers, and for a lead-in that ends before the earliest day 1 the view shows, so that every window day of a menstruation that the view shows is distinguished, for the migraine days of a line as for its attacks, and the mark of every attack shown is correct under ICHD-3 A1.1. The attack's onset lies in its line, so an onset in `nextWindowDays` is one of the line's last two days. Because the lines of the menstrual-relation view are exactly those that overlap its covered period, every day of the covered period lies in one of them, and the number of complete cycles does not depend on a choice of which cycles to show. The first line may be a cycle that began before the covered period or a lead-in that begins on its first day; when the view shows no day 1 on or before the first day of the covered period (for example when the subject's first menstruation falls within it, or when the diary information gives no first day for the menstruation then in progress), the lead-in represents those days without a false date. A lead-in ends before every day 1 that the output shows, in this view or another, and every line after it shows its day 1, so it cannot remove a cycle whose day 1 the output shows, and it is not shown where the output shows a day 1 on or before the first day of the covered period. Neither a lead-in, nor a cycle that began before the covered period, nor one that ends after it is counted in `completeCycles`. When the view shows no day 1 up to the end of the covered period, its only line is a lead-in, and `completeCycles` is 0. The relations of the derived attributes (`firstDayOfMenstruation`, `perimenstrualWindow`, `nextWindowDays`, `inPerimenstrualWindow`), the rules for lead-ins and the attachment of every attack mark to one cycle line hold in every view, including the patient-facing overview (INV-105); the structure of a sequence of lines and `completeCycles` belong to the menstrual-relation view.
 
 ### INV-088 Cluster-headache view
 - Predicate:
@@ -3090,11 +3127,11 @@ ctx.subject.ageGroup = childOrAdolescent ⇒ ∀ v : View • annotated(v, suppo
      ∃ x ∈ v.content • x ∈ ResponseComparison ∪ AcuteTreatmentSummary) ∧
   (ctx.subject.menstruates ⇒ ∃ cl ∈ v.content ∩ CycleLine • cl.cycle.from ≤ v.covers.end ∧ v.covers.start ≤ cl.cycle.to)
 ```
-- Reading: The patient-facing overview, in plain language, shows the patient's headache pattern over time (headache days, migraine days, intensity and acute-medication days for every period of a series spanning its period), the effect of the patient's treatment where the patient has a preventive treatment that has started or uses acute medication, and, for patients who menstruate, the relationship to menstruation: a menstrual cycle that overlaps the period the overview covers.
+- Reading: The patient-facing overview, in plain language, shows the patient's headache pattern over time (headache days, migraine days, intensity and acute-medication days for every period of a series spanning its period), the effect of the patient's treatment where the patient has a preventive treatment that has started or uses acute medication, and, for patients who menstruate, the relationship to menstruation: a cycle line that overlaps the period the overview covers, which is a lead-in (E-060) where the overview shows no first day of menstruation on or before the first day of that period.
 - Conformance: SHOULD. Scope: output.
 - Realises: OUT-035
 - Evidence: Stage 1 OUT-035.
-- Notes: Migraine days are included as OUT-035 names them, without the OUT-005 condition; see ISS-03. A period need not contain the first day of a menstruation (for example a single calendar week), so the cycle line is required to overlap the covered period, as the cycles of the menstrual-relation view do (INV-087), not to begin in it; INV-087 also defines the cycle line in this view and requires every attack mark shown in it to be an attack of one of its cycle lines, so that the window marks of the overview are correct for every attack it marks. The effect of a preventive treatment is shown by a response comparison, which exists only for a treatment that has started (INV-056).
+- Notes: Migraine days are included as OUT-035 names them, without the OUT-005 condition; see ISS-03. A period need not contain the first day of a menstruation (for example a single calendar week), so the cycle line is required to overlap the covered period, as the cycles of the menstrual-relation view do (INV-087), not to begin in it; INV-087 also defines the cycle line in this view and requires every attack mark shown in it to be an attack of one of its cycle lines, so that the window marks of the overview are correct for every attack it marks. A covered period need not contain, or follow, any first day of menstruation that the overview can show (for example a week before an adolescent's first menstruation); the cycle line is then a lead-in (E-060, INV-087), so this conjunct can be met without a false date. The effect of a preventive treatment is shown by a response comparison, which exists only for a treatment that has started (INV-056).
 
 ### 6.12 Decisions left to the reader
 
@@ -3126,13 +3163,13 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with the 
 
 | Requirement | Elements | Invariants | Coverage and reason |
 |---|---|---|---|
-| OUT-001 | E-002, E-003, E-005, E-006, E-007, E-012, E-015, E-016, E-037, E-043 | INV-001, INV-002, INV-003, INV-004, INV-005, INV-014, INV-015, INV-016, INV-017, INV-037, INV-038, INV-055 | full — every view states its reporting period with start, end and length (E-003, E-005, INV-002, INV-003); frequency outputs per calendar month or 28-day period (INV-014 to INV-017); comparison of selected equal-length periods and of baseline and on-treatment periods of equal length (INV-037, INV-055); the stated length makes the days of each calendar month visible (Caveat). |
+| OUT-001 | E-002, E-003, E-005, E-006, E-007, E-012, E-015, E-016, E-017, E-019, E-037, E-043 | INV-001, INV-002, INV-003, INV-004, INV-005, INV-014, INV-015, INV-016, INV-017, INV-037, INV-038, INV-055, INV-108 | full — every view states its reporting period with start, end and length (E-003, E-005, INV-002, INV-003); frequency outputs, read as the frequency measures of OUT-004 to OUT-007 (section 3.4), per calendar month or 28-day period at MUST: headache days, migraine days for patients with migraine (INV-014, INV-015), and moderate/severe headache days and attacks wherever the diary provides them (INV-108), whose provision at all keeps the SHOULD of OUT-006 and OUT-007 (INV-016, INV-017); comparison of selected equal-length periods and of baseline and on-treatment periods of equal length (INV-037, INV-055); the stated length makes the days of each calendar month visible (Caveat). |
 | OUT-002 | E-011, E-015, E-016, E-017, E-019 | INV-008 | full — a definition label for each defined measure shown in a view (E-011, INV-008). |
 | OUT-003 | E-001, E-013 | INV-011, INV-012, INV-013 | full — completeness indicator for each period, next to the summary measures, as covered days or proportion (E-013, INV-011, INV-012); no cut-off presented as validated (INV-013). |
 | OUT-004 | E-006, E-007, E-011, E-014, E-015 | INV-001, INV-004, INV-005, INV-006, INV-009, INV-014 | full — per period for every period of the selected time range (INV-014), ICHD-3 definition (E-015, INV-009). |
 | OUT-005 | E-008, E-009, E-011, E-014, E-016 | INV-005, INV-008, INV-015 | full — per period for patients with migraine (INV-015); definition label SHOULD (INV-008). |
-| OUT-006 | E-011, E-014, E-017 | INV-005, INV-008, INV-016, INV-031 | full — per period (INV-016) with definition label (INV-008). |
-| OUT-007 | E-011, E-019 | INV-006, INV-008, INV-010, INV-017 | full — separate element type (E-019), per period (INV-017), ICHD-3 definition label (INV-010). |
+| OUT-006 | E-011, E-014, E-017 | INV-005, INV-008, INV-016, INV-031, INV-108 | full — per period (INV-016), per calendar month or 28-day period wherever provided, at the MUST of OUT-001 (INV-108), with definition label (INV-008); not more than headache days (INV-031). |
+| OUT-007 | E-011, E-019 | INV-006, INV-008, INV-010, INV-017, INV-108 | full — separate element type (E-019), per period (INV-017), per calendar month or 28-day period wherever provided, at the MUST of OUT-001 (INV-108), ICHD-3 definition label (INV-010). |
 | OUT-008 | E-010, E-014, E-020, E-021, E-022 | INV-005, INV-031 | full — the three exploratory measures as MAY elements (E-020 to E-022), optional exploratory annotation (E-010), relations (INV-031). |
 | OUT-009 | E-006, E-007, E-008, E-034, E-035 | INV-001, INV-004, INV-034, INV-035, INV-036 | full — time series of consecutive periods with markers for start, dose change and stop (E-034, E-035, INV-034 to INV-036); weekly values where weekly granularity is relevant (INV-034, INV-001). The purpose ("so that onset of effect [...] can be seen") is stated in the Meaning. |
 | OUT-010 | E-023, E-037 | INV-018, INV-032, INV-039 | full — per period on a stated scale (E-023, INV-018), comparison between periods (INV-039; for children and adolescents between selected periods of equal length, as OUT-036 (c) requires), relations (INV-032). |
@@ -3145,7 +3182,7 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with the 
 | OUT-017 | E-008, E-010, E-039 | INV-007, INV-049, INV-050, INV-051, INV-052 | full — from the start of withdrawal, with the NICE 4–8-week window and continued over the following year (E-039, INV-049 to INV-051); worsening label (INV-052). |
 | OUT-018 | E-001, E-008, E-040, E-041, E-042, E-043, E-045 | INV-001, INV-053, INV-054, INV-055, INV-056, INV-057, INV-058, INV-059, INV-106 | full — per preventive treatment, a baseline month and monthly on-treatment periods aligned to the start, so that monthly migraine days and monthly headache days are compared, with the values of each period and the absolute and percentage change (E-040, E-043, INV-053 to INV-057); evaluation time points of current guidance by treatment type, shown with the comparison, and a comparison of equal-length periods at every time point that has been reached and that a monthly on-treatment period can reach (E-041, E-042, INV-055, INV-058, INV-059), every preventive treatment having a guidance type and no course event preceding the treatment start (INV-001); the Caveat that the output does not itself decide on continuation (E-001, INV-106). The time points are those named in the Stage 1 evidence of OUT-018 (NICE CG150, AAN/AHS 2026, SIGN 155, EHF 2022, IHS 2024, NVN and the Russian clinical recommendations); see ISS-03 on migraine days. |
 | OUT-019 | E-040, E-044 | INV-060, INV-061, INV-062 | full — residual migraine days and moderate/severe headache days per month next to every percentage change (E-044, INV-060, INV-061); see ISS-05. |
-| OUT-020 | E-001, E-008, E-014, E-018, E-040, E-045, E-046, E-058 | INV-031, INV-054, INV-062, INV-063, INV-064, INV-065, INV-100, INV-106 | full — optional label (E-046) naming its criterion with thresholds (E-045, INV-062), with underlying values and, where they are available (OUT-026, OUT-023), the other values the criterion rests on (INV-062), consistent with the components of the criterion that the values shown decide, reduction components for a label over a single on-treatment period (INV-063, INV-064), not the sole indicator (INV-065); no automatic verdict on continuation (INV-106); see ISS-08. |
+| OUT-020 | E-001, E-008, E-014, E-018, E-040, E-045, E-046, E-058 | INV-031, INV-054, INV-062, INV-063, INV-064, INV-065, INV-100, INV-106 | full — optional label (E-046) naming its criterion with thresholds (E-045, INV-062), with underlying values and, where they are available (OUT-026, OUT-023), the other values the criterion rests on (INV-062), consistent with the components of the criterion that the values shown decide, reduction components for a label over a single on-treatment period (INV-063, INV-064), not the sole indicator (INV-065); no automatic verdict on continuation (INV-106); the count on which the IHS 2025 control levels rest follows the definition of a migraine day that [S-010] adopts (E-018) and is related to the migraine days of a view only where the view's label names that definition (INV-031); see ISS-08. |
 | OUT-021 | E-023, E-025, E-026, E-048, E-051, E-058 | INV-068, INV-069, INV-071, INV-102 | full — MUST components for the same periods: headache days, migraine days (for patients with migraine) and the acute-medication days of OUT-014 in total, per ICHD-3 8.2 class and per drug (E-048, INV-068, INV-102); SHOULD components where provided, including acute-treatment effectiveness per period and the most recent results of every instrument whose results are available, PGIC and other validated instruments included (INV-069, INV-071). The patient's own goals are brought by the reader (E-048 Notes). |
 | OUT-022 | E-008, E-049 | INV-070, INV-103 | full — after stop, pause or reduction, headache and migraine days shown with the on-treatment period (whenever the event falls after the start day) and the original baseline (E-049, INV-070, INV-103); see ISS-03. |
 | OUT-023 | E-001, E-008, E-050, E-051, E-052, E-053 | INV-069, INV-071, INV-072, INV-073, INV-074, INV-075, INV-107 | full — per acute medication and per formulation, all named outcome measures including relief, non-pain symptoms and adverse events, consistency across consecutive treated attacks (every summarised attack listed in order with the result of every outcome measure), timing of intake, 15 minutes for cluster headache, separate baseline and on-treatment summaries (E-050 to E-053, INV-071 to INV-075); the Caveat that the output does not itself decide which definition of response applies (E-001, INV-107). |
@@ -3156,12 +3193,12 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with the 
 | OUT-027 | E-014, E-030, E-037 | INV-005, INV-026, INV-027, INV-033 | full — days affected per domain and days with severe impairment per period (E-030, INV-026), comparison of both with the baseline period (INV-027), relations (INV-033). |
 | OUT-028 | E-001, E-006, E-009, E-011, E-038 | INV-008, INV-040, INV-041, INV-042, INV-043 | full — three most recent consecutive monthly periods with headache and migraine days (E-038, INV-040, INV-041); source definitions and codes SHOULD (INV-042); no diagnosis SHOULD NOT (INV-043); see ISS-03. |
 | OUT-029 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-028, INV-029, INV-030 | full — frequency outputs and acute-medication days (total, per ICHD-3 8.2 class and per drug) per headache type and combined when more than one type is possible (INV-028), intensity per type where provided (INV-029), relations (INV-030); see ISS-09 on the weekly view and the overuse indicator. |
-| OUT-030 | E-008, E-060, E-061 | INV-086, INV-087 | full — migraine attacks and days in relation to menstruation across consecutive cycles, which are exactly the cycles that overlap the covered period (E-060, INV-086, INV-087); ICHD-3 A1.1 window distinguished for every attack shown, including days −2 and −1 of a menstruation whose cycle is not shown, every attack mark being an attack of one cycle line of its view (E-061, INV-087); number of complete cycles defined over these cycles (E-060, INV-087); the relations of a cycle line and an attack mark hold in every view that shows them (INV-087). |
+| OUT-030 | E-008, E-060, E-061 | INV-086, INV-087 | full — migraine attacks and days in relation to menstruation across consecutive cycles, which are exactly the cycles that overlap the covered period, preceded by a lead-in from its first day when the view shows no first day of menstruation on or before that day, so that every covered period has a view without a false date, also when it begins before the subject's first menstruation (E-060, INV-086, INV-087); ICHD-3 A1.1 window distinguished for every migraine day and every attack shown, including days −2 and −1 of a menstruation whose cycle is not shown, which a line that has ended shows as `nextWindowDays`, every attack mark being an attack of one cycle line of its view (E-060, E-061, INV-087); number of complete cycles defined over these cycles, a lead-in never counted (E-060, INV-087); the relations of a cycle line and an attack mark hold in every view that shows them (INV-087). |
 | OUT-031 | E-008, E-009, E-050, E-051, E-052, E-062, E-063, E-064 | INV-072, INV-073, INV-088, INV-089 | full — bouts and remissions with start, end and duration under the ICHD-3 definitions, attacks per day and per week in active periods, acute effectiveness at 15 minutes and rescue need, history of previous bouts as the chronological bout list (E-062 to E-064, INV-088, INV-089). |
 | OUT-032 | E-010, E-065 | INV-007, INV-090, INV-100 | full — MAY view (E-065) with the two caveats SHOULD (INV-090) and the clinical-interpretation caveat (INV-100). |
 | OUT-033 | E-001, E-008, E-059 | INV-083, INV-084, INV-085 | full — screening results where available with name, date and score next to headache outputs (E-059, INV-083, INV-085); not psychiatric diagnoses (INV-084). |
 | OUT-034 | E-003, E-007, E-035, E-058, E-066 | INV-011, INV-094, INV-104 | full — concise clinician-facing summary for the chosen period and the period since the previous consultation, with all named components (E-066, INV-094, INV-104), including the time course of every frequency measure of OUT-004 to OUT-007 over all whole periods within the covered period (monthly whenever the covered period has at least 28 days, otherwise weekly where it contains a whole week), the medication-overuse indicators of every monthly period of that time course, acute-medication days for every whole calendar week within the covered period, the OUT-008 measures with periods without migraine days, and days with severe functional impairment; shareable represented by availability for clinician audiences; see ISS-04. |
-| OUT-035 | E-003, E-007, E-023, E-035, E-060, E-067 | INV-087, INV-095, INV-105 | full — plain-language patient overview over time with the named components (E-067, INV-095, INV-105): treatment effect where a preventive treatment has started or acute medication is used, and, for patients who menstruate, a menstrual cycle that overlaps the covered period, defined as in the menstrual-relation view, with every attack mark shown attached to a cycle line and correctly marked (INV-087); see ISS-03. |
+| OUT-035 | E-003, E-007, E-023, E-035, E-060, E-067 | INV-087, INV-095, INV-105 | full — plain-language patient overview over time with the named components (E-067, INV-095, INV-105): treatment effect where a preventive treatment has started or acute medication is used, and, for patients who menstruate, a cycle line that overlaps the covered period (a lead-in where the overview shows no first day of menstruation on or before its first day), defined as in the menstrual-relation view, with the window days of every migraine day and attack distinguished and every attack mark shown attached to a cycle line and correctly marked (INV-087); see ISS-03. |
 | OUT-036 | E-007, E-008, E-010, E-030, E-031, E-037, E-040, E-043, E-048, E-049, E-057, E-058 | INV-033, INV-055, INV-082, INV-096, INV-097, INV-098 | full — (a) PedMIDAS with 3-month recall and (b) school days and caregiver impact (INV-096); (c) equal-length comparisons in every comparison of periods: period comparisons, response comparisons, the treatment review view, the post-stop monitoring view and every change from a reference period (E-037, E-040, E-043, E-048, E-049, INV-097); (d) efficacy from diary data by the response comparison, available for every subject (E-043, INV-055); supportive-information caveat (INV-098). |
 | OUT-037 | E-008, E-009, E-010, E-012, E-033 | INV-007, INV-091, INV-092, INV-093 | full — for migraine no primary composite index (INV-091), exploratory label and components if shown (INV-092); AUC for tension-type headache with headache days (INV-093) (E-033). |
 | OUT-038 | E-001, E-002, E-003, E-004, E-010, E-032, E-038, E-046, E-059, E-065 | INV-007, INV-043, INV-084, INV-099, INV-100, INV-101 | full — caveats on every view (INV-099); clinical-interpretation caveat on the overuse indicator, responder labels and trigger associations (INV-100); no output presented as replacing clinical assessment or as a diagnosis (INV-101). |
@@ -3187,10 +3224,10 @@ The model follows Stage 1 in each case below. Each issue is pointed to from the 
 - Effect on the model: by the reference rule of section 3.5, components that refer to OUT-005 by ID keep its condition (INV-035, INV-068, INV-104). Components named without the reference are modelled as stated, without the condition (INV-040, INV-056, INV-070, INV-105). For a subject without migraine (for example a preventive treatment for tension-type headache), these outputs show migraine days that are all 0.
 - For the human: decide whether migraine-day components of OUT-018, OUT-022, OUT-028 and OUT-035 apply only to patients who have (or, for OUT-028, may have) migraine.
 
-### ISS-04 The clinician-facing summary includes MAY measures at SHOULD level
-- Stage 1: OUT-034 (SHOULD) brings together "frequency measures and their time course (OUT-004 to OUT-009)". The range includes OUT-008 (headache-free days, symptom-free days, periods without migraine days), which is MAY in its own requirement.
-- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free days, symptom-free days and the marks of periods without migraine days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034.
-- For the human: decide whether OUT-034 means OUT-008 measures "where provided".
+### ISS-04 The clinician-facing summary includes MAY measures at SHOULD level, and the frequency outputs of OUT-001
+- Stage 1: OUT-034 (SHOULD) brings together "frequency measures and their time course (OUT-004 to OUT-009)". The range includes OUT-008 (headache-free days, symptom-free days, periods without migraine days), which is MAY in its own requirement. OUT-009 instead names "frequency measures (OUT-004 to OUT-007)", and OUT-008 calls its own measures "exploratory measures of residual burden". OUT-001 (MUST) requires "Frequency outputs" to be available per calendar month or per 28-day period without saying which outputs these are.
+- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free days, symptom-free days and the marks of periods without migraine days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034. The frequency outputs of OUT-001 are read as the frequency measures of OUT-004 to OUT-007, as OUT-009 names them (section 3.4). So the MUST of OUT-001 makes headache days, migraine days for patients with migraine, and, where provided, moderate/severe headache days and attacks available per calendar month or 28-day period (INV-014, INV-015, INV-108). It does not do so for the OUT-008 measures or for the aura counts of OUT-013, which keep "per reporting period" at MAY.
+- For the human: decide whether OUT-034 means OUT-008 measures "where provided"; and whether the frequency outputs of OUT-001 also include the OUT-008 measures (and the aura counts of OUT-013), which would make their availability per calendar month or 28-day period MUST wherever the diary provides them.
 
 ### ISS-05 OUT-019 and the single count of the IHS position statement 2025
 - Stage 1: OUT-019 asks for "the absolute number of migraine days and moderate/severe headache days per month that remain on treatment", citing [S-010]. OUT-020 names the "IHS position statement 2025 control levels" as a criterion.
@@ -3222,7 +3259,7 @@ No output was found in the Stage 2 research that EBM supports and Stage 1 lacks.
 
 ## 9. Withdrawn elements
 
-No element (E-NNN) or invariant (INV-NNN) has been withdrawn (as of v03). One Stage 1 issue of section 8 has been withdrawn and is listed here so that its ID is not reused:
+No element (E-NNN) or invariant (INV-NNN) has been withdrawn (as of v04). One Stage 1 issue of section 8 has been withdrawn and is listed here so that its ID is not reused:
 
 | ID | Name | Withdrawn in iteration | Reason |
 |---|---|---|---|
@@ -3265,6 +3302,12 @@ Iteration 02 (fix, 2026-10-21): no new searches and no new source; the iteration
 
 Iteration 03 (fix, 2026-10-21): no new searches and no new source. To verify the review remarks, the Stage 1 URL of [S-001] (ICHD-3 PDF, 211 pages, HTTP 200) was downloaded again with `curl` into a fresh directory under `/tmp`, outside the repository, and pages 122–125 and 190 were extracted with `pdftotext`. The full 8.2.3 comment on cumulative use of non-opioid analgesics (p. 123), quoted in INV-046, was checked by script and is verbatim apart from line-end breaks in the text layer; 8.2.6 criterion B and note 2 (pp. 124–125), 8.2 note 2 (p. 122) and the A1.1.1 window and note 2 (p. 190) read as quoted in E-028, Stage 1 OUT-016 and E-060. No source was found or searched for the response categories of PGIC: the model leaves its grading to the version used, as for MSQ v2.1 and M-TOQ (row "MSQ v2.1, M-TOQ, PGIC" above; E-057).
 
+Iteration 04 (fix, 2026-10-21): no new searches and no new source. To verify the review remarks, the following were downloaded again with `curl` into a fresh directory under `/tmp`, outside the repository, and extracted with `pdftotext` (`-raw` and `-layout`): the Stage 1 URLs of [S-010] (univaq PDF, HTTP 200, 11 pages), [S-002] and [S-003] (ihs-headache.org PDFs, HTTP 200), [S-008] (univaq PDF, HTTP 200) and [S-001] (ICHD-3 PDF, HTTP 200).
+- [S-010], section "Setting goals of migraine burden while on treatment", p. 6. The paragraph directly after the four control levels states that their assessment requires a definition of migraine day and that the panel adopts three definitions of its own. The next paragraph includes moderate-to-severe headache days "as a proxy of migraine days". The two sentences quoted in E-018 were checked by script, with line-end breaks and the "ﬁ" ligature normalised.
+- [S-002] sections 1.3.1.1 and 1.3.1.2 (p. 1035) and [S-001] 1.1 criteria C and D (p. 19) define migraine days differently from [S-010], which confirms that the definitions count different days (INV-031).
+- [S-008] states no definition of a migraine day of its own (text searched for "migraine day" near "defin").
+- The [S-001] A1.1.1 window and note 2 (p. 190) read as quoted in E-060.
+
 ## 12. Change log
 
 - v00 (iteration 00, 2026-10-21): Initial draft by the author. Notation OMN defined (section 2). 67 elements (E-001 to E-067) and 105 invariants (INV-001 to INV-105) realising all 39 Stage 1 requirements, each traced with full coverage (section 7). Thresholds, reference levels, offsets and score bands that are part of the output data are stated with verbatim quotes: ICHD-3 codes, the 8.2 reference levels and time span, the A1.1 perimenstrual window and the remission duration ([S-001]); the IHS Q6 thresholds ([S-008]) and IHS 2025 control levels ([S-010]); HALT recall, units and grading ([S-014]); HIT-6, MIDAS, PedMIDAS, HADS, PHQ-9 and GAD-7 value sets (new sources S-101 to S-105). Eight Stage 1 issues listed (ISS-01 to ISS-08). Mechanical checks run by script (IDs, references, declared names, attribute selections, traceability, conformance levels against Stage 1 statement strength).
@@ -3302,3 +3345,9 @@ Iteration 03 (fix, 2026-10-21): no new searches and no new source. To verify the
   - R03-07: `publishedGrading(pgic)` removed from the E-057 axiom; PGIC is treated like MSQ v2.1 and M-TOQ (E-057 Notes; OUT-026 row).
   - Other changes: INV-050 ties the covered period of the withdrawal follow-up view to its series, as INV-035, INV-041 and INV-105 do for the other series views (the R03-04 kind of defect); `otherScreeningInstrument` takes a name other than HADS, PHQ-9 and GAD-7 (E-059), as `otherInstrument` does; ISS-06 extended to other instruments without a total score.
   - Totals: 67 elements (E-001 to E-067) and 107 invariants (INV-001 to INV-107), no element or invariant withdrawn; levels unchanged (MUST 18, MUST NOT 2, SHOULD 47, SHOULD NOT 8, definitional 32); no new source.
+- v04 (iteration 04, 2026-10-21): Fix of review iteration 04 (4 remarks; fixes/fix-iter-04.md), with a satisfiability pass over the changed invariants and attributes and over those that constrain the same elements and views.
+  - R04-01: a cycle line may be a *lead-in* (new `CycleLine.dayOneShown`, E-060). A lead-in begins on the first day of the covered period, shows no day 1 and no window of its own, ends before every first day of menstruation that the output shows, and is never counted. Only the first line of a menstrual-relation view can be a lead-in, and every later line shows its day 1. `menstruationDays` is `set`, and `firstDayOfMenstruation` and `perimenstrualWindow` are MUST only in a line that shows its day 1. This gives every covered period a menstrual-relation view and an overview cycle line without a false date, including one that begins before the subject's first menstruation. INV-087 (predicate, Reading, Notes); E-060 Meaning, Conformance and Notes; E-061 Meaning and Notes; E-067 and INV-105 Reading and Notes; OUT-030 and OUT-035 rows.
+  - R04-02: new INV-108 (MUST) makes moderate/severe headache days and attack counts available per calendar month or 28-day period for every period of the selected time range, wherever the diary provides them (OUT-001). INV-016 and INV-017 keep the SHOULD of OUT-006 and OUT-007. Section 3.4 states the reading of the "Frequency outputs" of OUT-001 (the frequency measures of OUT-004 to OUT-007), and ISS-04 records it for the human. E-017 and E-019 Conformance and Realises (+OUT-001); INV-016 and INV-017 Reading and Notes; E-027 Notes; OUT-001, OUT-006 and OUT-007 rows.
+  - R04-03: E-018 states that its count follows the definitions of a migraine day that the IHS position statement 2025 adopts, citing two new [S-010] quotes (p. 6). INV-031 relates migraine days to that count only where the view's label names that definition (new `ihs2025MigraineDay` and `labelledAs`, E-011). It no longer relates the count to moderate/severe headache days or to the sum of the two counts. E-016 Notes; INV-031 Reading, Evidence and Notes; OUT-020 row.
+  - R04-04: new `CycleLine.nextWindowDays` (derived, MUST in every line that has ended) shows days −2 and −1 of the next menstruation within the line, so the window is distinguished for migraine days as well as for attacks, also where the next cycle is not shown. The in-window relation of attack marks now uses it (equivalent to v03 for lines that show their day 1). INV-087; E-060; OUT-030 and OUT-035 rows.
+  - Totals: 67 elements (E-001 to E-067) and 108 invariants (INV-001 to INV-108), no element or invariant withdrawn; levels MUST 19, MUST NOT 2, SHOULD 47, SHOULD NOT 8, definitional 32; no new source (two new quotes from the Stage 1 source S-010).
