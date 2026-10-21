@@ -26,17 +26,18 @@ The following must **not** appear anywhere in text written for this stage: the m
 1. **Input data**: what is entered or recorded, data fields, data-entry questions, how often data is entered, reminders, the data-entry interface. The model has no input entities: no "entry", "record", "log item", "questionnaire answer" or similar types, and no element is described as entered, recorded or captured.
 2. **Storage format**: persistence, databases, tables as storage, files, record or file layouts, serialization or exchange formats (for example JSON, XML, CSV, HL7 FHIR), encodings, storage keys or identifiers that exist only for storage, versioning of stored records, retention.
 3. **Derivation rules**: any function `f(input) -> output`, such as algorithms, formulas, counting procedures, decision logic, or thresholds applied to recorded data. In the model this also excludes:
-   - derived-attribute expressions (for example "/value = ...", "derive:", "computed as", "= count of ...");
-   - equations or procedures that compute one output element from others;
-   - thresholds or criteria that turn values into categories, flags, grades or labels;
-   - restating classification criteria or instrument scoring rules.
+   - any expression that refers to input or recorded data, or that describes how an output value is obtained from it (for example "= number of recorded days with ...");
+   - procedures and algorithms;
+   - restated classification criteria or instrument scoring rules, and thresholds applied to patient data (for example the ICHD-3 criteria behind code 8.2, or how an instrument's items are scored).
+
+   Abstract relations between output elements are allowed (see "Invariants" below).
 
 How to stay in scope:
 
 - **The model describes what a reader is shown**, never where the shown information comes from or how it is obtained. An output may list individual attacks, days or treatments (for example a per-attack line of OUT-023 or a treatment line of OUT-024). Model such a line as an output item defined by what it shows, not as a recorded event.
 - **The model is an abstract information model of outputs, not a storage or exchange schema.** Stage 1 excluded "data models" as a storage format. That exclusion still holds for anything that models storage. The Stage 2 model is a different thing: a representation-independent specification of output content.
 - **Value sets defined by a standard are named, not derived.** When a standard or validated instrument defines a category, code, grade or score (ICHD-3 codes, MIDAS grades, HIT-6 categories, the perimenstrual window of ICHD-3 A1.1), the model names the standard, its section or code, and lists the value set: the category labels exactly as the source names them, or the score range and unit. It does not give the cut-offs, criteria or scoring that assign a value.
-- **Invariants are well-formedness constraints on outputs.** They state what holds in every valid output. Examples:
+- **Invariants are constraints on outputs.** They state what holds in every valid output. Examples:
   - a value lies in its domain;
   - a period does not end before it starts;
   - every measure states the reporting period it refers to;
@@ -45,7 +46,13 @@ How to stay in scope:
   - a label or caveat is present whenever the element it qualifies is shown;
   - a relative change is shown together with the absolute values it compares.
 
-  An invariant never says how a measure is obtained. An equation that defines a reported measure in terms of other values counts as a derivation rule and is out of scope. Examples are headache-free days as period length minus headache days, a percentage change written as a formula, or a total written as a sum. Consistency constraints between the structural attributes of an output are allowed, for example that a period's stated length agrees with its stated start and end dates.
+  **Abstract relations between output elements are allowed**, including equalities and arithmetic. Examples:
+  - a percentage change shown in an output agrees with the absolute change and the baseline value shown with it;
+  - a total across drug classes is related to the per-class values it summarises;
+  - a period's stated length agrees with its stated start and end dates.
+
+  Such a relation may mention only elements of the output model. It must not mention input or recorded data, and it must not describe a procedure for obtaining a value. A relation must be correct under the definitions the output names: for example, it must not assume something about missing diary days that the definitions do not state.
+- **Computed (derived) fields that an output shows are part of the output data and must be in the model.** Examples are a change from baseline (absolute and percentage), a total across drug classes, a proportion of days, a per-period average or median, or an instrument's total score and category. Each is modelled as an element with its type, unit and conformance. It may be marked as derived in the notation, with its abstract relation to the other output elements it depends on.
 - **Conditions of applicability** (for example "for patients with migraine", "for patients who menstruate", "where results of validated instruments are available") are stated as Stage 1 states them, as properties of the output's subject, audience or context. They must not become decision logic over recorded data.
 - **Presentation properties** that Stage 1 requires are in scope: a time series of consecutive periods, a weekly view, co-presence of elements in one view, plain-language wording, labels, captions, caveats. They are modelled abstractly, as views and the elements they must contain together. They are not modelled as screen layouts.
 - **Technical delivery formats** (file formats, interoperability standards) stay out of scope unless a clinical source explicitly requires them.
@@ -61,6 +68,7 @@ How to stay in scope:
   - tagged variants;
   - optionality and multiplicity;
   - references between elements;
+  - derived (computed) elements and their abstract relations to other output elements;
   - invariants written as predicates (for example in first-order logic).
 - A notation from a formal specification language (for example a subset of Z, Alloy or VDM) is acceptable when its subset is defined in the document. Programming, database, schema or serialization languages are not acceptable: SQL, JSON Schema, XML Schema, Protobuf, FHIR profiles, class code and the like.
 - Once the notation is defined, it is stable. A wish for a different notation is a style preference, not a remark. Only a defect counts as a remark: undefined syntax, ambiguous semantics, or an inability to express what Stage 1 requires.
@@ -165,13 +173,19 @@ The orchestrator may stop the loop after 32 iterations if it has not converged, 
 
 Raise only issues that require a change:
 
-- **Scope violation** (section 2). This includes derived-attribute expressions, formulas, thresholds, decision logic and restated classification criteria or scoring rules.
+- **Scope violation** (section 2). This includes:
+  - expressions over input or recorded data;
+  - procedures for obtaining a value;
+  - thresholds applied to patient data and decision logic;
+  - restated classification criteria or scoring rules.
+
+  Abstract relations between output elements are not a scope violation.
 - **Infidelity to Stage 1**:
   - an element or invariant contradicts, narrows or broadens a Stage 1 requirement;
   - a conformance level does not match the Stage 1 strength (section 4);
   - an applicability condition is wrong.
 - **Coverage gap**:
-  - a Stage 1 requirement, or an observable property in its Statement, has no representation in the model;
+  - a Stage 1 requirement, or an observable property in its Statement, has no representation in the model, including a computed field that an output shows;
   - the traceability table is wrong or incomplete.
 - **Unsupported element**: an element, attribute, value or invariant that traces to no Stage 1 requirement and has no cited evidence.
 - **Factual error** compared with the source, in a value set, unit, range, code, category label, instrument name or version, or standard reference.
