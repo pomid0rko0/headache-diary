@@ -1,5 +1,5 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v00 · Iteration: 00 · Status: draft
+Version: v01 · Iteration: 01 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
 
 ## 1. Scope and exclusions
@@ -123,7 +123,7 @@ pred inSpan(d : Date, r : DateSpan) ≙ r.from ≤ d ∧ d ≤ r.to
 (`given` is used here only to introduce the names of the primitive types; their meaning is the standard one stated below, not an uninterpreted set.)
 
 - `𝔹` = {true, false}.
-- `ℕ`: the non-negative integers; `ℕ₁`: the positive integers; `ℤ`: the integers; `ℚ`: the rational numbers; with the usual order and arithmetic.
+- `ℕ`: the non-negative integers; `ℕ₁`: the positive integers; `ℤ`: the integers; `ℚ`: the rational numbers; with the usual order and arithmetic, and with ℕ₁ ⊆ ℕ ⊆ ℤ ⊆ ℚ.
 - `Percent`: the rationals from 0 to 100. Unit: %.
 - `Date`: the days of the Gregorian calendar, totally ordered by `≤` (earlier before later). Library:
   - `fun next : Date → Date`: the following day;
@@ -253,12 +253,14 @@ variant Claim ::= diagnosis ⟨DiagnosisRef⟩      -- presents the subject as h
   | soleIndicatorOfIndividualBenefit             -- presents itself as the sole indicator of individual benefit
   | standAloneEfficacyMeasure                    -- presents itself as a stand-alone measure of treatment efficacy
   | replacesClinicalAssessment                   -- presents itself as replacing clinical assessment or diagnosis
+  | continuationDecision                         -- presents a decision to continue, stop or change a preventive treatment
+  | acuteResponseDefinitionDecision              -- presents one definition of acute treatment response as the one that applies
 variant DiagnosisRef ::= headacheDiagnosis ⟨ICHD3Code⟩ | psychiatricDiagnosis ⟨Text⟩
 ```
-- Meaning: The root of all output elements. `claims` states, abstractly, what an element asserts to its reader beyond the values it shows, for example that its content is a diagnosis. The claims that Stage 1 forbids or discourages are enumerated so that the prohibitions can be stated (INV-013, INV-021, INV-043, INV-048, INV-065, INV-084, INV-101). An empty `claims` set is the normal case.
+- Meaning: The root of all output elements. `claims` states, abstractly, what an element asserts to its reader beyond the values it shows, for example that its content is a diagnosis. The claims that Stage 1 forbids or discourages are enumerated so that the prohibitions can be stated (INV-013, INV-021, INV-043, INV-048, INV-065, INV-084, INV-101, INV-106, INV-107). An empty `claims` set is the normal case.
 - Conformance: structural; `claims` is core. The prohibitions carry their own levels (MUST NOT, SHOULD NOT).
-- Realises: OUT-003, OUT-011, OUT-016, OUT-020, OUT-028, OUT-033, OUT-038
-- Evidence: Stage 1 OUT-003, OUT-011 (Caveats), OUT-016, OUT-020, OUT-028, OUT-033 (Caveats), OUT-038.
+- Realises: OUT-003, OUT-011, OUT-016, OUT-018, OUT-020, OUT-023, OUT-028, OUT-033, OUT-038
+- Evidence: Stage 1 OUT-003, OUT-011 (Caveats), OUT-016, OUT-018 (Caveats), OUT-020, OUT-023 (Caveats), OUT-028, OUT-033 (Caveats), OUT-038.
 - Notes: The claim values exist only so that prohibitions can name them; no Stage 1 requirement asks for any claim to be made.
 
 ### E-002 Output
@@ -416,7 +418,7 @@ fun startOf(c : OutputContext, t : Treatment) : set Date ≙
 - Conformance: structural (a semantic parameter). Context invariants: INV-001.
 - Realises: OUT-005, OUT-009, OUT-012, OUT-013, OUT-017, OUT-018, OUT-020, OUT-022, OUT-023, OUT-024, OUT-026, OUT-029, OUT-030, OUT-031, OUT-033, OUT-036, OUT-037, OUT-039
 - Evidence: Stage 1 statements of the requirements listed. `ihsQ6ChronicAlternative` is the condition of the IHS Q6 statement quoted in E-045.
-- Notes: `PreventiveTreatmentType` lists the treatment types to which the guidance time points of E-041 refer (Stage 1 OUT-018: "which differ by treatment type"). `cgrpInhibitor` is the NICE CG150 term; `monthlyInjectable` and `quarterlyInjectable` are the IHS 2024 Q2 categories; a treatment may have several types.
+- Notes: `PreventiveTreatmentType` lists the treatment types to which the guidance time points of E-041 refer (Stage 1 OUT-018: "which differ by treatment type"). `cgrpInhibitor` is the NICE CG150 term; `monthlyInjectable` and `quarterlyInjectable` are the IHS 2024 Q2 categories; a treatment may have several types. Every preventive treatment has at least one type (INV-001): `otherPreventive` is the type of a preventive treatment that none of the other values describes. The guidance rules that apply to all preventive types (E-041) therefore apply to every preventive treatment.
 
 ### E-009 ICHD-3 code references
 - Definition:
@@ -617,7 +619,7 @@ type AttackCount == {m : EventCount | m.event = attacks}
 type HeadacheFreeDays == {m : DayCount | m.measure = headacheFreeDays}
 ```
 - Meaning: The number of headache-free days in the reporting period, an exploratory measure of residual burden. For patients, clinicians and researchers.
-- Conformance: MAY, per reporting period. An `exploratoryMeasure` annotation MAY qualify it.
+- Conformance: MAY, per reporting period. An `exploratoryMeasure` annotation MAY qualify it. In the clinician-facing summary SHOULD (INV-104; see ISS-04).
 - Realises: OUT-008
 - Evidence: Stage 1 OUT-008.
 - Notes: Relations: INV-031 (headache-free days plus headache days do not exceed the period length). The relation is an inequality because days not covered by diary information are neither (definitions state nothing about them).
@@ -628,7 +630,7 @@ type HeadacheFreeDays == {m : DayCount | m.measure = headacheFreeDays}
 type SymptomFreeDays == {m : DayCount | m.measure = symptomFreeDays}
 ```
 - Meaning: The number of symptom-free days in the reporting period (days free of premonitory, aura, headache and postdromal symptoms, as quoted in Stage 1 OUT-008 from [S-002]), an exploratory measure of residual burden.
-- Conformance: MAY, per reporting period; `exploratoryMeasure` annotation MAY.
+- Conformance: MAY, per reporting period; `exploratoryMeasure` annotation MAY. In the clinician-facing summary SHOULD (INV-104; see ISS-04).
 - Realises: OUT-008
 - Evidence: Stage 1 OUT-008.
 - Notes: Relations: INV-031 (a symptom-free day is a headache-free day).
@@ -639,7 +641,7 @@ type SymptomFreeDays == {m : DayCount | m.measure = symptomFreeDays}
 element MigraineFreePeriodMark extends PeriodValue { }
 ```
 - Meaning: Marks a reporting period without migraine days ("periods without migraine days", migraine freedom), an exploratory measure of residual burden.
-- Conformance: MAY; `exploratoryMeasure` annotation MAY.
+- Conformance: MAY; `exploratoryMeasure` annotation MAY. In the clinician-facing summary SHOULD, for the covered period and each period of its series that shows 0 migraine days (INV-104; see ISS-04).
 - Realises: OUT-008
 - Evidence: Stage 1 OUT-008.
 - Notes: Relations: INV-031 (shown for a period exactly when the migraine-day count shown for that period is 0).
@@ -744,7 +746,7 @@ const classesOf821to825 : set1 AcuteDrugClass ≙ {ergotamine, triptans, nonOpio
   - [S-001] "For the purposes of ICHD-3, all non-opioid analgesics are regarded as a single class" (8.2.3 Non-opioid analgesic-overuse headache, comments, p. 123; the text layer breaks "non-opioid" at a line end)
   - [S-001] "Regular intake of any combination of ergotamine, triptans, non-opioid analgesics and/or opioids [...] on a total of ≥10 days/month for >3 months without overuse of any single drug or drug class alone." (8.2.6, diagnostic criterion B, p. 124; the omitted text is a footnote marker; "≥" is a glyph without a text mapping in the PDF text layer)
   - [S-001] "Without overuse of any single drug or drug class alone means that criterion B has not been fulfilled for any of the specific subtypes 8.2.1–8.2.5." (8.2.6, note 2, p. 125)
-- Notes: The paracetamol, NSAID, acetylsalicylic-acid and other subforms of 8.2.3 are not separate classes, because ICHD-3 regards all non-opioid analgesics as one class; the individual drugs are shown by the per-drug breakdown (E-029). Stage 1's example label "simple analgesics" is not the ICHD-3 class name; see ISS-02.
+- Notes: The paracetamol, NSAID, acetylsalicylic-acid and other subforms of 8.2.3 are not separate classes, because ICHD-3 regards all non-opioid analgesics as one class; the individual drugs are shown by the per-drug breakdown (E-029). Stage 1's example label "simple analgesics" is not the ICHD-3 class name; see ISS-02. See ISS-01 on the classes of 8.2.6 (`classesOf826`).
 
 ### E-029 AcuteMedicationDays
 - Definition:
@@ -754,10 +756,10 @@ type AcuteMedicationDays == {m : DayCount | ∃ s : MedicationScope • m.measur
 type TotalAcuteMedicationDays == {m : DayCount | m.measure = acuteMedicationDays(allAcuteMedication)}
 ```
 - Meaning: The number of days in the reporting period with acute (symptomatic) headache medication: in total across classes (`allAcuteMedication`), per ICHD-3 8.2 class (`ofClass`), per individual drug (`ofDrug`), and, as the basis of the 8.2.6 indicator, for any medication of a set of classes (`ofClasses(classesOf826)`). For clinicians, patients and researchers.
-- Conformance: MUST be available per reporting period: the total, each class of the subject's acute medications and each of their drugs (INV-023). Per calendar week SHOULD (INV-025). Per headache type MUST when the subject has or may have more than one type (INV-028). `ofClasses(classesOf826)` MUST where the 8.2.6 indicator is shown (INV-045).
+- Conformance: MUST be available per reporting period: the total, each class of the subject's acute medications and each of their drugs (INV-023). Per calendar week SHOULD (INV-025). Per headache type MUST when the subject has or may have more than one type: the total, each class and each drug (INV-028). `ofClasses(classesOf826)` MUST where the 8.2.6 indicator is shown (INV-045).
 - Realises: OUT-014, OUT-015, OUT-016, OUT-029
 - Evidence: Stage 1 OUT-014, OUT-015, OUT-016, OUT-029; [S-001] 8.2.6 criterion B quoted in E-028.
-- Notes: Relations: INV-024 (the total is at least each class value and at most their sum; a class value is at least each of its drugs' values and at most their sum; the 8.2.6 basis lies between the largest and the sum of the values of its classes). A day with two classes counts once in the total and once in each class, so the total is in general not the sum. See ISS-01 on the basis of the 8.2.6 indicator.
+- Notes: Relations: INV-024 (the total is at least each class value and at most their sum; a class value is at least each of its drugs' values and at most their sum; the 8.2.6 basis lies between the largest and the sum of the values of its classes). A day with two classes counts once in the total and once in each class, so the total is in general not the sum. See ISS-01 on the basis of the 8.2.6 indicator, and ISS-09 on which acute-medication outputs are presented per headache type.
 
 ### E-030 FunctionalImpactDays
 - Definition:
@@ -822,7 +824,7 @@ const overuseSpanMonths : ℕ₁ ≙ 3          -- the time span is more than 3 
   - [S-001] "Regular intake of one or more combination-analgesic medications [...] on ≥10 days/month for >3 months." (8.2.5, diagnostic criterion B, p. 124; omitted footnote markers; same note on "≥")
   - [S-001] "Regular overuse, on ≥10 days/month for >3 months, of one or more medications other than those described above, [...] taken for acute or symptomatic treatment of headache." (8.2.8, diagnostic criterion B, p. 125; omitted footnote marker; same note on "≥")
   - [S-001] the 8.2.6 criterion B and note 2 quoted in E-028 (pp. 124–125)
-- Notes: Relations: INV-045 (code, level, span and basis agree with the scope; the span consists of consecutive monthly periods ending with the indicated period and is longer than three months; a class indication is `levelReached` exactly when every period of the span has at least the reference level of days), INV-046 (combined use). ICHD-3 expresses the levels per month and does not define the month; the model applies them to calendar months or 28-day periods and the output states which (OUT-001). The reading "on ≥ 10 days/month for > 3 months" as "in every month of a span longer than three months" is the model's; ICHD-3 states that these numbers rest on expert opinion (OUT-016 Caveats). Only the medication-use part of ICHD-3 8.2 is shown; the headache-day criterion of 8.2 is not part of this indicator. Because the basis values are shown medication days, a missing diary day can only make the shown count lower than the true count; the completeness indicator (E-013) shows the coverage of each period. See ISS-01.
+- Notes: Relations: INV-045 (code, level, span and basis agree with the scope; the span consists of consecutive monthly periods ending with the indicated period and is longer than three months; a class indication is `levelReached` exactly when every period of the span has at least the reference level of days), INV-046 (combined use). ICHD-3 expresses the levels per month and does not define the month; the model applies them to calendar months or 28-day periods and the output states which (OUT-001). The reading "on ≥ 10 days/month for > 3 months" as "in every month of a span longer than three months" is the model's; ICHD-3 states that these numbers rest on expert opinion (OUT-016 Caveats). Only the medication-use part of ICHD-3 8.2 is shown; the headache-day criterion of 8.2 is not part of this indicator. Because the basis values are shown medication days, a missing diary day can only make the shown count lower than the true count; the completeness indicator (E-013) shows the coverage of each period. See ISS-01. The indicator is required for all headache types combined, not per headache type; see ISS-09.
 
 ### E-033 CompositeIndex
 - Definition:
@@ -889,7 +891,7 @@ type WeeklyMedicationView == {v : View | ∃ sr ∈ v.content ∩ Series •
 - Conformance: SHOULD be available (INV-025).
 - Realises: OUT-015
 - Evidence: Stage 1 OUT-015.
-- Notes: The weekly and monthly limits of IHS Q12 [S-009] belong to that source and are not part of the output (OUT-015 Caveats).
+- Notes: The weekly and monthly limits of IHS Q12 [S-009] belong to that source and are not part of the output (OUT-015 Caveats). The weekly view is required for all headache types combined, not per headache type; see ISS-09.
 
 ### E-037 PeriodComparison
 - Definition:
@@ -980,7 +982,7 @@ fun shift : Date × CalendarOffset → Date
 axiom ∀ d : Date; n : ℕ • shift(d, weeks(n)) = plusDays(d, 7 × n) ∧ shift(d, months(n)) = plusMonths(d, n)
 const allPreventiveTypes : set1 PreventiveTreatmentType ≙ {doseTitratedPreventive, fixedDosePreventive, cgrpInhibitor,
   antiCGRPMonoclonalAntibody, monthlyInjectable, quarterlyInjectable, onabotulinumtoxinA, otherPreventive}
-const ruleNice1327, ruleNice1328, ruleNice1329, ruleAan14A, ruleSignTitrated, ruleSignFixedDose, ruleEhf2022Q3, ruleIhsQ2Monthly, ruleIhsQ2Quarterly : EvaluationRule
+const ruleNice1327, ruleNice1328, ruleNice1329, ruleAan14A, ruleSignTitrated, ruleSignFixedDose, ruleEhf2022Q3, ruleIhsQ2Monthly, ruleIhsQ2Quarterly, ruleNvnTitrated, ruleRu71 : EvaluationRule
 axiom
   ruleNice1327 = EvaluationRule(guidance ↦ "NICE CG150 rec. 1.3.27", appliesTo ↦ allPreventiveTypes,
     anchor ↦ treatmentStartAnchor, timing ↦ withinWindow, minOffset ↦ months(3), maxOffset ↦ {months(6)}) ∧
@@ -999,9 +1001,13 @@ axiom
   ruleIhsQ2Monthly = EvaluationRule(guidance ↦ "IHS global practice recommendations Q2 (monthly injectables)", appliesTo ↦ {monthlyInjectable},
     anchor ↦ treatmentStartAnchor, timing ↦ atLeastOffset, minOffset ↦ months(3), maxOffset ↦ ∅) ∧
   ruleIhsQ2Quarterly = EvaluationRule(guidance ↦ "IHS global practice recommendations Q2 (quarterly injectables)", appliesTo ↦ {quarterlyInjectable},
-    anchor ↦ treatmentStartAnchor, timing ↦ atLeastOffset, minOffset ↦ months(6), maxOffset ↦ ∅)
+    anchor ↦ treatmentStartAnchor, timing ↦ atLeastOffset, minOffset ↦ months(6), maxOffset ↦ ∅) ∧
+  ruleNvnTitrated = EvaluationRule(guidance ↦ "NVN guideline Hoofdpijn, module Profylactische behandeling migraine (titrated prophylactics)",
+    appliesTo ↦ {doseTitratedPreventive}, anchor ↦ treatmentStartAnchor, timing ↦ withinWindow, minOffset ↦ months(2), maxOffset ↦ {months(3)}) ∧
+  ruleRu71 = EvaluationRule(guidance ↦ "Russian clinical recommendations «Мигрень» (adults) 2024, section 7.1", appliesTo ↦ allPreventiveTypes,
+    anchor ↦ treatmentStartAnchor, timing ↦ atOffset, minOffset ↦ months(3), maxOffset ↦ ∅)
 const evaluationRules : set1 EvaluationRule ≙ {ruleNice1327, ruleNice1328, ruleNice1329, ruleAan14A, ruleSignTitrated,
-  ruleSignFixedDose, ruleEhf2022Q3, ruleIhsQ2Monthly, ruleIhsQ2Quarterly}
+  ruleSignFixedDose, ruleEhf2022Q3, ruleIhsQ2Monthly, ruleIhsQ2Quarterly, ruleNvnTitrated, ruleRu71}
 pred anchorMatches(a : AnchorKind, k : CourseEventKind) ≙
   (a = treatmentStartAnchor ∧ k = start) ∨ (a = toleratedOrTargetDoseAnchor ∧ k = targetDoseReached) ∨
   (∃ n : ℕ₁ • a = endOfCycleAnchor(n) ∧ k = cycleEnd(n))
@@ -1010,11 +1016,11 @@ fun anchorDates(c : OutputContext, t : Treatment, a : AnchorKind) : set Date ≙
 pred applicable(c : OutputContext, t : Treatment, r : EvaluationRule) ≙
   t ∈ c.subject.preventiveTreatments ∧ (∃ ty ∈ r.appliesTo • (t, ty) ∈ c.subject.preventiveTypes) ∧ anchorDates(c, t, r.anchor) ≠ ∅
 ```
-- Meaning: The evaluation time points named in current guidance, which differ by treatment type: about 8–12 weeks at the tolerated or target dose for most oral preventives, a minimum of 3 consecutive months for anti-CGRP monoclonal antibodies, a minimum of 3 months for monthly and of 6 months for quarterly injectables, 12 weeks for CGRP inhibitors under NICE, 3 months for fixed-dose treatments, 3 to 6 months after starting any prophylaxis, and the end of the second treatment cycle for onabotulinumtoxinA. `atOffset`: the time point is the date `shift(anchor, minOffset)`; `atLeastOffset`: the earliest time point is that date ("a minimum of", "at least"); `withinWindow`: the time point lies between the two offsets.
+- Meaning: The evaluation time points named in current guidance, which differ by treatment type: about 8–12 weeks at the tolerated or target dose for most oral preventives, a minimum of 3 consecutive months for anti-CGRP monoclonal antibodies, a minimum of 3 months for monthly and of 6 months for quarterly injectables, 12 weeks for CGRP inhibitors under NICE, 3 months for fixed-dose treatments, 3 to 6 months after starting any prophylaxis, the end of the second treatment cycle for onabotulinumtoxinA, no earlier than after 2–3 months of treatment for titrated prophylactics under the Dutch NVN guideline, and after 3 months of therapy under the Russian clinical recommendations. `atOffset`: the time point is the date `shift(anchor, minOffset)`; `atLeastOffset`: the earliest time point is that date ("a minimum of", "at least"); `withinWindow`: the time point lies between the two offsets.
 - Conformance: structural (a value set); its use is MUST (E-042, INV-055, INV-059).
 - Realises: OUT-018
-- Evidence: Stage 1 OUT-018. Every offset is in a Stage 1 quote of OUT-018: [S-015] recs 1.3.27 ("3 to 6 months after starting"), 1.3.28 ("after 12 weeks of treatment"), 1.3.29 ("after 2 treatment cycles"); [S-018] rec. 14A ("at least 8–12 weeks at the recommended tolerated dose of most medications"); [S-016] section 4.1 ("eight weeks at the target dose or maximum tolerated dose (for those with a titration schedule)"; "For treatments of fixed dose [...] assessed at 3 months"); [S-011] question 3 ("a minimum of 3 consecutive months on treatment"); [S-008] Q2 ("a minimum of three months for injectable drugs taken on a monthly basis, and a minimum of six months for injectable drugs administered quarterly").
-- Notes: The rule list is the set of time points named in the Stage 1 evidence; Stage 1 gives them as examples ("for example"), so a diary may show further guidance time points as `OtherItem`s. AAN/AHS 14A ("at least 8–12 weeks") is modelled as a window from 8 to 12 weeks after the tolerated dose is reached; "most medications" is modelled as applying to every preventive type. NICE 1.3.29 is anchored at the end of the second treatment cycle.
+- Evidence: Stage 1 OUT-018. Every offset is in a Stage 1 quote of OUT-018: [S-015] recs 1.3.27 ("3 to 6 months after starting"), 1.3.28 ("after 12 weeks of treatment"), 1.3.29 ("after 2 treatment cycles"); [S-018] rec. 14A ("at least 8–12 weeks at the recommended tolerated dose of most medications"); [S-016] section 4.1 ("eight weeks at the target dose or maximum tolerated dose (for those with a titration schedule)"; "For treatments of fixed dose [...] assessed at 3 months"); [S-011] question 3 ("a minimum of 3 consecutive months on treatment"); [S-008] Q2 ("a minimum of three months for injectable drugs taken on a monthly basis, and a minimum of six months for injectable drugs administered quarterly"); [S-028] module "Profylactische behandeling migraine", Aanbeveling ("Titreer naar de ondergrens van de geadviseerde therapeutische breedte" and "evalueer het effect niet eerder dan na 2-3 maanden behandeling"); [S-033] section 7.1 ("через 3 месяца терапии"). The [S-028] and [S-033] fragments are parts of the Stage 1 quotes of OUT-018, whose translations carry over.
+- Notes: The rule list is the set of evaluation time points named in the Stage 1 evidence of OUT-018 ([S-015], [S-018], [S-016], [S-011], [S-008], [S-028], [S-033]). Stage 1 gives them as examples ("for example"), so a diary may show further guidance time points as `OtherItem`s. AAN/AHS 14A ("at least 8–12 weeks") is modelled as a window from 8 to 12 weeks after the tolerated dose is reached; "most medications" is modelled as applying to every preventive type. NVN ("niet eerder dan na 2-3 maanden behandeling", no earlier than after 2–3 months of treatment) is modelled in the same way, as a window from 2 to 3 months after the treatment start. It applies to dose-titrated preventives, because the recommendation concerns prophylactics titrated to their therapeutic range ("Titreer naar de ondergrens van de geadviseerde therapeutische breedte"). The Russian section 7.1 time point ("через 3 месяца терапии", after 3 months of therapy) is the time point of the criterion `critRu71` (E-045); the recommendation concerns preventive treatment of migraine in general, so it applies to every preventive type. NICE 1.3.29 is anchored at the end of the second treatment cycle. Every preventive treatment has at least one type (INV-001), so `applicable` holds for the rules of all preventive types whenever the treatment has the rule's anchor.
 
 ### E-042 EvaluationTimePoint
 - Definition:
@@ -1042,18 +1048,18 @@ pred atTimePoint(p : Period, tp : EvaluationTimePoint) ≙
 element ResponseComparison extends Item {
   treatment : Treatment  core
   treatmentStart : Date  MUST                  -- the date the comparison is aligned to
-  baseline : →Period  MUST                     -- the pre-treatment baseline period
-  onTreatment : seq1 →Period  MUST             -- the periods after treatment start, earliest first
+  baseline : →Period  MUST                     -- the pre-treatment baseline month: a calendar month or 28-day period
+  onTreatment : seq1 →Period  MUST             -- calendar months or 28-day periods after treatment start, earliest first
   values : set1 →DayCount  MUST                -- the values of each compared period
   changes : set1 →Change  MUST                 -- absolute and percentage change from baseline for each on-treatment period
   timePoints : set →EvaluationTimePoint  MUST when ∃ r ∈ evaluationRules • applicable(ctx, self.treatment, r)
 }
 ```
-- Meaning: For one preventive treatment, monthly migraine days and monthly headache days (and, where the diary reports them, moderate/severe headache days) in a pre-treatment baseline period compared with periods after the treatment start, aligned to the treatment start date, showing the values of each period and the absolute and percentage change from baseline, with the guidance evaluation time points. For clinicians, patients and researchers.
-- Conformance: MUST be available for each preventive treatment, including a comparison of equal-length periods at each applicable evaluation time point (INV-055); content MUST (INV-056, INV-057, INV-059).
+- Meaning: For one preventive treatment, monthly migraine days and monthly headache days (and, where the diary reports them, moderate/severe headache days) in a pre-treatment baseline month compared with monthly periods after the treatment start, aligned to the treatment start date, showing the values of each period and the absolute and percentage change from baseline, with the guidance evaluation time points. For clinicians, patients and researchers.
+- Conformance: MUST be available for each preventive treatment, including a comparison of equal-length periods at each applicable evaluation time point (INV-055); content MUST (INV-056, INV-057, INV-059). MUST NOT: a decision on continuing the treatment (INV-106).
 - Realises: OUT-001, OUT-018, OUT-036
 - Evidence: Stage 1 OUT-001, OUT-018, OUT-036.
-- Notes: The comparison shows the change and names no continuation decision (OUT-018 Caveats); responder labels are a separate, optional element (E-046). Migraine days are compared without the condition "for patients with migraine", as OUT-018 states them; see ISS-03.
+- Notes: The baseline and on-treatment periods are calendar months or 28-day periods (INV-056), the monthly periods of OUT-001, so the values compared and their changes are monthly migraine days and monthly headache days, as OUT-018 states. Several consecutive or separate monthly on-treatment periods may be compared with the same baseline month. The comparison shows the change and does not itself decide on continuation (OUT-018 Caveats, INV-106); responder labels are a separate, optional element (E-046). Migraine days are compared without the condition "for patients with migraine", as OUT-018 states them; see ISS-03.
 
 ### E-044 ResidualBurden
 - Definition:
@@ -1068,7 +1074,7 @@ element ResidualBurden extends Item {
 - Conformance: SHOULD, wherever a percentage change in migraine or headache days is shown (INV-060).
 - Realises: OUT-019
 - Evidence: Stage 1 OUT-019.
-- Notes: Relations: INV-061 (the two values are of their measures, for a calendar-month or 28-day period within the compared period, with the scope of the change). "Per month" is represented by a monthly period, so no conversion formula is needed. See ISS-05.
+- Notes: Relations: INV-061 (the two values are of their measures, with the scope of the change, for a calendar-month or 28-day period: the compared period itself when it is monthly, as in every response comparison, and otherwise a monthly period within it). "Per month" is represented by a monthly period, so no conversion formula is needed. See ISS-05.
 
 ### E-045 ResponderCriterion
 - Definition:
@@ -1125,7 +1131,7 @@ const namedCriteria : set1 ResponderCriterion ≙ {critNice1328, critNice1329, c
   - [S-008] "For patients with chronic migraine who have not achieved a ≥ 50% decrease in monthly migraine days or moderate-to-severe headache days with multiple preventive options (including oral drugs, onabotulinumtoxinA and drugs targeting the CGRP pathway), a ≥ 30% decrease in monthly migraine days or moderate-to-severe headache days is acceptable for treatment continuation beyond three months." (Q6, Recommendations, Optimal, p. 12)
   - [S-008] "The clinically meaningful improvement in MIDAS score is defined by the AHS as i) reduction of ≥5 points for baseline score 11–20 or ii) reduction of ≥30% for baseline score ≥20. The clinically meaningful improvement in HIT-6 score is a reduction of ≥ 5 points (9)." (Q6, Evidence, p. 13)
   - [S-010] the control levels quoted in E-046.
-- Notes: NICE 1.3.28 words its measure "frequency of migraines"; the model applies it to migraine days, the frequency measure of OUT-018. The second clause of NICE 1.3.29 ("or if their condition has changed to episodic migraine for 3 consecutive months") is a reason to stop after success, not a response criterion, and is not modelled. The IHS Q6 MIDAS ranges overlap at a baseline score of 20, as the source states them; either component may then apply. The scheme criteria of OUT-025 (Kela, AIFA, Poland, Zorgverzekeraars Nederland) are not responder criteria of this element; OUT-025 Caveats state that they are not requirements.
+- Notes: NICE 1.3.28 words its measure "frequency of migraines"; the model applies it to migraine days, the frequency measure of OUT-018. The second clause of NICE 1.3.29 ("or if their condition has changed to episodic migraine for 3 consecutive months") is a reason to stop after success, not a response criterion, and is not modelled. The IHS Q6 MIDAS ranges overlap at a baseline score of 20, as the source states them; either component may then apply. The evaluation time point that [S-033] attaches to `critRu71` ("через 3 месяца терапии") is the rule `ruleRu71` of E-041. The scheme criteria of OUT-025 (Kela, AIFA, Poland, Zorgverzekeraars Nederland) are not responder criteria of this element; OUT-025 Caveats state that they are not requirements.
 
 ### E-046 ResponderLabel
 - Definition:
@@ -1141,13 +1147,13 @@ element ResponderLabel extends Item {
 }
 variant ResponderCategory ::= responder | nonResponder | controlLevel ⟨ControlLevel⟩
 enum ControlLevel ::= migraineFreedom | optimalControl | modestControl | insufficientControl
-pred reductionMet(L : ResponderLabel, r : ReductionComponent) ≙ conditionHolds(ctx(outputOf(L)), r.condition) ∧
+pred reductionMet(L : ResponderLabel, r : ReductionComponent) ≙ #L.evaluated = 1 ∧ conditionHolds(ctx(outputOf(L)), r.condition) ∧
   ∃ rc ∈ L.comparison; ch ∈ rc.changes • ch.reference.period = rc.baseline ∧ ch.compared.period ∈ ran L.evaluated ∧
     ch.reference.measure ∈ r.measures ∧ ch.reference.days > 0 ∧
     100 × (ch.reference.days − ch.compared.days) ≥ r.atLeastPercent × ch.reference.days
 pred reductionDecided(L : ResponderLabel, r : ReductionComponent) ≙ ¬ conditionHolds(ctx(outputOf(L)), r.condition) ∨
-  ∀ k ∈ r.measures; p ∈ ran L.evaluated • ∃ rc ∈ L.comparison; ch ∈ rc.changes •
-    ch.reference.period = rc.baseline ∧ ch.reference.measure = k ∧ ch.compared.period = p ∧ ch.reference.days > 0
+  (#L.evaluated = 1 ∧ ∀ k ∈ r.measures; p ∈ ran L.evaluated • ∃ rc ∈ L.comparison; ch ∈ rc.changes •
+    ch.reference.period = rc.baseline ∧ ch.reference.measure = k ∧ ch.compared.period = p ∧ ch.reference.days > 0)
 pred scoreMet(L : ResponderLabel, s : ScoreComponent) ≙ conditionHolds(ctx(outputOf(L)), s.condition) ∧
   ∃ r ∈ L.otherValues ∩ InstrumentResult; b ∈ r.baselineResult; x ∈ r.totalScore; y ∈ b.totalScore •
     r.instrument = s.instrument ∧ (∀ lo ∈ s.baselineAtLeast • y ≥ lo) ∧ (∀ hi ∈ s.baselineAtMost • y ≤ hi) ∧
@@ -1162,7 +1168,7 @@ pred componentDecided(L : ResponderLabel, k : CriterionComponent) ≙
 fun levelDays(L : ResponderLabel, p : Period) : set ℕ ≙ daysOf(viewOf(L), migraineOrModerateSevereHeadacheDays, p, allTypes)
 ```
 - Meaning: An optional label that classifies the response to a preventive treatment under a named criterion: responder or non-responder, or a control level of the IHS position statement 2025. It is shown with the criterion it applies, the values it rests on, and the residual burden, and it is not presented as the sole indicator of individual benefit. For clinicians and patients.
-- Conformance: optional: Stage 1 states no requirement to display a label ("If the output displays"), so its availability is MAY. If shown: criterion, underlying values and other values SHOULD (INV-062); the clinical-interpretation caveat SHOULD (INV-100). SHOULD NOT: presented as the sole indicator of individual benefit (INV-065).
+- Conformance: optional: Stage 1 states no requirement to display a label ("If the output displays"), so its availability is MAY. If shown: criterion, underlying values and other values SHOULD (INV-062); the clinical-interpretation caveat SHOULD (INV-100). SHOULD NOT: presented as the sole indicator of individual benefit (INV-065). MUST NOT: a decision on continuing the treatment (INV-106).
 - Realises: OUT-020, OUT-025, OUT-038
 - Evidence: Stage 1 OUT-020. Control levels, not stated in Stage 1:
   - [S-010] "Migraine Freedom. This is defined as the complete elimination of days with migraine or moderate-to-severe headache, ideally over a period of three months." (section "Setting goals of migraine burden while on treatment", p. 6)
@@ -1170,7 +1176,7 @@ fun levelDays(L : ResponderLabel, p : Period) : set ℕ ≙ daysOf(viewOf(L), mi
   - [S-010] "Modest Control. This is defined as four to six days with migraine or moderate-to-severe headache per month." (same section, p. 6)
   - [S-010] "Insufficient Control. This is defined as more than six days with migraine or moderate-to-severe headache per month." (same section, p. 6; in the PDF text layer the running header "Cephalalgia 45(2)" interrupts the sentence after "per", at a column break)
   - [S-010] "In some cases, insufficient control may be present when there are less than six MMDs, especially when attacks are associated with very high levels of disabling symptoms" (same section, p. 6)
-- Notes: Relations: INV-063 (a label is consistent with the components of its criterion that can be decided from the values shown), INV-064 (control levels). A reduction of at least p % is tested on the shown day counts (`100 × (reference − compared) ≥ p × reference`), not on the rounded percentage, so that rounding cannot change the result. The control-level labels are exactly the four level names of [S-010]; "per month" is read as applying to each evaluated monthly period. Because [S-010] allows insufficient control with fewer than six migraine days, the model does not require more than six days for that level.
+- Notes: Relations: INV-063 (a label is consistent with the components of its criterion that can be decided from the values shown), INV-064 (control levels). A reduction of at least p % is tested on the shown monthly day counts (`100 × (reference − compared) ≥ p × reference`), not on the rounded percentage, so that rounding cannot change the result. A label may refer to several on-treatment periods (for example the three months of optimal control). For a reduction component, the cited criteria do not state how several months are combined (at a time point, on their mean, in every month, or in a share of the months). The reduction relations therefore decide only a label with a single evaluated period (`#L.evaluated = 1`). For a label over several periods, a reduction component is not decided by the values shown, as for a judgement component, and the reader applies the named criterion to the values shown with the label (INV-062). The control-level labels are exactly the four level names of [S-010]; "per month" is read as applying to each evaluated monthly period. Because [S-010] allows insufficient control with fewer than six migraine days, the model does not require more than six days for that level. A label classifies the response under a named criterion and is not a decision on continuing the treatment (INV-106). See ISS-08.
 
 ### E-047 AdherenceSummary
 - Definition:
@@ -1248,7 +1254,7 @@ fun requiredOutcomes(tp : EarlyTimePoint) : set1 AcuteOutcomeMeasure ≙
 - Conformance: structural (a value set); used by E-051 to E-053.
 - Realises: OUT-012, OUT-023, OUT-031
 - Evidence: Stage 1 OUT-023, OUT-031.
-- Notes: Pain freedom and headache relief are shown side by side; the output does not decide which definition of response applies (OUT-023 Caveats).
+- Notes: Pain freedom and headache relief are shown side by side; the output does not itself decide which definition of response applies (OUT-023 Caveats, INV-107).
 
 ### E-051 AcuteTreatmentSummary
 - Definition:
@@ -1260,12 +1266,12 @@ element AcuteTreatmentSummary extends PeriodValue {
   earlyTimePoint : EarlyTimePoint  core
   treatedAttacks : ℕ  derived core                    -- number of treated attacks summarised; unit: attacks
   outcomes : set →OutcomeSummary  SHOULD
-  sequence : seq →TreatedAttackLine  SHOULD           -- the consecutive treated attacks, earliest first
+  sequence : seq →TreatedAttackLine  SHOULD when self.treatedAttacks > 0   -- the treated attacks it summarises, earliest first
 }
 enum FormulationScope ::= allFormulations | singleFormulation
 ```
 - Meaning: For one acute medication (all its formulations, or one formulation) and one period, the outcomes across the attacks treated with it, how consistently the drug was effective across consecutive treated attacks (the sequence of per-attack lines), and the formulation or route, so that the EHF definitions of effective attack treatment, triptan response and triptan refractoriness can be applied. Summaries for the pre-treatment baseline period and for the on-treatment periods of a preventive treatment make a change in the response to acute treatment visible. For clinicians and patients.
-- Conformance: SHOULD be available per acute medication, per formulation, and separately for the baseline and on-treatment periods of each preventive treatment (INV-071); content SHOULD (INV-072); early time point 15 minutes for cluster headache and 2 hours otherwise (INV-073).
+- Conformance: SHOULD be available per acute medication, per formulation, and separately for the baseline and on-treatment periods of each preventive treatment (INV-071); content SHOULD (INV-072), including a line for every treated attack it summarises, with the result of every outcome measure; early time point 15 minutes for cluster headache and 2 hours otherwise (INV-073). SHOULD NOT: deciding which definition of response applies (INV-107).
 - Realises: OUT-012, OUT-021, OUT-023, OUT-024, OUT-031
 - Evidence: Stage 1 OUT-023.
 - Notes: Dose changes of acute medications are shown in the treatment history (E-055), as OUT-023 states.
@@ -1305,7 +1311,7 @@ value SymptomStatus { symptom : AssociatedSymptom; presentAtEarlyTimePoint : �
 value AdverseEventItem { description : Text; regardedMeaningful : opt 𝔹 }
 ```
 - Meaning: One treated attack, shown by what the output states about it: its date, the medication and formulation taken, the outcome of each measure, when the medication was taken relative to attack onset (or the pain intensity at intake), whether migraine-associated symptoms were present at the early time point, and any drug-related adverse events and whether the patient regarded them as meaningful.
-- Conformance: SHOULD, as the sequence of a summary (INV-072); `symptomStatus` SHOULD for migraine (INV-076).
+- Conformance: SHOULD, as the sequence of a summary, with a result for every outcome measure of the summary's early time point (INV-072); `symptomStatus` SHOULD for migraine (INV-076).
 - Realises: OUT-012, OUT-023
 - Evidence: Stage 1 OUT-012, OUT-023.
 - Notes: Relations: INV-075 (one result per measure; adverse-event results agree with the adverse-event items).
@@ -1392,11 +1398,12 @@ variant RecallPeriod ::= recallMonths ⟨ℕ₁⟩ | recallAsPublished ⟨Text�
 fun publishedRecall : Instrument ⇸ RecallPeriod      -- defined for midas, hit6, pedmidas, halt90, halt30
 axiom publishedRecall(midas) = recallMonths(3) ∧ publishedRecall(hit6) = recallMonths(1) ∧
   publishedRecall(pedmidas) = recallMonths(3) ∧ publishedRecall(halt90) = recallMonths(3) ∧ publishedRecall(halt30) = recallMonths(1)
-value ScoreRange { low : ℚ; high : opt ℚ }            -- inclusive bounds; no upper bound when high = ∅
+value ScoreRange { low : ℚ; high : opt ℚ }            -- inclusive bounds; high = ∅: the model states no upper bound
 fun scoreRange : Instrument ⇸ ScoreRange             -- defined for hit6, midas, pedmidas, halt90, halt30
 axiom scoreRange(hit6) = ScoreRange(low ↦ 36, high ↦ {78}) ∧ scoreRange(midas) = ScoreRange(low ↦ 0, high ↦ ∅) ∧
   scoreRange(pedmidas) = ScoreRange(low ↦ 0, high ↦ ∅) ∧ scoreRange(halt90) = ScoreRange(low ↦ 0, high ↦ ∅) ∧
   scoreRange(halt30) = ScoreRange(low ↦ 0, high ↦ ∅)
+const wholeNumberScores : set Instrument ≙ {midas, hit6, pedmidas, halt90, halt30}   -- instruments whose total score is a whole number
 value GradeBand { instrument : Instrument; grade : opt Text; label : Text; low : ℚ; strictLow : 𝔹; high : opt ℚ }
 pred inBand(x : ℚ, b : GradeBand) ≙ (b.strictLow ⇒ x > b.low) ∧ (¬ b.strictLow ⇒ x ≥ b.low) ∧ ∀ h ∈ b.high • x ≤ h
 const gradeBands : set1 GradeBand ≙ {
@@ -1435,7 +1442,8 @@ axiom ∀ i : Instrument • banded(i) ⇔ (∃ b ∈ gradeBands • b.instrumen
   - [S-014] "HALT-30 (Fig. 4 (also, Additional file 19 )) accordingly records days affected during the preceding 1 month (30 days)." (same paragraph)
   - [S-014] "the unit of each being whole days per one or 3 months" (subsection "Scoring HALT", first sentence)
   - [S-014] Table 18 "Grading of HALT-90", columns "Days lost in last 3 months", "Assessed impact" and "Grade (indicating increasing need for medical care)", rows "0–5" "Minimal or infrequent" "I", "6–10" "Mild or infrequent" "II", "11–20" "Moderate" "III (indicates high need for care)" and "≥20" "Severe" "IV (indicates high need for care)" (subsection "Scoring HALT")
-- Notes: Relations: INV-082. MIDAS grade labels differ between publications of the MIDAS developers (for example "minimal or infrequent disability" in other papers); the model uses the labels of [S-102] and the same score bands. The HALT-90 bands of [S-014] overlap at 20 ("11–20" and "≥20"), as also printed in the HALT developers' 2018 paper; at a score of 20 either grade III or IV satisfies the relation. The lower bound 0 of MIDAS, PedMIDAS and HALT follows from their lowest band; no upper bound is stated by the cited sources. HURT grades each response into an area of "no concern" or one of three flagged areas [S-014]; see ISS-06. The scoring of every instrument from its answers is out of scope. `publishedGrading` is not fixed by the model for MSQ v2.1 and M-TOQ; it follows those instruments' own publications, which the model does not tabulate.
+  - Whole-number scores (`wholeNumberScores`), from the quotes above: the MIDAS grades rest on "total days of impaired functioning" [S-102], and the HALT unit is "whole days per one or 3 months" [S-014]; the published bands of MIDAS [S-102], HIT-6 [S-101], PedMIDAS [S-103] and HALT-90 [S-014] have consecutive whole-number limits (for example 0 to 5 and 6 to 10 for MIDAS, 49 or less and 50–55 for HIT-6, 0 to 10 and 11 to 30 for PedMIDAS), so the categories that these sources define over the score range cover it only for whole-number scores.
+- Notes: Relations: INV-082. MIDAS grade labels differ between publications of the MIDAS developers (for example "minimal or infrequent disability" in other papers); the model uses the labels of [S-102] and the same score bands. The HALT-90 bands of [S-014] overlap at 20 ("11–20" and "≥20"), as also printed in the HALT developers' 2018 paper; at a score of 20 either grade III or IV satisfies the relation. The lower bound 0 of MIDAS, PedMIDAS and HALT follows from their lowest band. The cited sources state no upper bound for these instruments, so the model states none: `high = ∅` means that the model states no upper bound, not that the score range has none. The total scores of MIDAS, PedMIDAS, HALT-90, HALT-30 and HIT-6 are whole numbers (`wholeNumberScores`, INV-082); source sentences that describe how a total is obtained from the answers are not quoted, because that derivation is out of scope. HURT grades each response into an area of "no concern" or one of three flagged areas [S-014]; see ISS-06. The scoring of every instrument from its answers is out of scope. `publishedGrading` is not fixed by the model for MSQ v2.1 and M-TOQ; it follows those instruments' own publications, which the model does not tabulate.
 
 ### E-058 InstrumentResult
 - Definition:
@@ -1491,7 +1499,9 @@ element MenstrualRelationView extends View {
   completeCycles : ℕ  derived MUST             -- the number of complete cycles the view covers
 }
 element CycleLine extends Item {
-  cycle : DateSpan  core                        -- from the first day of menstruation to the day before the next one
+  cycle : DateSpan  core                        -- from the first day of menstruation to the day before the next one; for a cycle
+                                                --   that has not ended, to the last day of the period the view covers
+  complete : 𝔹  core                            -- the cycle has ended: it is shown to the day before the next first day of menstruation
   menstruationDays : set1 Date  MUST
   firstDayOfMenstruation : Date  derived MUST   -- day 1
   perimenstrualWindow : DateSpan  derived MUST  -- ICHD-3 appendix A1.1: day 1 ± 2 (days −2 to +3)
@@ -1507,7 +1517,7 @@ const windowDaysAfter : ℕ ≙ 2                   -- day +3 is 2 days after da
 - Evidence: Stage 1 OUT-030. The window, not stated in Stage 1:
   - [S-001] "Occurring exclusively on day 1 ± 2 (i.e. days −2 to +3)" (A1.1.1 Pure menstrual migraine without aura, diagnostic criterion B, p. 190; the "±" and "−" signs are glyphs without a text mapping in the PDF text layer); the same window appears in A1.1.2 criterion B ("Occurring on day 1 ± 2 (i.e. days −2 to +3)", p. 190)
   - [S-001] "The first day of menstruation is day 1 and the preceding day is day −1; there is no day 0." (A1.1.1, note 2, p. 190; the text layer breaks "preceding" at a line end)
-- Notes: Relations: INV-087 (day 1 is the first menstruation day; the window runs from 2 days before to 2 days after day 1; cycles are consecutive; an attack is in the window exactly when its onset is a window day; `completeCycles ≤ #cycles`). Only the window of the criterion is shown; the frequency criterion ("in at least two out of three menstrual cycles") is a diagnostic criterion and is not applied by the view. A prospective diary is not mandatory for the clinical diagnosis of A1.1.1 and A1.1.2 (OUT-030 Caveats); the view states no diagnosis.
+- Notes: Relations: INV-087 (day 1 is the first menstruation day; the window runs from 2 days before to 2 days after day 1; cycles are consecutive and shown in the view; only the last cycle can be one that has not ended, and it is shown to the end of the covered period; an attack is in the window exactly when its onset is a window day; `completeCycles` is the number of cycles that have ended and lie wholly within the period the view covers). Reading "complete cycles the view covers" as cycles that have ended and lie wholly within the covered period is the model's; a cycle that began before the covered period, or ends after it, is shown but not counted. Only the window of the criterion is shown; the frequency criterion ("in at least two out of three menstrual cycles") is a diagnostic criterion and is not applied by the view. A prospective diary is not mandatory for the clinical diagnosis of A1.1.1 and A1.1.2 (OUT-030 Caveats); the view states no diagnosis.
 
 ### E-061 AttackMark
 - Definition:
@@ -1633,16 +1643,17 @@ c.timeRange.to ≤ c.asOf ∧
 (∀ d ∈ c.previousConsultation • d ≤ c.asOf) ∧
 c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 (∀ p ∈ c.subject.preventiveTypes • p.1 ∈ c.subject.preventiveTreatments) ∧
+(∀ t ∈ c.subject.preventiveTreatments • ∃ ty : PreventiveTreatmentType • (t, ty) ∈ c.subject.preventiveTypes) ∧
 (∀ e ∈ c.subject.courseEvents • e.treatment ∈ c.subject.preventiveTreatments ∪ c.subject.acuteTreatments ∧ e.date ≤ c.asOf) ∧
 (∀ t ∈ c.subject.preventiveTreatments ∪ c.subject.acuteTreatments • #{e ∈ c.subject.courseEvents | e.treatment = t ∧ e.kind = start} ≤ 1) ∧
 (∀ m ∈ c.subject.acuteMedications • m.drug ∈ dom classOf) ∧
 (∀ d ∈ c.subject.withdrawalStart • d ≤ c.asOf) ∧
 (∀ a ∈ c.subject.instrumentAdministrations • a.date ≤ c.asOf) ∧ (∀ a ∈ c.subject.screeningAdministrations • a.date ≤ c.asOf)
 ```
-- Reading: The headache types the subject has are among those the subject has or may have, and no listed type is a subtype of another; tension-type and cluster headache make weekly granularity clinically relevant; the selected time range ends no later than the as-of date and consists of whole periods of the selected granularity; selected comparison periods, the previous consultation, treatment course events, the start of withdrawal and the available instrument results lie on or before the as-of date; a treatment is either preventive or acute and has at most one start; every acute medication belongs to an ICHD-3 8.2 class.
+- Reading: The headache types the subject has are among those the subject has or may have, and no listed type is a subtype of another; tension-type and cluster headache make weekly granularity clinically relevant; the selected time range ends no later than the as-of date and consists of whole periods of the selected granularity; selected comparison periods, the previous consultation, treatment course events, the start of withdrawal and the available instrument results lie on or before the as-of date; a treatment is either preventive or acute and has at most one start; every preventive treatment has at least one guidance type (`otherPreventive` when no other type describes it), so that the guidance time points for all preventive types apply to it; every acute medication belongs to an ICHD-3 8.2 class.
 - Conformance: definitional (characterises `Ctx`, section 3.2). Scope: context.
-- Realises: OUT-001, OUT-004, OUT-009, OUT-014, OUT-029
-- Evidence: Stage 1 OUT-001, OUT-004, OUT-009 ("where weekly granularity is clinically relevant (tension-type headache, cluster headache, early onset of effect)"), OUT-014, OUT-029.
+- Realises: OUT-001, OUT-004, OUT-009, OUT-014, OUT-018, OUT-029
+- Evidence: Stage 1 OUT-001, OUT-004, OUT-009 ("where weekly granularity is clinically relevant (tension-type headache, cluster headache, early onset of effect)"), OUT-014, OUT-018 ("For each preventive treatment [...] at the evaluation time points named in current guidance, which differ by treatment type"), OUT-029.
 
 ### INV-002 Period length and kind agree with the dates
 - Predicate:
@@ -1946,13 +1957,15 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 ∃ g ∈ MonthlyKind • ∀ c ∈ Ctx • c.granularity = g ∧ #c.subject.possibleHeadacheTypes ≥ 2 ⇒
   ∀ sc ∈ {allTypes} ∪ {t ∈ c.subject.possibleHeadacheTypes • ofType(t)} •
     reportedTogether(c, {HeadacheDays, TotalAcuteMedicationDays} ∪
+      {m ∈ c.subject.acuteMedications • {d : DayCount | d.measure = acuteMedicationDays(ofClass(classOf(m.drug)))}} ∪
+      {m ∈ c.subject.acuteMedications • {d : DayCount | d.measure = acuteMedicationDays(ofDrug(m.drug))}} ∪
       {K ∈ {ModerateSevereHeadacheDays, AttackCount} | provides(K)}, sc)
 ```
-- Reading: When the subject has, or may have, more than one headache type, headache days and acute-medication days, and moderate/severe headache days and attacks where the diary provides them, are shown for every period separately for each headache type and combined.
+- Reading: When the subject has, or may have, more than one headache type, headache days, acute-medication days (in total, for each ICHD-3 8.2 class of the subject's acute medications and for each of their drugs), and moderate/severe headache days and attacks where the diary provides them, are shown for every period separately for each headache type and combined.
 - Conformance: MUST. Scope: repertoire.
 - Realises: OUT-029
-- Evidence: Stage 1 OUT-029.
-- Notes: Migraine days are by definition migraine-specific and are not broken down further by type.
+- Evidence: Stage 1 OUT-029 ("frequency and acute medication outputs separately for each headache type"); the acute-medication outputs of OUT-014 ("broken down by drug class [...] and by individual drug, together with the total across classes"), as in INV-023.
+- Notes: Migraine days are by definition migraine-specific and are not broken down further by type. "Acute medication outputs" is read as the acute-medication days of OUT-014 (total, per class and per drug); the weekly view (OUT-015, INV-025) and the medication-overuse indicator (OUT-016, INV-044) are required for all headache types combined; see ISS-09.
 
 ### INV-029 Intensity per headache type, where provided
 - Predicate:
@@ -2316,18 +2329,21 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 - Predicate:
 ```omn
 ∀ rc : ResponseComparison • rc.treatment ∈ ctx.subject.preventiveTreatments ∧ rc.treatmentStart ∈ startOf(ctx, rc.treatment) ∧
+  rc.baseline.kind ∈ MonthlyKind ∧ (∀ p ∈ ran rc.onTreatment • p.kind ∈ MonthlyKind) ∧
   rc.baseline.end < rc.treatmentStart ∧ (∀ p ∈ ran rc.onTreatment • rc.treatmentStart ≤ p.start) ∧
   (∀ i ∈ dom rc.onTreatment • i < #rc.onTreatment ⇒ rc.onTreatment(i).end < rc.onTreatment(i + 1).start) ∧
   (∀ m ∈ rc.values • m.period ∈ {rc.baseline} ∪ ran rc.onTreatment) ∧
+  (∀ ch ∈ rc.changes • ch.reference.period = rc.baseline ∧ ch.compared.period ∈ ran rc.onTreatment ∧
+     ch.reference ∈ rc.values ∧ ch.compared ∈ rc.values) ∧
   ∀ k ∈ {headacheDays, migraineDays} •
     (∀ p ∈ {rc.baseline} ∪ ran rc.onTreatment • ∃ m ∈ rc.values • m.measure = k ∧ m.period = p ∧ m.typeScope = allTypes) ∧
     (∀ p ∈ ran rc.onTreatment • ∃ ch ∈ rc.changes • ch.reference.measure = k ∧ ch.reference.period = rc.baseline ∧
-       ch.compared.period = p ∧ ch.reference.typeScope = allTypes ∧ ch.reference ∈ rc.values ∧ ch.compared ∈ rc.values)
+       ch.compared.period = p ∧ ch.reference.typeScope = allTypes)
 ```
-- Reading: A response comparison is aligned to the treatment's start date: the baseline period ends before it, and the on-treatment periods begin on or after it, in order. For the baseline and every on-treatment period it shows headache days and migraine days, and for every on-treatment period the change of each from baseline.
+- Reading: A response comparison is aligned to the treatment's start date: its baseline is a calendar month or 28-day period that ends before the start, and its on-treatment periods are calendar months or 28-day periods that begin on or after the start, in order. For the baseline and every on-treatment period it shows headache days and migraine days, which are therefore monthly values, and for every on-treatment period the change of each from baseline. Every change it shows compares a value it shows for an on-treatment period with the value it shows for the baseline.
 - Conformance: MUST. Scope: output.
 - Realises: OUT-018
-- Evidence: Stage 1 OUT-018.
+- Evidence: Stage 1 OUT-018 ("compare monthly migraine days and monthly headache days [...] in a pre-treatment baseline period with periods after treatment start"); OUT-001 (the monthly periods: calendar months or 28-day periods).
 
 ### INV-057 Moderate/severe headache days in the comparison, where reported
 - Predicate:
@@ -2383,9 +2399,10 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 ```omn
 ∀ rb : ResidualBurden • rb.migraineDays.measure = migraineDays ∧ rb.moderateSevereHeadacheDays.measure = moderateSevereHeadacheDays ∧
   rb.migraineDays.typeScope = rb.change.compared.typeScope ∧ rb.moderateSevereHeadacheDays.typeScope = rb.change.compared.typeScope ∧
-  ∀ m ∈ {rb.migraineDays, rb.moderateSevereHeadacheDays} • m.period.kind ∈ MonthlyKind ∧ within(m.period, rb.change.compared.period)
+  ∀ m ∈ {rb.migraineDays, rb.moderateSevereHeadacheDays} • m.period.kind ∈ MonthlyKind ∧ within(m.period, rb.change.compared.period) ∧
+    (rb.change.compared.period.kind ∈ MonthlyKind ⇒ m.period = rb.change.compared.period)
 ```
-- Reading: The residual burden shows migraine days and moderate/severe headache days of one calendar month or 28-day period within the compared on-treatment period, with the scope of the change.
+- Reading: The residual burden shows migraine days and moderate/severe headache days, with the scope of the change, for one calendar month or 28-day period: the compared on-treatment period itself when that is a calendar month or 28-day period (as in every response comparison, INV-056), and otherwise one such period within the compared period.
 - Conformance: definitional (E-044). Scope: output.
 - Realises: OUT-019
 - Evidence: Stage 1 OUT-019 ("per month that remain on treatment").
@@ -2417,7 +2434,7 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
      ((∃ k ∈ K.components • componentMet(L, k)) ⇒ L.category = responder) ∧
      ((∀ k ∈ K.components • componentDecided(L, k) ∧ ¬ componentMet(L, k)) ⇒ L.category = nonResponder))
 ```
-- Reading: If any component of the named criterion is met by the values shown (a reduction from baseline of at least the threshold in one of its measures, or an instrument-score decrease of at least the threshold from a baseline in the stated range, for subjects meeting the component's condition), the label is "responder". If every component can be decided from the values shown and none is met, the label is "non-responder". A criterion with a judgement component is not decided by the values alone, so the model then requires only the first relation.
+- Reading: If any component of the named criterion is met by the values shown (a reduction from baseline of at least the threshold in one of its measures, in the single on-treatment period the label refers to, or an instrument-score decrease of at least the threshold from a baseline in the stated range, for subjects meeting the component's condition), the label is "responder". If every component can be decided from the values shown and none is met, the label is "non-responder". A criterion with a judgement component is not decided by the values alone, so the model then requires only the first relation. A reduction component is decided only for a label that refers to one on-treatment period, because the cited criteria do not state how several periods are combined; a label over several periods is not decided by its reduction components.
 - Conformance: definitional (E-046). Scope: output.
 - Realises: OUT-020
 - Evidence: Stage 1 OUT-020; thresholds quoted in E-045.
@@ -2541,12 +2558,14 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 - Predicate:
 ```omn
 ∀ s : AcuteTreatmentSummary • (∀ k ∈ requiredOutcomes(s.earlyTimePoint) • ∃ os ∈ s.outcomes • os.measure = k) ∧
-  (s.treatedAttacks > 0 ⇒ s.sequence ≠ ∅) ∧ (∀ l ∈ ran s.sequence • l.intakeTiming ≠ ∅)
+  #s.sequence = s.treatedAttacks ∧
+  (∀ l ∈ ran s.sequence • l.intakeTiming ≠ ∅ ∧
+     ∀ k ∈ requiredOutcomes(s.earlyTimePoint) • ∃ b : 𝔹 • AttackOutcomeResult(measure ↦ k, achieved ↦ b) ∈ l.results)
 ```
-- Reading: An acute-treatment summary shows every outcome measure of its time point (pain freedom, absence of the most bothersome symptom, headache relief and non-pain-symptom status at 2 hours or 15 minutes; sustained pain freedom, maintained relief and maintained non-pain-symptom status to 24 hours; rescue or repeat medication; relapse; drug-related adverse events and whether they were regarded as meaningful), the consecutive treated attacks it summarises, and, for each of them, when the medication was taken relative to onset or the pain intensity at intake.
+- Reading: An acute-treatment summary shows every outcome measure of its time point (pain freedom, absence of the most bothersome symptom, headache relief and non-pain-symptom status at 2 hours or 15 minutes; sustained pain freedom, maintained relief and maintained non-pain-symptom status to 24 hours; rescue or repeat medication; relapse; drug-related adverse events and whether they were regarded as meaningful). It lists every treated attack it summarises, in order, and each attack line shows the result of every one of these outcome measures (so the absence of the most bothersome symptom is shown for each treated attack) and when the medication was taken relative to onset or the pain intensity at intake. The consistency of effect across consecutive treated attacks is thus visible.
 - Conformance: SHOULD. Scope: output.
 - Realises: OUT-012, OUT-023, OUT-031
-- Evidence: Stage 1 OUT-012, OUT-023, OUT-031.
+- Evidence: Stage 1 OUT-012 ("both across periods and in the response of individual treated attacks (see OUT-023)"), OUT-023 ("SHOULD show how consistently the drug was effective across consecutive treated attacks"), OUT-031.
 
 ### INV-073 Early time point: 15 minutes for cluster headache, otherwise 2 hours
 - Predicate:
@@ -2684,6 +2703,7 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 ```omn
 ∀ r : InstrumentResult •
   (r.instrument ∈ dom scoreRange ⇒ ∀ x ∈ r.totalScore • x ≥ scoreRange(r.instrument).low ∧ ∀ h ∈ scoreRange(r.instrument).high • x ≤ h) ∧
+  (r.instrument ∈ wholeNumberScores ⇒ ∀ x ∈ r.totalScore • x ∈ ℕ) ∧
   (∀ cat ∈ r.category • banded(r.instrument) ⇒ ∃ b ∈ gradeBands • cat = band(b) ∧ b.instrument = r.instrument ∧ ∀ x ∈ r.totalScore • inBand(x, b)) ∧
   (∀ cat ∈ r.category; b : GradeBand • cat = band(b) ⇒ b ∈ gradeBands ∧ b.instrument = r.instrument) ∧
   (r.instrument ∈ dom publishedRecall ⇒ ∀ rp ∈ r.recallPeriod • rp = publishedRecall(r.instrument)) ∧
@@ -2691,7 +2711,7 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
   (∀ ch ∈ r.changeFromBaseline; b ∈ r.baselineResult; x ∈ r.totalScore; y ∈ b.totalScore • ch = x − y) ∧
   (∀ d ∈ r.completionDate • InstrumentAdministration(instrument ↦ r.instrument, date ↦ d) ∈ ctx.subject.instrumentAdministrations)
 ```
-- Reading: A total score lies in the instrument's score range (36–78 for HIT-6; 0 or more for MIDAS, PedMIDAS and HALT); the grade or category shown is a published band of that instrument that contains the score; the recall period shown is the instrument's published recall period (3 months for MIDAS, PedMIDAS and HALT-90, 1 month for HIT-6 and HALT-30); the baseline administration is an earlier result of the same instrument; the change from baseline is the score minus the baseline score; the completion date is that of an available result.
+- Reading: A total score lies in the instrument's score range (36–78 for HIT-6; at least 0 for MIDAS, PedMIDAS and HALT, for which the model states no upper bound) and is a whole number for HIT-6, MIDAS, PedMIDAS, HALT-90 and HALT-30; the grade or category shown is a published band of that instrument that contains the score; the recall period shown is the instrument's published recall period (3 months for MIDAS, PedMIDAS and HALT-90, 1 month for HIT-6 and HALT-30); the baseline administration is an earlier result of the same instrument; the change from baseline is the score minus the baseline score; the completion date is that of an available result.
 - Conformance: definitional (E-057, E-058). Scope: output.
 - Realises: OUT-026, OUT-036
 - Evidence: Stage 1 OUT-026, OUT-036; [S-101], [S-102], [S-103], [S-014] quoted in E-057.
@@ -2748,10 +2768,12 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
 ### INV-087 Menstrual cycles, the perimenstrual window and attacks
 - Predicate:
 ```omn
-∀ v : MenstrualRelationView • v.completeCycles ≤ #v.cycles ∧
-  (∀ i ∈ dom v.cycles • i < #v.cycles ⇒ v.cycles(i + 1).cycle.from = next(v.cycles(i).cycle.to)) ∧
+∀ v : MenstrualRelationView • ran v.cycles ⊆ v.content ∧
+  v.completeCycles = #{cl ∈ ran v.cycles | cl.complete ∧ v.covers.start ≤ cl.cycle.from ∧ cl.cycle.to ≤ v.covers.end} ∧
+  (∀ i ∈ dom v.cycles • i < #v.cycles ⇒ v.cycles(i).complete ∧ v.cycles(i + 1).cycle.from = next(v.cycles(i).cycle.to)) ∧
   (∀ a ∈ v.content ∩ AttackMark • ∃₁ cl ∈ ran v.cycles • a ∈ cl.attacks) ∧
   ∀ cl ∈ ran v.cycles • cl.cycle.from ≤ v.covers.end ∧ v.covers.start ≤ cl.cycle.to ∧
+    (¬ cl.complete ⇒ cl.cycle.to = v.covers.end) ∧
     cl.firstDayOfMenstruation = cl.cycle.from ∧ cl.firstDayOfMenstruation = min cl.menstruationDays ∧
     (∀ d ∈ cl.menstruationDays • inSpan(d, cl.cycle)) ∧ (∀ d ∈ cl.migraineDays • inSpan(d, cl.cycle)) ∧
     cl.perimenstrualWindow = DateSpan(from ↦ plusDays(cl.firstDayOfMenstruation, − windowDaysBefore),
@@ -2759,7 +2781,7 @@ c.subject.preventiveTreatments ∩ c.subject.acuteTreatments = ∅ ∧
     ∀ a ∈ cl.attacks • inSpan(a.onset, cl.cycle) ∧
       (a.inPerimenstrualWindow ⇔ ∃ cl₂ ∈ ran v.cycles • inSpan(a.onset, cl₂.perimenstrualWindow))
 ```
-- Reading: The view shows consecutive cycles within its period, each beginning on its first day of menstruation (day 1); the perimenstrual window of a cycle runs from 2 days before to 2 days after day 1 (days −2 to +3, there being no day 0); every attack belongs to one cycle and is marked as in the window exactly when its onset falls in a perimenstrual window; the number of complete cycles does not exceed the number of cycles shown.
+- Reading: The view shows, as its own items, consecutive cycles that overlap its period, each beginning on its first day of menstruation (day 1). Every cycle except the last has ended; a cycle that has not ended is shown to the last day of the period the view covers. The perimenstrual window of a cycle runs from 2 days before to 2 days after day 1 (days −2 to +3, there being no day 0). Every attack belongs to one cycle and is marked as in the window exactly when its onset falls in a perimenstrual window. The number of complete cycles stated is the number of cycles shown that have ended and lie wholly within the period the view covers.
 - Conformance: definitional (E-060, E-061). Scope: output.
 - Realises: OUT-030
 - Evidence: Stage 1 OUT-030; [S-001] A1.1 quoted in E-060.
@@ -2936,7 +2958,7 @@ ctx.subject.ageGroup = childOrAdolescent ⇒ ∀ v : View • annotated(v, suppo
 - Conformance: SHOULD NOT. Scope: output.
 - Realises: OUT-038
 - Evidence: Stage 1 OUT-038 ("they support but do not replace clinical assessment and diagnosis").
-- Notes: The negative counterpart of the caveat of INV-099: an output that carried the caveat and at the same time claimed to replace clinical assessment or to make a diagnosis would contradict itself. INV-043 (SHOULD NOT, OUT-028), INV-048 (MUST NOT, OUT-016) and INV-084 (SHOULD NOT, OUT-033) state the same prohibition for particular outputs, INV-048 at the stronger level that OUT-016 requires; they are consistent with this general one.
+- Notes: The negative counterpart of the caveat of INV-099: an output that carried the caveat and at the same time claimed to replace clinical assessment or to make a diagnosis would contradict itself. INV-043 (SHOULD NOT, OUT-028), INV-048 (MUST NOT, OUT-016) and INV-084 (SHOULD NOT, OUT-033) state the same prohibition for particular outputs, INV-048 at the stronger level that OUT-016 requires; they are consistent with this general one. INV-106 (MUST NOT, OUT-018) and INV-107 (SHOULD NOT, OUT-023) prohibit two particular decisions that Stage 1 leaves to the reader.
 
 ### INV-102 Treatment review view available for each preventive treatment
 - Predicate:
@@ -2969,7 +2991,10 @@ ctx.subject.ageGroup = childOrAdolescent ⇒ ∀ v : View • annotated(v, suppo
   shownDay(v, moderateSevereHeadacheDays, v.covers, allTypes) ∧ (∃ e ∈ v.content ∩ AttackCount • e.period = v.covers ∧ e.typeScope = allTypes) ∧
   shownDay(v, headacheFreeDays, v.covers, allTypes) ∧ shownDay(v, symptomFreeDays, v.covers, allTypes) ∧
   (∃ sr ∈ v.content ∩ Series • within(first(sr.periods), v.covers) ∧ within(last(sr.periods), v.covers) ∧
-     perPeriod(v, sr, HeadacheDays, allTypes) ∧
+     perPeriod(v, sr, HeadacheDays, allTypes) ∧ (hasType(ctx, c1) ⇒ perPeriod(v, sr, MigraineDays, allTypes)) ∧
+     perPeriod(v, sr, ModerateSevereHeadacheDays, allTypes) ∧ perPeriod(v, sr, AttackCount, allTypes) ∧
+     (∀ p ∈ {v.covers} ∪ ran sr.periods • 0 ∈ daysOf(v, migraineDays, p, allTypes) ⇒
+        ∃ mk ∈ v.content ∩ MigraineFreePeriodMark • mk.period = p ∧ mk.typeScope = allTypes) ∧
      (sr.granularity ∈ MonthlyKind ⇒ ∀ p ∈ ran sr.periods •
         ∀ s ∈ {m ∈ ctx.subject.acuteMedications • ofClassUse(classOf(m.drug))} ∪ {combinedUse} •
           ∃ i ∈ v.content ∩ MedicationOveruseIndicator • i.period = p ∧ i.scope = s)) ∧
@@ -2985,13 +3010,14 @@ ctx.subject.ageGroup = childOrAdolescent ⇒ ∀ v : View • annotated(v, suppo
   (∀ t ∈ ctx.subject.preventiveTreatments ∪ ctx.subject.acuteTreatments • ∃ l ∈ v.content ∩ TreatmentLine • l.treatment = t) ∧
   (∀ a ∈ ctx.subject.instrumentAdministrations • inPeriod(a.date, v.covers) ⇒
      ∃ r ∈ v.content ∩ InstrumentResult • r.instrument = a.instrument ∧ r.completionDate = {a.date}) ∧
-  (∀ d ∈ {paidWorkOrSchool, householdWork, socialOrLeisure} • ∃ m ∈ v.content ∩ fiDays(d, affected) • m.period = v.covers)
+  (∀ d ∈ {paidWorkOrSchool, householdWork, socialOrLeisure} • ∃ m ∈ v.content ∩ fiDays(d, affected) • m.period = v.covers) ∧
+  (∃ m ∈ v.content ∩ DayCount • m.period = v.covers ∧ ∃ d : ImpactDomain • m.measure = functionalImpactDays((d, severelyImpaired)))
 ```
-- Reading: The clinician-facing summary is concise and brings together, for the period it covers: the frequency measures (headache, migraine, moderate/severe, headache-free and symptom-free days, attacks) and their time course with treatment markers; acute-medication days in total, by class, by drug and per week, and the medication-overuse indicators of its monthly periods; the response comparison and adherence of each preventive treatment, the effectiveness of each acute medication, and the treatment history; the available instrument results; and functional impact. Completeness accompanies its periods by INV-011.
+- Reading: The clinician-facing summary is concise and brings together, for the period it covers: the frequency measures (headache, migraine, moderate/severe, headache-free and symptom-free days, attacks, and the marks of periods without migraine days) and their time course (headache days, migraine days, moderate/severe headache days and attacks for every period of a series) with treatment markers; acute-medication days in total, by class, by drug and per week, and the medication-overuse indicators of its monthly periods; the response comparison and adherence of each preventive treatment, the effectiveness of each acute medication, and the treatment history; the available instrument results; and functional impact (days affected in each of the three domains and days with severe functional impairment). Completeness accompanies its periods by INV-011.
 - Conformance: SHOULD. Scope: output.
 - Realises: OUT-034, OUT-039
-- Evidence: Stage 1 OUT-034, OUT-039 ("The adherence output SHOULD also be available [...] in the clinician-facing summary (OUT-034)").
-- Notes: Headache-free and symptom-free days are included because OUT-034 names "frequency measures [...] (OUT-004 to OUT-009)", which includes OUT-008; see ISS-04.
+- Evidence: Stage 1 OUT-034 ("frequency measures and their time course (OUT-004 to OUT-009)", "functional impact (OUT-027)"), OUT-009 ("frequency measures (OUT-004 to OUT-007) as a time series of consecutive reporting periods"), OUT-027 ("including days with severe functional impairment"), OUT-039 ("The adherence output SHOULD also be available [...] in the clinician-facing summary (OUT-034)").
+- Notes: Headache-free days, symptom-free days and the marks of periods without migraine days are included because OUT-034 names "frequency measures [...] (OUT-004 to OUT-009)", which includes OUT-008; see ISS-04. The covered period and each period of the series are marked as without migraine days where the summary shows 0 migraine days for them. Migraine days themselves, for the covered period and in the time course, are required for patients with migraine, the OUT-005 condition that OUT-034 keeps by its reference to OUT-005 (section 3.5), as in INV-035.
 
 ### INV-105 Patient-facing overview content
 - Predicate:
@@ -3010,6 +3036,30 @@ ctx.subject.ageGroup = childOrAdolescent ⇒ ∀ v : View • annotated(v, suppo
 - Evidence: Stage 1 OUT-035.
 - Notes: Migraine days are included as OUT-035 names them, without the OUT-005 condition; see ISS-03.
 
+### 6.12 Decisions left to the reader
+
+### INV-106 No output decides on the continuation of a preventive treatment
+- Predicate:
+```omn
+¬ ∃ x : Element • continuationDecision ∈ x.claims
+```
+- Reading: No element presents a decision to continue, stop or change a preventive treatment. The output shows the change from baseline and, where it shows a responder label, the criterion that a reader chooses to apply, and it leaves the decision to the reader.
+- Conformance: MUST NOT. Scope: output.
+- Realises: OUT-018, OUT-020
+- Evidence: Stage 1 OUT-018 Caveats ("the output shows the change and names the criterion a reader chooses to apply (OUT-020), but does not itself decide on continuation"); OUT-020 Rationale ("Showing the named criterion with the underlying values serves both positions without the output itself making the decision").
+- Notes: The level is MUST NOT because the prohibition is the negative form of a Caveat of OUT-018, whose strength is MUST (section 3.3, item 6); OUT-020 (SHOULD) states the same in its Rationale and is the second part cited. A responder or control-level label (E-046) classifies the response under a named criterion; it is not a continuation decision, so this invariant does not restrict the labels that OUT-020 permits.
+
+### INV-107 No output decides which definition of acute treatment response applies
+- Predicate:
+```omn
+¬ ∃ x : Element • acuteResponseDefinitionDecision ∈ x.claims
+```
+- Reading: No element presents one definition of acute treatment response (for example pain freedom at 2 hours, or the EHF definition of effective attack treatment) as the one that applies. The output shows pain freedom and headache relief side by side and leaves the choice of definition to the reader.
+- Conformance: SHOULD NOT. Scope: output.
+- Realises: OUT-023
+- Evidence: Stage 1 OUT-023 Caveats ("The output therefore shows headache relief next to pain freedom and does not itself decide which definition of response applies").
+- Notes: The level is SHOULD NOT, the negative form of a Caveat of OUT-023, whose strength is SHOULD (section 3.3, item 6).
+
 ## 7. Traceability
 
 Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with the elements and invariants that realise it (from their Realises fields) and its coverage. Coverage is "full" when every observable property of the Statement, and every Caveat that constrains what an output shows, is represented.
@@ -3027,30 +3077,30 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with the 
 | OUT-009 | E-006, E-007, E-008, E-034, E-035 | INV-001, INV-004, INV-034, INV-035, INV-036 | full — time series of consecutive periods with markers for start, dose change and stop (E-034, E-035, INV-034 to INV-036); weekly values where weekly granularity is relevant (INV-034, INV-001). The purpose ("so that onset of effect [...] can be seen") is stated in the Meaning. |
 | OUT-010 | E-023, E-037 | INV-018, INV-032, INV-039 | full — per period on a stated scale (E-023, INV-018), comparison between periods (INV-039), relations (INV-032). |
 | OUT-011 | E-001, E-010, E-024 | INV-007, INV-019, INV-020, INV-021, INV-033 | full — per period (E-024, INV-019); label for treated attacks (INV-020); the Caveat as a SHOULD NOT (INV-021). |
-| OUT-012 | E-008, E-009, E-025, E-026, E-050, E-051, E-053 | INV-022, INV-033, INV-072, INV-076 | full — associated symptoms and most bothersome symptom across periods (E-025, E-026, INV-022) and in treated attacks (E-050, E-053, INV-072, INV-076). |
+| OUT-012 | E-008, E-009, E-025, E-026, E-050, E-051, E-053 | INV-022, INV-033, INV-072, INV-076 | full — associated symptoms and most bothersome symptom across periods (E-025, E-026, INV-022) and in the response of individual treated attacks: every summarised attack is listed with the result of every outcome measure, including the absence of the most bothersome symptom (E-050, E-053, INV-072), and with the status of each associated symptom for migraine (INV-076). |
 | OUT-013 | E-008, E-009, E-019, E-024, E-027 | — | full — aura count and duration as MAY elements for migraine with aura, separate from headache measures (E-027). |
 | OUT-014 | E-009, E-014, E-028, E-029, E-032 | INV-001, INV-005, INV-023, INV-024 | full — total, per ICHD-3 8.2 class and per drug, together per period (E-028, E-029, INV-023), relations (INV-024). |
 | OUT-015 | E-006, E-029, E-036 | INV-005, INV-025 | full — calendar-week view of acute-medication days in addition to per-period totals (E-036, INV-025). |
 | OUT-016 | E-001, E-009, E-010, E-028, E-029, E-032 | INV-007, INV-024, INV-044, INV-045, INV-046, INV-047, INV-048, INV-100 | full — per period, per class and for 8.2.6 combined use, with ICHD-3 subtype, reference level and time span shown (E-032, INV-044 to INV-046); prompt wording (INV-047); not a diagnosis (INV-048); basis of 8.2.6 per ICHD-3 (ISS-01). Plain language for patients is in the Audience line only and is stated in the Meaning. |
 | OUT-017 | E-008, E-010, E-039 | INV-007, INV-049, INV-050, INV-051, INV-052 | full — from the start of withdrawal, with the NICE 4–8-week window and continued over the following year (E-039, INV-049 to INV-051); worsening label (INV-052). |
-| OUT-018 | E-008, E-040, E-041, E-042, E-043, E-045 | INV-053, INV-054, INV-055, INV-056, INV-057, INV-058, INV-059 | full — per preventive treatment, baseline and on-treatment periods aligned to the start, values and absolute and percentage change (E-040, E-043, INV-053 to INV-057); evaluation time points of current guidance by treatment type, shown with the comparison (E-041, E-042, INV-055, INV-058, INV-059). The time points are those named in the Stage 1 evidence; see ISS-03 on migraine days. |
+| OUT-018 | E-001, E-008, E-040, E-041, E-042, E-043, E-045 | INV-001, INV-053, INV-054, INV-055, INV-056, INV-057, INV-058, INV-059, INV-106 | full — per preventive treatment, a baseline month and monthly on-treatment periods aligned to the start, so that monthly migraine days and monthly headache days are compared, with the values of each period and the absolute and percentage change (E-040, E-043, INV-053 to INV-057); evaluation time points of current guidance by treatment type, shown with the comparison (E-041, E-042, INV-055, INV-058, INV-059), every preventive treatment having a guidance type (INV-001); the Caveat that the output does not itself decide on continuation (E-001, INV-106). The time points are those named in the Stage 1 evidence of OUT-018 (NICE CG150, AAN/AHS 2026, SIGN 155, EHF 2022, IHS 2024, NVN and the Russian clinical recommendations); see ISS-03 on migraine days. |
 | OUT-019 | E-040, E-044 | INV-060, INV-061, INV-062 | full — residual migraine days and moderate/severe headache days per month next to every percentage change (E-044, INV-060, INV-061); see ISS-05. |
-| OUT-020 | E-001, E-008, E-014, E-018, E-040, E-045, E-046, E-058 | INV-031, INV-054, INV-062, INV-063, INV-064, INV-065, INV-100 | full — optional label (E-046) naming its criterion with thresholds (E-045, INV-062), with underlying and other values (INV-062), consistent with the criterion (INV-063, INV-064), not the sole indicator (INV-065); see ISS-08. |
+| OUT-020 | E-001, E-008, E-014, E-018, E-040, E-045, E-046, E-058 | INV-031, INV-054, INV-062, INV-063, INV-064, INV-065, INV-100, INV-106 | full — optional label (E-046) naming its criterion with thresholds (E-045, INV-062), with underlying and other values (INV-062), consistent with the components of the criterion that the values shown decide, reduction components for a label over a single on-treatment period (INV-063, INV-064), not the sole indicator (INV-065); no automatic verdict on continuation (INV-106); see ISS-08. |
 | OUT-021 | E-023, E-025, E-026, E-048, E-051, E-058 | INV-068, INV-069, INV-071, INV-102 | full — MUST components for the same periods (E-048, INV-068, INV-102); SHOULD components where provided, including acute-treatment effectiveness per period and most recent instrument and PGIC results (INV-069, INV-071). The patient's own goals are brought by the reader (E-048 Notes). |
 | OUT-022 | E-008, E-049 | INV-070, INV-103 | full — after stop, pause or reduction, headache and migraine days shown with the on-treatment period and the original baseline (E-049, INV-070, INV-103); see ISS-03. |
-| OUT-023 | E-008, E-050, E-051, E-052, E-053 | INV-069, INV-071, INV-072, INV-073, INV-074, INV-075 | full — per acute medication and per formulation, all named outcome measures including relief, non-pain symptoms and adverse events, consistency across consecutive treated attacks, timing of intake, 15 minutes for cluster headache, separate baseline and on-treatment summaries (E-050 to E-053, INV-071 to INV-075). |
+| OUT-023 | E-001, E-008, E-050, E-051, E-052, E-053 | INV-069, INV-071, INV-072, INV-073, INV-074, INV-075, INV-107 | full — per acute medication and per formulation, all named outcome measures including relief, non-pain symptoms and adverse events, consistency across consecutive treated attacks (every summarised attack listed in order with the result of every outcome measure), timing of intake, 15 minutes for cluster headache, separate baseline and on-treatment summaries (E-050 to E-053, INV-071 to INV-075); the Caveat that the output does not itself decide which definition of response applies (E-001, INV-107). |
 | OUT-024 | E-008, E-051, E-054, E-055 | INV-077, INV-078, INV-079 | full — chronological lists of preventive and of acute treatments grouped by drug class with dates, dose changes, duration, response, adverse effects, stop reason and acute formulation (E-054, E-055, INV-077 to INV-079); Caveats stated in the Meaning. |
 | OUT-025 | E-007, E-046, E-056, E-058 | INV-080 | full — MAY view for selected scheme windows labelled with the scheme name (E-056, INV-080). |
 | OUT-039 | E-008, E-047, E-054, E-055, E-066 | INV-066, INV-067, INV-079, INV-104 | full — adherence next to the response comparison over the evaluation window (E-047, INV-066, INV-067), in the treatment history (E-055) and in the clinician-facing summary (INV-104). |
-| OUT-026 | E-008, E-057, E-058 | INV-081, INV-082 | full — results where available with name, date, recall, total score, published grading and change from baseline (E-057, E-058, INV-081, INV-082); see ISS-06. |
+| OUT-026 | E-008, E-057, E-058 | INV-081, INV-082 | full — results where available with name, date, recall, total score (in the instrument's range, a whole number for the instruments that have whole-number scores), published grading and change from baseline (E-057, E-058, INV-081, INV-082); see ISS-06. |
 | OUT-027 | E-014, E-030, E-037 | INV-005, INV-026, INV-027, INV-033 | full — days affected per domain and days with severe impairment per period (E-030, INV-026), comparison with the baseline period (INV-027), relations (INV-033). |
 | OUT-028 | E-001, E-006, E-009, E-011, E-038 | INV-008, INV-040, INV-041, INV-042, INV-043 | full — three most recent consecutive monthly periods with headache and migraine days (E-038, INV-040, INV-041); source definitions and codes SHOULD (INV-042); no diagnosis SHOULD NOT (INV-043); see ISS-03. |
-| OUT-029 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-028, INV-029, INV-030 | full — frequency and acute-medication outputs per headache type and combined when more than one type is possible (INV-028), intensity per type where provided (INV-029), relations (INV-030). |
-| OUT-030 | E-008, E-060, E-061 | INV-086, INV-087 | full — migraine attacks and days in relation to menstruation across consecutive cycles, ICHD-3 A1.1 window distinguished, number of complete cycles (E-060, E-061, INV-086, INV-087). |
+| OUT-029 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-028, INV-029, INV-030 | full — frequency outputs and acute-medication days (total, per ICHD-3 8.2 class and per drug) per headache type and combined when more than one type is possible (INV-028), intensity per type where provided (INV-029), relations (INV-030); see ISS-09 on the weekly view and the overuse indicator. |
+| OUT-030 | E-008, E-060, E-061 | INV-086, INV-087 | full — migraine attacks and days in relation to menstruation across consecutive cycles, ICHD-3 A1.1 window distinguished, number of complete cycles defined over the cycles shown (E-060, E-061, INV-086, INV-087). |
 | OUT-031 | E-008, E-009, E-050, E-051, E-052, E-062, E-063, E-064 | INV-072, INV-073, INV-088, INV-089 | full — bouts and remissions with start, end and duration under the ICHD-3 definitions, attacks per day and per week in active periods, acute effectiveness at 15 minutes and rescue need, history of previous bouts as the chronological bout list (E-062 to E-064, INV-088, INV-089). |
 | OUT-032 | E-010, E-065 | INV-007, INV-090, INV-100 | full — MAY view (E-065) with the two caveats SHOULD (INV-090) and the clinical-interpretation caveat (INV-100). |
 | OUT-033 | E-001, E-008, E-059 | INV-083, INV-084, INV-085 | full — screening results where available with name, date and score next to headache outputs (E-059, INV-083, INV-085); not psychiatric diagnoses (INV-084). |
-| OUT-034 | E-003, E-007, E-035, E-058, E-066 | INV-011, INV-094, INV-104 | full — concise clinician-facing summary for the chosen period and the period since the previous consultation, with all named components (E-066, INV-094, INV-104); shareable represented by availability for clinician audiences; see ISS-04. |
+| OUT-034 | E-003, E-007, E-035, E-058, E-066 | INV-011, INV-094, INV-104 | full — concise clinician-facing summary for the chosen period and the period since the previous consultation, with all named components (E-066, INV-094, INV-104), including the time course of every frequency measure of OUT-004 to OUT-007, the OUT-008 measures with periods without migraine days, and days with severe functional impairment; shareable represented by availability for clinician audiences; see ISS-04. |
 | OUT-035 | E-003, E-007, E-023, E-035, E-060, E-067 | INV-095, INV-105 | full — plain-language patient overview over time with the named components (E-067, INV-095, INV-105); see ISS-03. |
 | OUT-036 | E-007, E-008, E-010, E-030, E-031, E-037, E-043, E-057, E-058 | INV-033, INV-055, INV-082, INV-096, INV-097, INV-098 | full — (a) PedMIDAS with 3-month recall and (b) school days and caregiver impact (INV-096); (c) equal-length comparisons (INV-097); (d) efficacy from diary data by the response comparison, available for every subject (E-043, INV-055); supportive-information caveat (INV-098). |
 | OUT-037 | E-008, E-009, E-010, E-012, E-033 | INV-007, INV-091, INV-092, INV-093 | full — for migraine no primary composite index (INV-091), exploratory label and components if shown (INV-092); AUC for tension-type headache with headache days (INV-093) (E-033). |
@@ -3079,7 +3129,7 @@ The model follows Stage 1 in each case below. Each issue is pointed to from the 
 
 ### ISS-04 The clinician-facing summary includes MAY measures at SHOULD level
 - Stage 1: OUT-034 (SHOULD) brings together "frequency measures and their time course (OUT-004 to OUT-009)". The range includes OUT-008 (headache-free days, symptom-free days, periods without migraine days), which is MAY in its own requirement.
-- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free and symptom-free days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034.
+- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free days, symptom-free days and the marks of periods without migraine days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034.
 - For the human: decide whether OUT-034 means OUT-008 measures "where provided".
 
 ### ISS-05 OUT-019 and the single count of the IHS position statement 2025
@@ -3094,22 +3144,29 @@ The model follows Stage 1 in each case below. Each issue is pointed to from the 
 - Effect on the model: `totalScore` is SHOULD for every instrument as Stage 1 states it (E-058); categories are shown as published (`publishedCategory`). For HURT the SHOULD cannot be met.
 - For the human: decide whether OUT-026 should read "total score, where the instrument defines one".
 
-### ISS-07 Overlapping bands in two Stage 1 sources
-- Evidence: the HALT-90 grading in [S-014] has the bands "11–20" (Moderate, III) and "≥20" (Severe, IV) (Table 18 "Grading of HALT-90"), so a score of 20 lies in two grades; the HALT developers' 2018 paper prints the same table. The IHS Q6 definition of a clinically meaningful MIDAS improvement uses the baseline ranges "11–20" and "≥20" ([S-008] Q6, Evidence, p. 13), which also overlap at 20.
-- Effect on the model: the bands are stated as published (E-045, E-057); at a score of 20 either band satisfies the relations (INV-063, INV-082). This is not a defect of Stage 1, which does not state the bands, but it affects model value sets taken from Stage 1 sources.
-- For the human: no action needed unless a single band is wanted at 20.
-
 ### ISS-08 Control levels under "responder or non-responder label"
 - Stage 1: OUT-020 speaks of "a responder or non-responder label" and names the "IHS position statement 2025 control levels" as an example criterion. That criterion has four levels, not two.
 - Evidence: [S-010] defines "Migraine Freedom", "Optimal Control", "Modest Control" and "Insufficient Control" (section "Setting goals of migraine burden while on treatment", p. 6; quoted in E-046).
 - Effect on the model: the label category is either responder, non-responder or one of the four control levels (E-046); all other properties of OUT-020 apply to every category.
 - For the human: confirm that control-level labels are responder labels in the sense of OUT-020.
 
+### ISS-09 Which "acute medication outputs" OUT-029 breaks down by headache type
+- Stage 1: OUT-029 (MUST) asks for "frequency and acute medication outputs separately for each headache type [...] as well as combined", without naming which acute-medication outputs it means. Group D of Stage 1 contains the acute-medication days of OUT-014 (total, by class and by drug), the weekly view of OUT-015 (SHOULD) and the medication-overuse indicator of OUT-016 (MUST).
+- Evidence: the ICHD-3 8.2 levels to which the OUT-016 indicator refers concern the use of acute or symptomatic headache medication as such, not the medication taken for one headache type: [S-001] "[...] regular overuse of acute or symptomatic headache medication (on 10 or more or 15 or more days/month, depending on the medication) for more than three months." (8.2 Medication-overuse headache, Description, p. 122; quoted in E-032).
+- Effect on the model: INV-028 presents the acute-medication days of OUT-014 (total, per class and per drug) for each headache type and combined. The weekly view (E-036, INV-025) and the medication-overuse indicator (E-032, INV-044) are required for all headache types combined only; an indicator per headache type would not correspond to the ICHD-3 levels.
+- For the human: decide whether "acute medication outputs" in OUT-029 also covers the weekly view of OUT-015 and the medication-overuse indicator of OUT-016.
+
+ISS-07 was withdrawn in iteration 01 (section 9).
+
 No output was found in the Stage 2 research that EBM supports and Stage 1 lacks. No Stage 1 source was found to be outdated by a newer version during the Stage 2 research.
 
 ## 9. Withdrawn elements
 
-None (as of v00).
+No element (E-NNN) or invariant (INV-NNN) has been withdrawn (as of v01). One Stage 1 issue of section 8 has been withdrawn and is listed here so that its ID is not reused:
+
+| ID | Name | Withdrawn in iteration | Reason |
+|---|---|---|---|
+| ISS-07 | Overlapping bands in two Stage 1 sources (a Stage 1 issue of section 8) | 01 | Not a gap or defect of Stage 1, which does not state the bands (review remark R01-12). The overlaps of the HALT-90 bands at 20 and of the IHS Q6 MIDAS baseline ranges at 20 remain described in the Notes of E-057 and E-045. |
 
 ## 10. Sources
 
@@ -3121,7 +3178,7 @@ New Stage 2 sources only; Stage 1 sources S-001 to S-046 are cited by their Stag
 | S-102 | Pavlovic JM, Stewart WF, Bruce CA, Gorman JA, Sun H, Buse DC, Lipton RB. Burden of migraine related to menses: results from the AMPP study. J Headache Pain 2015;16:24. | Primary study (population-based study), co-authored by W.F. Stewart and R.B. Lipton, the developers of MIDAS; no grading | English | 2015 | 10.1186/s10194-015-0503-y / PMID 25902814 / PMC4406925 | https://pmc.ncbi.nlm.nih.gov/articles/PMC4406925/ |
 | S-103 | Cincinnati Children's Hospital Medical Center, Headache Center. "PedMIDAS Tool for Assessing Migraine Disability" (web page "PedMIDAS Tool"). PedMIDAS was developed at this centre (Hershey AD, Powers SW, Vockell AL, et al. PedMIDAS: development of a questionnaire to assess disability of migraines in children. Neurology 2001;57(11):2034–2039, PMID 11739822). | Instrument documentation by the developers' institution; no grading | English | current page (page footer © 2026) | — (developer paper: 10.1212/wnl.57.11.2034 / PMID 11739822) | https://www.cincinnatichildrens.org/service/h/headache-center/pedmidas |
 | S-104 | Snaith RP. The Hospital Anxiety And Depression Scale. Health Qual Life Outcomes 2003;1:29. | Commentary by a co-developer of the instrument; no grading | English | 2003 | 10.1186/1477-7525-1-29 / PMID 12914662 / PMC183845 | https://pmc.ncbi.nlm.nih.gov/articles/PMC183845/ |
-| S-105 | Instruction manual: Instructions for Patient Health Questionnaire (PHQ) and GAD-7 Measures. The PHQ family of measures and the GAD-7 "were developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational grant from Pfizer Inc." (manual, P. 9/9). Undated; PDF created 2010, modified 2014 (document metadata, author Kurt Kroenke). Copy hosted by The Joint Commission. | Instrument documentation by the developers; no grading | English | 2010 (PDF metadata) | — | https://manual.jointcommission.org/pub/BHCInstruments/RomInstr00054/instructions_PHQ.pdf |
+| S-105 | Instruction manual: Instructions for Patient Health Questionnaire (PHQ) and GAD-7 Measures. The PHQ family of measures and the GAD-7 "were developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational grant from Pfizer Inc." (manual, P. 8/9, section "Questions regarding development, acknowledgments and use"). Undated; PDF created 2010, modified 2014 (document metadata, author Kurt Kroenke). Copy hosted by The Joint Commission. | Instrument documentation by the developers; no grading | English | 2010 (PDF metadata) | — | https://manual.jointcommission.org/pub/BHCInstruments/RomInstr00054/instructions_PHQ.pdf |
 
 ## 11. Search log
 
@@ -3142,6 +3199,22 @@ Search date: 2026-10-21. Tools: direct download with `curl` through the configur
 | Spanish | Web search "PedMIDAS grados discapacidad 0-10 11-30 31-50 >50 cuestionario migraña infantil validación española". | — | No Spanish PedMIDAS validation with grade labels found; a Spanish MIDAS validation (PMC7038557) was found and not needed. |
 | Other languages | — | — | The value sets added in Stage 2 are defined by English-language standard owners and instrument developers; national-language versions are translations with the same score bands. Stage 1's multilingual sources (for example S-023, German; S-033, Russian) are reused by their Stage 1 quotes for responder criteria (E-045). No further languages were searched in this iteration. |
 
+Iteration 01 (fix, 2026-10-21): no new searches. To verify review remarks, the following were downloaded again with `curl` into a fresh directory outside the repository and checked by script: the Stage 1 URLs of [S-028] (NVN module page, HTTP 200; the Aanbeveling contains the OUT-018 quote and begins with the advice to start prophylactics low and titrate slowly), [S-033] (official PDF, 92 pages; the OUT-018 quote is in section 7.1 "Оценка эффекта проводимой терапии", p. 53) and [S-001] (8.2 Description, p. 122); the Europe PMC full texts of [S-014], [S-101] and [S-102]; the [S-103] page; and the [S-105] PDF (the developers sentence is on page "P.8/9"). No new source was added.
+
 ## 12. Change log
 
 - v00 (iteration 00, 2026-10-21): Initial draft by the author. Notation OMN defined (section 2). 67 elements (E-001 to E-067) and 105 invariants (INV-001 to INV-105) realising all 39 Stage 1 requirements, each traced with full coverage (section 7). Thresholds, reference levels, offsets and score bands that are part of the output data are stated with verbatim quotes: ICHD-3 codes, the 8.2 reference levels and time span, the A1.1 perimenstrual window and the remission duration ([S-001]); the IHS Q6 thresholds ([S-008]) and IHS 2025 control levels ([S-010]); HALT recall, units and grading ([S-014]); HIT-6, MIDAS, PedMIDAS, HADS, PHQ-9 and GAD-7 value sets (new sources S-101 to S-105). Eight Stage 1 issues listed (ISS-01 to ISS-08). Mechanical checks run by script (IDs, references, declared names, attribute selections, traceability, conformance levels against Stage 1 statement strength).
+- v01 (iteration 01, 2026-10-21): Fix of review iteration 01 (12 remarks; fixes/fix-iter-01.md).
+  - R01-01: evaluation rules `ruleNvnTitrated` (NVN, 2–3 months, titrated prophylactics) and `ruleRu71` (Russian section 7.1, 3 months) added to E-041; E-041 Notes and the OUT-018 row now describe the rule list accurately.
+  - R01-02: INV-001 requires a guidance type for every preventive treatment (`otherPreventive` as fallback); E-008 and E-041 Notes.
+  - R01-03: baseline and on-treatment periods of a response comparison are calendar months or 28-day periods, and every change of a comparison compares its on-treatment and baseline values (INV-056, E-043); INV-061 refers to the compared period itself when that is monthly (E-044 Notes).
+  - R01-04: the reduction relations of E-046 decide only labels with a single evaluated period (`reductionMet`, `reductionDecided`, INV-063 Reading, E-046 Notes).
+  - R01-05: claim `continuationDecision` (E-001) and INV-106 (MUST NOT); the same kind of gap for the OUT-023 Caveat fixed by claim `acuteResponseDefinitionDecision` and INV-107 (SHOULD NOT); new section 6.12.
+  - R01-06: INV-028 requires the per-class and per-drug acute-medication days per headache type; the model's reading of "acute medication outputs" stated as ISS-09 (new), with pointers from E-029, E-032, E-036 and INV-028.
+  - R01-07: INV-072 requires every summarised treated attack to be listed with a result for every outcome measure; E-051 `sequence` SHOULD only when there are treated attacks.
+  - R01-08: `CycleLine.complete` added; INV-087 defines `completeCycles` over the cycles shown, lets only the last cycle be unfinished, fixes its span and requires the cycles to be items of the view.
+  - R01-09: INV-104 requires the time course of migraine days, moderate/severe headache days and attacks, the marks of periods without migraine days and the days with severe functional impairment; ISS-04 updated; the Conformance of E-020 to E-022 points to INV-104.
+  - R01-10: `high = ∅` now means "the model states no upper bound"; `wholeNumberScores` (MIDAS, HIT-6, PedMIDAS, HALT-90, HALT-30) and the whole-number conjunct of INV-082; ℕ₁ ⊆ ℕ ⊆ ℤ ⊆ ℚ stated in section 2.8.
+  - R01-11: S-105 location corrected to P. 8/9.
+  - R01-12: ISS-07 withdrawn (section 9); E-046 Notes point to ISS-08; E-028 Notes point to ISS-01.
+  - Totals: 67 elements (E-001 to E-067) and 107 invariants (INV-001 to INV-107); eight Stage 1 issues (ISS-01 to ISS-06, ISS-08, ISS-09; ISS-07 withdrawn).
