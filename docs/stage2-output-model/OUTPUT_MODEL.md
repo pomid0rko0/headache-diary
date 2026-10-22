@@ -1,7 +1,7 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v35 · Iteration: 35 · Status: under review
+Version: v36 · Iteration: 36 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
-Companion: RATIONALE.md v35
+Companion: RATIONALE.md v36
 
 ## 1. Scope and exclusions
 
@@ -64,7 +64,7 @@ A model is a set of paragraphs. Each name is declared once.
 - **Attributes.** Each attribute declaration has the form `a : T [derived] level [when φ] [shown [MUST | SHOULD] [when ψ]]`, with `level` one of `core`, `MUST`, `SHOULD`, `MAY` (section 3.3); the last part is a placement marker (rule W2). Every atom x of the type has a value x.a ∈ T. Different element types may declare attributes with the same name; in `e.a` the attribute is that of the type of e. In `when φ`, `self` denotes the atom and `ctx` the context of the output it belongs to (section 3.2).
 - **Typing rule for levels.** An attribute of level `SHOULD` or `MAY`, or of level `MUST` with a `when` clause, has a type of the form `opt T`, `set T` or `seq T`, so that absence is expressible. An attribute of level `core`, or `MUST` without `when`, may have any type.
 - **Composition.** An attribute whose type mentions an element type R without `→` holds atoms that are parts of the holder. In this model only `Output.views` and `View.content` are composition attributes. Every `View` atom is part of exactly one `Output` atom, and every `Item` atom is part of exactly one `View` atom. `outputOf(x)` is the output an atom belongs to (an output belongs to itself), and `viewOf(x)` is the view an item is part of; both are given total functions, declared in E-002 and E-003, whose values this composition fixes.
-- **References.** An attribute whose type mentions `→R` holds atoms of R. **Rule W1:** every referenced atom belongs to the same output as the holder. References create no parts. `refs(x)` denotes the set of atoms that the attributes of atom x reference directly. Where a referenced atom must be shown in the holder's view, an invariant states it: for periods, INV-003, which also places in one view every two items that refer to the same period atom (INV-003 Notes), and shows in a view the dates of the periods of the values that a change, a residual burden or a composite index shown in it refers to (`referencedValues`, E-011); for the other references, a placement marker (rule W2).
+- **References.** An attribute whose type mentions `→R` holds atoms of R. **Rule W1:** every referenced atom belongs to the same output as the holder. References create no parts. `refs(x)` denotes the set of atoms that the attributes of atom x reference directly. Where a referenced atom must be shown in the holder's view, the model states it: for periods, INV-003, which also places in one view every two items that refer to the same period atom (INV-003 Notes), and shows in a view the dates of the periods of the values that a change, a residual burden or a composite index shown in it refers to (`referencedValues`, E-011); for the other references, a placement marker (rule W2) or one of the invariants INV-060, INV-078 and INV-087, which section 6.0 names with the references they place.
 - **Rule W2 (placement).** An attribute whose type mentions `→R` may carry a placement marker after its level and `when` clause: `shown` (definitional), `shown MUST` or `shown SHOULD`, optionally followed by its own `when ψ` (with `self` and `ctx` as in the attribute's `when` clause). `shown` is a keyword; a `when` clause ends before it. For every atom x of the type for which ψ holds (every atom, where the marker has no `when`; the attribute's own `when φ` does not restrict the marker), every atom y that x.a references satisfies `∀ h ∈ home(x) • y = h ∨ y ∈ h.content`, where `fun home(x : Element) : set View ≙ {v ∈ {x} ∩ View • v} ∪ {i ∈ {x} ∩ Item • viewOf(i)}` (the view itself for a view, and the item's view for an item). A marker without a level is part of the element's definition (section 3.3, item 5). A marker with a level holds at that level (section 3.3, item 8). Typing rule: a marker only on an attribute whose type mentions `→R`. The attributes that carry markers are listed in section 6.0.
 
 ### 2.6 Terms and formulas
@@ -210,7 +210,7 @@ A diary is **MUST-conformant** when its repertoire satisfies every definitional 
 2. **Attributes.** For an attribute `a : T level when φ` of type `opt T`, `set T` or `seq T`, the presence constraint "for every atom x of the type for which φ holds, x.a is not empty" holds at the given level. An attribute of level `MUST` without `when`, or of level `core`, is present by typing. `core` marks an attribute that is part of the element's identity: an atom without it would not be an instance of the element. A `core` attribute carries no level of its own; it is present whenever the element is. `MAY` imposes no presence constraint.
 3. **Element and attribute levels.** An attribute's level applies to every atom of the element that exists. An element whose availability is SHOULD or MAY has MUST attributes only where a MUST statement part of Stage 1 requires that content in every such element; the attribute then cites that part (for example the reporting period of OUT-001, which every summary output MUST state).
 4. **Invariants.** Each invariant has one level, except a level-indexed invariant (item 7), which has one level per instance. An invariant of level MUST NOT or SHOULD NOT has a predicate of the form `¬ F`; F is the prohibited situation, and the invariant is satisfied when F does not occur.
-5. **Definitional invariants.** An invariant that states the relation of a derived attribute to other output elements, a bound that follows from an element's definition (for example a number of days within a period), or the structure of an element (for example that a series is consecutive) is *definitional*. It is part of the meaning of the element: an atom that does not satisfy it is not an instance of the element. A definitional invariant has no level of its own. It holds wherever the element is shown, and the level of the element or attribute decides whether the element is shown at all. It therefore cannot make an element more or less required; it excludes only outputs that show a value contradicting the definition of the element, which no Stage 1 requirement permits. Definitional invariants are marked "definitional" in their Conformance field, with the requirement whose element they define.
+5. **Definitional invariants.** An invariant that states the relation of a derived attribute to other output elements, a bound that follows from an element's definition (for example a number of days within a period), or the structure of an element (for example that a series is consecutive) is *definitional*. It is part of the meaning of the element: an atom that does not satisfy it is not an instance of the element. A definitional invariant has no level of its own. It holds wherever the element is shown, and the level of the element or attribute decides whether the element is shown at all. It therefore cannot make an element more or less required; it excludes only outputs that show a value contradicting the definition of the element, which no Stage 1 requirement permits. Definitional invariants are marked "definitional" in their Conformance field, with the elements whose definition they are part of (for INV-001, the set `Ctx` that it characterises).
 6. **Stage 1 strength.** Every level follows the strength of the Stage 1 statement part that the element, attribute or invariant realises (Stage 2 PROCESS.md section 4). A prohibition that is the negative form of a Stage 1 statement part or caveat (for example "supports but does not replace clinical assessment and diagnosis", or "reports scores as screening results, not as psychiatric diagnoses") has the negative level of the same strength: SHOULD NOT for a SHOULD part, MUST NOT for a MUST part. A constraint is stronger than one part only where another part of at least that strength directly requires it, and it then cites both parts. Purely structural primitives take the level of the requirement that needs them.
 7. **Level-indexed invariants.** An invariant whose Conformance field reads "level-indexed" has a predicate Φ with one free variable l of type `Level`. For each l ∈ {must, should, shouldNot, mustNot}, the instance Φ[l] is a constraint at level MUST, SHOULD, SHOULD NOT or MUST NOT. The instance Φ[may] imposes nothing. An instance at SHOULD NOT or MUST NOT has the form ¬ F (item 4). The level of every case that an instance reads from a table follows the Stage 1 strength of the statement part named in that row (item 6).
 8. **Placement markers.** A placement marker `shown L` (rule W2, section 2.5) holds at level L for every atom of the type for which its `when` clause holds. `shown` without a level is definitional (item 5).
@@ -278,7 +278,7 @@ The model has five layers.
 
 1. **Frame** (E-001 to E-009). An `Output` is what a reader receives. It consists of one or more `View`s (summary outputs); each view covers a reporting `Period` and contains `Item`s, and every element carries the `claims` it puts to the reader. Every output is produced for an `OutputContext` (E-007, E-008); the repertoire `Rep` pairs outputs with contexts, and availability requirements are statements about `Rep` (section 3.2).
 2. **Labels and reliability** (E-010, E-011, E-013). `Annotation`s (caveats, prompts, exploratory labels) qualify elements; `DefinitionLabel`s name the published definition of a measure; a `CompletenessIndicator` accompanies each reporting period.
-3. **Per-period values** (E-012, E-014 to E-031, E-033, E-051, E-064) and the medication-overuse indicator (E-032, an item for one period and one class or combined use, not a `PeriodValue`). A `PeriodValue` is a value shown for one period and one type scope (all headache types combined, or one type).
+3. **Per-period values** (E-012, E-014 to E-027, E-029 to E-031, E-033, E-051, E-064), the acute drug classes by which acute-medication days are broken down (E-028, not a `PeriodValue`), and the medication-overuse indicator (E-032, an item for one period and one class or combined use, not a `PeriodValue`). A `PeriodValue` is a value shown for one period and one type scope (all headache types combined, or one type).
 4. **Views over time and treatment views** (E-034 to E-056): series with treatment markers, period comparisons, the response comparison with its changes, evaluation time points, residual burden, responder labels and adherence, the treatment review view, post-stop monitoring, the withdrawal follow-up view, acute-treatment effectiveness with per-attack lines, the treatment history and scheme windows.
 5. **Instruments, special populations and audience-specific views** (E-057 to E-067): instrument and screening results with their value sets, the menstrual-relation view, cluster-headache outputs, the trigger co-occurrence view, the clinician-facing summary and the patient-facing overview.
 
@@ -292,16 +292,16 @@ ResponseComparison → Period (baseline, on-treatment), DayCount, Change, Evalua
 ResidualBurden → Change, DayCount;  ResponderLabel → ResponseComparison, ResidualBurden, Period, Item
 MedicationOveruseIndicator → Period (reporting period, span), DayCount (basis)
 AcuteTreatmentSummary → Period, TreatedAttackLine;  OutcomeSummary → AcuteTreatmentSummary
-TreatmentHistoryView ⊃ ClassGroup → TreatmentLine → ResponseComparison | AcuteTreatmentSummary | AdherenceSummary
+TreatmentHistoryView → ClassGroup → TreatmentLine → ResponseComparison | AcuteTreatmentSummary | AdherenceSummary
 InstrumentResult → InstrumentResult (baseline administration)
-Annotation → Element (qualified);  DefinitionLabel names the definition of a measure shown in its view
+Annotation → Element (qualified);  DefinitionLabel names the definition that its view follows for a measure
 ```
 
 ### 4.2 Catalogue: row IDs and columns
 
 The catalogue (section 4.3) has one row per kind of output that a reader is shown. A row is identified by `OC-NN`; the constant `ocNN` of `enum CatalogueRow` (section 4.4) names the same row (`OC-07` ↔ `oc07`). The rows of the case tables of section 4.4 are identified by `C1-NN`, `C2-NN` and `C3-NN`, the rows of the source data tables of section 11 by `SD-<table>-NN`. These IDs are never renumbered or reused; a withdrawn row keeps its ID and is listed in section 9.
 
-The catalogue table is an index. Its cells name items by ID, state levels and quote Stage 1 wording; they restate no predicate and have no formal force. The formal force of the catalogue lies in the enumeration `CatalogueRow` and in the case tables C1, C2 and C3 (section 4.4), over which the generic invariants INV-118, INV-119 and INV-120 quantify.
+The catalogue table is an index. Its cells name items by ID, state levels, quote Stage 1 wording and repeat the OMN predicates of applicability conditions; they state no constraint of their own and have no formal force. The formal force of the catalogue lies in the enumeration `CatalogueRow` and in the case tables C1, C2 and C3 (section 4.4), over which the generic invariants INV-118, INV-119 and INV-120 quantify.
 
 | Column | Content |
 |---|---|
@@ -315,7 +315,7 @@ The catalogue table is an index. Its cells name items by ID, state levels and qu
 | Prohibited | C2 cases, and INV-091 |
 | Realises | the requirements whose statements name this kind of output; each is in the Realises field of an item named in the row |
 
-Elements that are not outputs and have no row: E-001 (root; holds `claims`, `presents`, `factsShown`), E-007 and E-008 (context), E-009 (codes; values in table SD-IC), and E-014 (abstract `DayCount`; nesting in INV-122).
+Elements without a row of their own: E-001 (root; holds `claims`, `presents`, `factsShown`), E-007 and E-008 (context), E-009 (codes; values in table SD-IC), and E-014 (`DayCount`, whose kinds E-015 to E-018, E-020, E-021, E-029 and E-030 have rows; nesting in INV-122).
 
 ### 4.3 The catalogue
 
@@ -330,7 +330,7 @@ Abbreviations: "label" = INV-008, "completeness" = INV-011, "def." = definitiona
 | OC-05 | Headache days (E-015; E-014) | OUT-004: patients, primary-care clinicians, specialists, researchers | per period; calendar month or 28-day period | every subject | MUST (C1-01); def. INV-006, INV-121, INV-122 | label (fixed: SD-DF-01); completeness | — | OUT-001, OUT-002, OUT-004 |
 | OC-06 | Migraine days (E-016) | OUT-005: patients, clinicians, researchers | calendar month or 28-day period | "For patients with migraine" — `hasType(c, c1)` | MUST (C1-02) | label; completeness | — | OUT-001, OUT-002, OUT-005 |
 | OC-07 | Moderate/severe headache days (E-017) | OUT-006: clinicians, researchers, patients | calendar month or 28-day period | every subject; MUST "where provided" — `provides(…)` | SHOULD (C1-03); MUST where provided (C1-04) | label; completeness | — | OUT-001, OUT-002, OUT-006 |
-| OC-08 | Number of attacks (E-019 `AttackCount`) | OUT-007: clinicians, researchers | calendar month or 28-day period | every subject; MUST where provided | SHOULD (C1-05); MUST where provided (C1-06) | label (fixed: SD-DF-02); completeness | — | OUT-001, OUT-002, OUT-007, OUT-013 |
+| OC-08 | Number of attacks (E-019 `AttackCount`) | OUT-007: clinicians, researchers | calendar month or 28-day period | every subject; MUST where provided | SHOULD (C1-05); MUST where provided (C1-06) | label (fixed: SD-DF-02); completeness | — | OUT-001, OUT-002, OUT-007 |
 | OC-09 | Headache-free days, symptom-free days, periods without migraine days (E-020, E-021, E-022) | OUT-008: patients, clinicians, researchers | per reporting period | every subject (ISS-03) | MAY; SHOULD in the clinician-facing summary (INV-104; ISS-04); def. INV-031, INV-122 | exploratory label MAY (C3-02); label where a mark is shown; completeness | — | OUT-008 |
 | OC-10 | Time-course view with treatment markers (E-034, E-035) | OUT-009: patients, clinicians, researchers | series of calendar months or 28-day periods; calendar weeks where weekly granularity is clinically relevant | every subject; weekly: `ctx.weeklyGranularityRelevant` | SHOULD (INV-034); content SHOULD (INV-035) | series and markers (W2 SHOULD, E-035); marker facts (INV-123) | — | OUT-009, OUT-034, OUT-035 |
 | OC-11 | Intensity summary (E-023) | OUT-010: clinicians, patients | per reporting period | every subject | SHOULD (C1-07); between periods (INV-039, OC-33); def. INV-032, INV-121 | scale SHOULD (E-023); label where a distribution is shown | — | OUT-010, OUT-021, OUT-029, OUT-035 |
@@ -707,7 +707,7 @@ pred stated(c : OutputContext, f : ShownFact) ≙
   A dose reduction (`doseChange(reduction)`) is the "reduced" of OUT-022 and a pause (`stop(paused)`) its "paused". `resumesFrom(c, u, t)` holds when t is u or resumes the treatment of u, directly or through courses that each resume the treatment of the course before them. `courseBegunBy(c, t, d)` holds when a course event of t is dated on or before d, so that the context places the course of t as begun by d: every course event is dated on or after the day its course began (section 2.8), and, where the context states the start, the predicate holds exactly for the days on or after that start, because no course event precedes the start (INV-001). How these properties become known is outside the model.
 - Conformance: Structural (a semantic parameter). Context invariant: INV-001. Definitional: INV-123 (`stated`).
 - Realises: OUT-005, OUT-009, OUT-012, OUT-013, OUT-014, OUT-016, OUT-017, OUT-018, OUT-020, OUT-021, OUT-022, OUT-023, OUT-024, OUT-026, OUT-029, OUT-030, OUT-031, OUT-033, OUT-035, OUT-036, OUT-037, OUT-039
-- Evidence: Stage 1 statements of the requirements listed; [S-011], [S-014], [S-015], [S-022] E-008/Q00.
+- Evidence: Stage 1 statements of the requirements listed; [S-008], [S-011], [S-014], [S-015], [S-022] E-008/Q00.
 - Notes: `PreventiveTreatmentType` lists the treatment types to which the guidance time points of E-041 refer (Stage 1 OUT-018: "which differ by treatment type"). `cgrpInhibitor` is the NICE CG150 term; `oralPreventive`, `monthlyInjectable` and `quarterlyInjectable` are the IHS 2024 Q2 categories (oral preventive treatment, injectable drugs taken on a monthly basis, injectable drugs administered quarterly; E-041). A treatment may have several types, and `preventiveTypes` lists each type that describes it: for example, topiramate is `doseTitratedPreventive` and `oralPreventive`; an oral CGRP receptor antagonist is `fixedDosePreventive`, `cgrpInhibitor` and `oralPreventive`; a course of onabotulinumtoxinA is `onabotulinumtoxinA` and `quarterlyInjectable`. Every preventive treatment has at least one type (INV-001): `otherPreventive` is the type of a preventive treatment that none of the other values describes. Rationale: E-008/D01, E-008/D02, E-008/D03, E-008/D04.
 
 ### E-009 ICHD-3 code references
@@ -2068,7 +2068,7 @@ The invariants of this section state, once each, rules that v34 stated for each 
 - Reading: In one view, for periods with the same dates and the same type scope, a count of days with a property does not exceed the count of days with a property that contains it (`nestedIn`, E-014): moderate/severe headache days and headache days; symptom-free days and headache-free days; the days with a class and the days with any acute medication; the days with a drug and the days with its class; the days with a class of a set of classes and the days with any medication of the set; the days with any medication of a set of classes and the days with any acute medication; the days missed, impaired or severely impaired in a domain and the days affected in that domain. A value for one headache type does not exceed the value over all headache types combined, for headache days, migraine days, moderate/severe headache days and acute-medication days, and for an event count of a period with the same dates.
 - Conformance: definitional (E-012, E-014, E-017, E-019, E-021, E-029, E-030). Scope: output.
 - Realises: OUT-006, OUT-008, OUT-014, OUT-016, OUT-027, OUT-029, OUT-036
-- Evidence: Stage 1 statements of the requirements listed.
+- Evidence: Stage 1 statements of the requirements listed; [S-002] INV-122/Q01.
 - Notes: The last two conjuncts are the predicate of v34 INV-030. Replaces INV-030 and conjuncts of INV-024, INV-031 and INV-033 (section 9). Rationale: INV-122/D01, INV-122/D02.
 
 ### INV-123 Facts of the context that an output shows are facts the context states
@@ -2079,8 +2079,8 @@ The invariants of this section state, once each, rules that v34 stated for each 
 - Reading: Every fact of the context that an element of the output shows (`factsShown`, E-001: a preventive or acute treatment course, a course event, a stop, a stopped course, a start of withdrawal, an acute medication used, use of medication of a scope by a day count above 0, an available instrument or screening result) is a fact that the context states (`stated`, E-008).
 - Conformance: definitional (E-008, E-014, E-029, E-034, E-039, E-043, E-046, E-047, E-048, E-049, E-053, E-055, E-058, E-059). Scope: output.
 - Realises: OUT-009, OUT-012, OUT-014, OUT-016, OUT-017, OUT-018, OUT-020, OUT-021, OUT-022, OUT-023, OUT-024, OUT-026, OUT-033, OUT-036, OUT-039
-- Evidence: Stage 1 statements of the requirements listed.
-- Notes: The class of this rule is every attribute whose value names an entity of the subject's profile, or presupposes an event of it; its members are the element kinds in `factsShown`. Three attributes of the class are tied by invariants that also do more: E-042 `treatment` and `anchorDate` (INV-058), E-056 (INV-080) and E-063 `end` (INV-089). Replaces INV-036, INV-113, INV-117 and conjuncts of INV-056, INV-067, INV-068, INV-075, INV-079, INV-082, INV-085 and INV-112 (section 9). Rationale: INV-123/D01, INV-123/D02, INV-123/D03, INV-123/D04, INV-123/D05, INV-123/D06, INV-123/D07, INV-123/S01, INV-123/S02.
+- Evidence: Stage 1 statements of the requirements listed; [S-012] INV-123/Q01.
+- Notes: The class of this rule is every attribute whose value names an entity of the subject's profile, or presupposes an event of it; its members are the element kinds in `factsShown`. Three attributes of the class are tied by invariants that also do more: E-042 `treatment` and `anchorDate` (INV-058), E-056 (INV-080) and E-063 `end` (INV-089). Replaces INV-036, INV-113, INV-117 and conjuncts of INV-056, INV-067, INV-068, INV-075, INV-079, INV-082, INV-085 and INV-112 (section 9). R-MCF (1), (4). Rationale: INV-123/D01, INV-123/D02, INV-123/D03, INV-123/D04, INV-123/D05, INV-123/D06, INV-123/D07, INV-123/S01, INV-123/S02.
 
 ### INV-124 The dated phases that one output shows describe one history
 - Predicate:
@@ -2126,7 +2126,7 @@ The attributes that carry a placement marker (section 2.5, rule W2). This list i
 | E-055 | `preventiveResponse`, `acuteResponse`, `adherence` | `shown SHOULD` |
 | E-060 | `attacks` (`CycleLine`) | `shown` (definitional) |
 
-Not marked: `ClassGroup.lines` (INV-078 places the lines in the history view), `MenstrualRelationView.cycles` (INV-087 states an equality), the references of the cluster view (E-062/X01), and references to periods (INV-003).
+Not marked: `ClassGroup.lines` (INV-078 places the lines in the history view), `MenstrualRelationView.cycles` (INV-087 states an equality), `ResidualBurden.change`, `migraineDays` and `moderateSevereHeadacheDays` (INV-060 places, for the residual burden it asks for next to a percentage change, the burden and its two day counts in the view of the change), the references of the cluster view (E-062/X01), and references to periods (INV-003).
 
 ### 6.1 Contexts and frame
 
@@ -2326,9 +2326,9 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
      (∃ mk ∈ v.content ∩ MigraineFreePeriodMark • mk.period = p ∧ mk.typeScope = sc) ⇒ n = 0)
 ```
 - Reading: In one view, for the same period (periods with the same dates, `daysOf`, E-014) and scope: headache-free days and headache days together do not exceed the period length; where the view states that its migraine days follow the definition of a migraine day of the IHS position statement 2025, the days with migraine or moderate-to-severe headache, which rest on that definition, are not fewer than the migraine days; a period marked as without migraine days shows no migraine days.
-- Conformance: definitional (E-017, E-018, E-020, E-021, E-022). Scope: output.
-- Realises: OUT-006, OUT-008, OUT-020
-- Evidence: Stage 1 OUT-008, OUT-006, OUT-020, OUT-002; [S-002], [S-010] INV-031/Q00.
+- Conformance: definitional (E-018, E-020, E-022). Scope: output.
+- Realises: OUT-008, OUT-020
+- Evidence: Stage 1 OUT-008, OUT-020, OUT-002; [S-010] INV-031/Q00.
 - Notes: Relations: INV-122. Rationale: INV-031/D01, INV-031/X01.
 
 ### INV-032 Intensity values lie on their scale
@@ -2354,8 +2354,8 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
   sameSpan(e.period, spanOf(a.period)) ∧ e.typeScope = a.typeScope ⇒ n ≤ e.count
 ```
 - Reading: The attacks with an associated symptom do not exceed the attacks that the same view shows for a period with the same dates and the same scope.
-- Conformance: definitional (E-024, E-025, E-030, E-031). Scope: output.
-- Realises: OUT-011, OUT-012, OUT-027, OUT-036
+- Conformance: definitional (E-025). Scope: output.
+- Realises: OUT-012
 - Evidence: Stage 1 statements of the requirements listed.
 
 ### 6.4 Time course, comparisons and the three-month pattern
@@ -2967,7 +2967,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Reading: A treated-attack line shows each outcome once and the status of each associated symptom once; it lists adverse events only when it shows a drug-related adverse event; a meaningful adverse event is a drug-related adverse event; and an adverse event the patient regarded as meaningful is not contradicted by the line's results.
 - Conformance: definitional (E-053). Scope: output.
 - Realises: OUT-012, OUT-023
-- Evidence: Stage 1 OUT-012, OUT-023 ("The output SHOULD also state the formulation or route of administration (for example oral or subcutaneous) of each acute medication it summarises, and SHOULD allow the per-drug outcomes and their consistency across treated attacks to be shown separately for each formulation of the same drug").
+- Evidence: Stage 1 OUT-012, OUT-023.
 - Notes: Rationale: INV-075/D01.
 
 ### INV-076 Associated symptoms in the response of treated attacks, for migraine
@@ -3009,7 +3009,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Reading: Preventive and acute treatments are listed separately; within each, treatments are grouped by drug class (one group per class), the treatment lines of every group are shown in the view, each treatment appears in one group, and within a group treatments are in order of their start dates: every two lines that show a start date are in the order of these dates, also where a line without a start date lies between them.
 - Conformance: SHOULD. Scope: output.
 - Realises: OUT-024
-- Evidence: Stage 1 OUT-024 ("a chronological list [...] grouped by drug class"; "For acute treatments, the list SHOULD also show the formulation of each treatment").
+- Evidence: Stage 1 OUT-024 ("a chronological list [...] grouped by drug class").
 - Notes: R-MCF (1). Rationale: INV-078/D01, INV-078/D02.
 
 ### INV-079 Treatment lines agree with the treatment course
@@ -3028,7 +3028,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Reading: A treatment line shows the drug of its treatment; a stop date not before the start date; a duration equal to the days from the start of the course to its stop or, for a treatment that has not stopped, from its start to the as-of date of the output (its duration to date), whether or not the line shows its start and stop dates, and no duration for a treatment whose start the context does not state; and the response summary and adherence of the same treatment.
 - Conformance: definitional (E-055). Scope: output.
 - Realises: OUT-024, OUT-039
-- Evidence: Stage 1 OUT-024, OUT-023; [S-012], [S-013] INV-079/Q00.
+- Evidence: Stage 1 OUT-024; [S-013] INV-079/Q00.
 - Notes: R-MCF (1). Rationale: INV-079/D01, INV-079/W01.
 
 ### INV-109 A treatment line shows every dose change, and its response summary and adherence with it
@@ -3096,7 +3096,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Conformance: definitional (E-057, E-058). Scope: output.
 - Realises: OUT-026, OUT-036
 - Evidence: Stage 1 OUT-026, OUT-036; [S-014], [S-101], [S-102], [S-103] INV-082/Q00.
-- Notes: R-MCF (4). Rationale: INV-082/D01.
+- Notes: Rationale: INV-082/D01.
 
 ### INV-083 Screening results next to the headache outputs
 - Predicate:
@@ -3124,7 +3124,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Conformance: definitional (E-059). Scope: output.
 - Realises: OUT-033
 - Evidence: Stage 1 OUT-033; [S-104], [S-105] INV-085/Q00.
-- Notes: R-MCF (4). Rationale: INV-085/D01.
+- Notes: Rationale: INV-085/D01.
 
 ### 6.10 Special populations and classification support
 
@@ -3435,14 +3435,14 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with its 
 | OUT-003 | SHOULD; SHOULD NOT | OC-04 | E-001, E-013 | INV-011, INV-012, INV-119, INV-121 | full<br>completeness indicator next to the summary measures of each reporting period (SHOULD): E-013, INV-011, INV-012, INV-121<br>no completeness cut-off presented as clinically validated (SHOULD NOT): INV-119 (C2-02) |
 | OUT-004 | MUST | OC-02, OC-03, OC-05 | E-006, E-007, E-011, E-014, E-015 | INV-001, INV-004, INV-006, INV-118, INV-121, INV-125 | full<br>headache days for every period of the selected time range (MUST): E-006, E-015, INV-004, INV-118 (C1-01)<br>"headache days" as defined in ICHD-3 (MUST): INV-125 (SD-DF-01) |
 | OUT-005 | MUST; SHOULD (label) | OC-03, OC-06 | E-008, E-009, E-011, E-014, E-016 | INV-008, INV-118, INV-121 | full<br>migraine days per reporting period for patients with migraine (MUST): E-016, INV-118 (C1-02)<br>definition label (SHOULD): INV-008 |
-| OUT-006 | SHOULD | OC-03, OC-07 | E-011, E-014, E-017 | INV-008, INV-031, INV-118, INV-121, INV-122 | full<br>moderate/severe headache days per reporting period (SHOULD): E-017, INV-118 (C1-03); where provided, per calendar month or 28-day period (MUST, OUT-001): INV-118 (C1-04)<br>definition named (SHOULD): INV-008; nesting: INV-122 |
+| OUT-006 | SHOULD | OC-03, OC-07 | E-011, E-014, E-017 | INV-008, INV-118, INV-121, INV-122 | full<br>moderate/severe headache days per reporting period (SHOULD): E-017, INV-118 (C1-03); where provided, per calendar month or 28-day period (MUST, OUT-001): INV-118 (C1-04)<br>definition named (SHOULD): INV-008; nesting: INV-122 |
 | OUT-007 | SHOULD | OC-03, OC-08 | E-011, E-019 | INV-006, INV-008, INV-118, INV-125 | full<br>attacks per reporting period, separately from days (SHOULD): E-019, INV-118 (C1-05); where provided, per calendar month or 28-day period (MUST, OUT-001): INV-118 (C1-06)<br>"frequency of attacks" as defined in ICHD-3 (SHOULD): INV-125 (SD-DF-02) |
 | OUT-008 | MAY | OC-09, OC-44 | E-010, E-014, E-020, E-021, E-022 | INV-031, INV-120, INV-121, INV-122 | full<br>headache-free days, symptom-free days, periods without migraine days, as exploratory measures (MAY): E-020, E-021, E-022, C3-02; relations INV-031, INV-122; in the clinician-facing summary (SHOULD, OUT-034): INV-104 (ISS-04) |
 | OUT-009 | SHOULD | OC-02, OC-10 | E-006, E-007, E-008, E-034, E-035 | INV-001, INV-004, INV-034, INV-035, INV-123 | full<br>time series of consecutive periods with dated markers of preventive treatments (SHOULD): E-006, E-034, E-035, INV-034, INV-035, W2 (E-035), INV-123<br>weekly values where weekly granularity is clinically relevant (SHOULD): INV-034 (`weeklyGranularityRelevant`, E-007; INV-001) |
 | OUT-010 | SHOULD | OC-11, OC-33 | E-023, E-037 | INV-032, INV-039, INV-118, INV-121 | full<br>intensity per reporting period on a stated scale (SHOULD): E-023, INV-118 (C1-07), INV-032<br>comparison between periods (SHOULD): E-037, INV-039 |
-| OUT-011 | SHOULD; Caveat SHOULD | OC-12, OC-44 | E-001, E-010, E-024 | INV-033, INV-118, INV-119, INV-120, INV-121 | full<br>duration per reporting period (SHOULD): E-024, INV-118 (C1-08), INV-121<br>label of durations of acutely treated attacks (SHOULD): INV-120 (C3-03)<br>Caveat, not a stand-alone efficacy measure (SHOULD NOT): INV-119 (C2-03) |
+| OUT-011 | SHOULD; Caveat SHOULD | OC-12, OC-44 | E-001, E-010, E-024 | INV-118, INV-119, INV-120, INV-121 | full<br>duration per reporting period (SHOULD): E-024, INV-118 (C1-08), INV-121<br>label of durations of acutely treated attacks (SHOULD): INV-120 (C3-03)<br>Caveat, not a stand-alone efficacy measure (SHOULD NOT): INV-119 (C2-03) |
 | OUT-012 | SHOULD | OC-13, OC-28 | E-008, E-009, E-025, E-026, E-050, E-051, E-053 | INV-033, INV-072, INV-075, INV-076, INV-118, INV-121, INV-123 | full<br>associated symptoms and most bothersome symptom across periods, for migraine (SHOULD): E-025, E-026, INV-118 (C1-09), INV-033<br>in the response of individual treated attacks (SHOULD): E-053, INV-076; in the treatment review view: INV-069 |
-| OUT-013 | MAY | OC-08, OC-12, OC-14 | E-008, E-009, E-019, E-024, E-027 |  | full<br>auras per reporting period and their duration, separately from headache measures, for migraine with aura (MAY): E-019, E-024, E-027 |
+| OUT-013 | MAY | OC-12, OC-14 | E-008, E-009, E-019, E-024, E-027 |  | full<br>auras per reporting period and their duration, separately from headache measures, for migraine with aura (MAY): E-019, E-024, E-027 |
 | OUT-014 | MUST | OC-15, OC-17 | E-008, E-009, E-014, E-028, E-029, E-032 | INV-001, INV-024, INV-118, INV-121, INV-122, INV-123 | full<br>acute-medication days per reporting period, by ICHD-3 8.2 class, by drug and in total (MUST): E-028, E-029, INV-118 (C1-10), SD-CLS<br>relations of totals, classes and drugs (definitional): INV-024, INV-122; medication used (definitional): INV-123 |
 | OUT-015 | SHOULD | OC-02, OC-15, OC-16 | E-006, E-029, E-036 | INV-118, INV-121 | full<br>acute-medication days per calendar week (SHOULD): E-036, INV-118 (C1-11) |
 | OUT-016 | MUST; MUST NOT | OC-15, OC-17, OC-44 | E-001, E-008, E-009, E-010, E-028, E-029, E-032 | INV-024, INV-044, INV-045, INV-046, INV-119, INV-120, INV-122, INV-123 | full<br>indicator per reporting period, per class and for combined use, against the levels and time span of ICHD-3 8.2 (MUST): E-032, INV-044, INV-045, INV-046, SD-CLS, SD-CMB, SD-FX-06<br>worded as a prompt for clinical review (MUST): INV-120 (C3-04)<br>not presented as a diagnosis of medication-overuse headache (MUST NOT): INV-119 (C2-04) |
@@ -3457,7 +3457,7 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with its 
 | OUT-025 | MAY | OC-23, OC-30, OC-31 | E-007, E-046, E-056, E-058 | INV-080 | full<br>evaluation windows of a scheme, labelled with the scheme (MAY): E-056, INV-080 |
 | OUT-039 | SHOULD | OC-25, OC-29, OC-40 | E-008, E-047, E-054, E-055, E-066 | INV-066, INV-067, INV-079, INV-104, INV-109, INV-123 | full<br>adherence over the evaluation window next to the response comparison (SHOULD): E-047, INV-066, INV-067, INV-123<br>in the treatment history and the clinician-facing summary (SHOULD): INV-109, W2 (E-055), INV-104 |
 | OUT-026 | SHOULD | OC-31 | E-008, E-057, E-058 | INV-081, INV-082, INV-120, INV-123 | full<br>results of validated instruments where available, with name, date, recall period, score, grading and change from baseline (SHOULD): E-057, E-058, SD-IN, SD-GB, INV-081, INV-082, INV-123; clinical interpretation of categories (OUT-038): INV-120 (C3-08) |
-| OUT-027 | SHOULD | OC-32, OC-33 | E-014, E-030, E-037 | INV-027, INV-033, INV-118, INV-121, INV-122 | full<br>functional impact per reporting period, with severe impairment (SHOULD): E-030, INV-118 (C1-12), INV-121, INV-122<br>comparison with the baseline period (SHOULD): INV-027 |
+| OUT-027 | SHOULD | OC-32, OC-33 | E-014, E-030, E-037 | INV-027, INV-118, INV-121, INV-122 | full<br>functional impact per reporting period, with severe impairment (SHOULD): E-030, INV-118 (C1-12), INV-121, INV-122<br>comparison with the baseline period (SHOULD): INV-027 |
 | OUT-028 | MUST; SHOULD; SHOULD NOT | OC-02, OC-03, OC-34 | E-001, E-006, E-009, E-011, E-038 | INV-008, INV-040, INV-041, INV-042, INV-119 | full<br>three-month view of headache days and migraine days (MUST): E-038, INV-040, INV-041, W2 (E-038)<br>source definitions shown (SHOULD): INV-042<br>no diagnosis assigned (SHOULD NOT): INV-119 (C2-08) |
 | OUT-029 | MUST; SHOULD (intensity) | OC-11, OC-15, OC-35 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-118, INV-122 | full<br>frequency and acute-medication outputs per headache type and combined (MUST): E-012, INV-118 (C1-13); values per type do not exceed the combined values: INV-122<br>intensity per headache type where provided (SHOULD): INV-118 (C1-14) |
 | OUT-030 | MUST | OC-36 | E-008, E-060, E-061 | INV-086, INV-087, INV-124 | full<br>migraine attacks and migraine days in relation to menstruation across consecutive cycles, with the ICHD-3 A1.1 perimenstrual window, and the number of complete cycles (MUST): E-060, E-061, INV-086, INV-087, INV-124, W2 (E-060), SD-FX-01, SD-FX-02 |
@@ -3466,7 +3466,7 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with its 
 | OUT-033 | SHOULD; Caveat SHOULD | OC-39 | E-001, E-008, E-059 | INV-083, INV-085, INV-119, INV-120, INV-123 | full<br>screening results where available, with name, date and score, next to the headache outputs (SHOULD): E-059, SD-SC, SD-SR, INV-083, INV-085, INV-123<br>Caveat, not psychiatric diagnoses (SHOULD NOT): INV-119 (C2-09); clinical interpretation: INV-120 (C3-10) |
 | OUT-034 | SHOULD | OC-01, OC-04, OC-10, OC-29, OC-31, OC-40 | E-003, E-007, E-035, E-058, E-066 | INV-001, INV-011, INV-094, INV-104, INV-109 | full<br>concise clinician-facing summary for the period since the previous consultation or a chosen period, with the outputs listed (SHOULD): E-003 (`concise`), E-066, INV-094, INV-104 |
 | OUT-035 | SHOULD | OC-01, OC-10, OC-11, OC-36, OC-41 | E-003, E-007, E-008, E-023, E-035, E-060, E-067 | INV-087, INV-095, INV-105, INV-124 | full<br>patient-facing overview in plain language, with the components listed (SHOULD): E-003 (`plainLanguage`), E-067, INV-095, INV-105 |
-| OUT-036 | SHOULD; Caveat SHOULD | OC-19, OC-20, OC-21, OC-26, OC-27, OC-31, OC-32, OC-33, OC-42, OC-44 | E-007, E-008, E-010, E-030, E-031, E-037, E-040, E-041, E-043, E-048, E-049, E-057, E-058 | INV-033, INV-055, INV-082, INV-096, INV-097, INV-120, INV-121, INV-122, INV-123 | full<br>(a) PedMIDAS with its recall period, (b) school days and caregiver impact (SHOULD): E-030, E-031, E-058, INV-096<br>(c) equal-length comparisons (SHOULD): INV-097<br>(d) efficacy as in paediatric guidance (SHOULD): E-041 (SD-ER-15), INV-055<br>Caveat, supportive information (SHOULD): INV-120 (C3-11) |
+| OUT-036 | SHOULD; Caveat SHOULD | OC-19, OC-20, OC-21, OC-26, OC-27, OC-31, OC-32, OC-33, OC-42, OC-44 | E-007, E-008, E-010, E-030, E-031, E-037, E-040, E-041, E-043, E-048, E-049, E-057, E-058 | INV-055, INV-082, INV-096, INV-097, INV-120, INV-121, INV-122, INV-123 | full<br>(a) PedMIDAS with its recall period, (b) school days and caregiver impact (SHOULD): E-030, E-031, E-058, INV-096<br>(c) equal-length comparisons (SHOULD): INV-097<br>(d) efficacy as in paediatric guidance (SHOULD): E-041 (SD-ER-15), INV-055<br>Caveat, supportive information (SHOULD): INV-120 (C3-11) |
 | OUT-037 | SHOULD NOT; SHOULD; SHOULD | OC-43, OC-44 | E-008, E-009, E-010, E-012, E-033 | INV-091, INV-092, INV-093, INV-115, INV-120 | full<br>composite index not a primary measure for migraine (SHOULD NOT): E-033, INV-091<br>exploratory label and component measures for migraine (SHOULD): INV-120 (C3-12), W2 (E-033), INV-092, INV-115<br>headache days with AUC for tension-type headache (SHOULD): INV-093 |
 | OUT-038 | SHOULD | OC-01, OC-17, OC-23, OC-31, OC-34, OC-38, OC-39, OC-44, OC-45 | E-001, E-002, E-003, E-004, E-010, E-032, E-038, E-046, E-058, E-059, E-065 | INV-119, INV-120 | full<br>patient-reported information; supports but does not replace clinical assessment (SHOULD): INV-120 (C3-01); not presented as replacing assessment or as a diagnosis (SHOULD NOT): INV-119 (C2-01)<br>indicators, labels and associations require clinical interpretation (SHOULD): INV-120 (C3-05, C3-07, C3-08, C3-09, C3-10); other content: E-004, E-010 |
 
@@ -3556,7 +3556,7 @@ No output was found in the Stage 2 research that EBM supports and Stage 1 lacks.
 
 ## 9. Withdrawn and merged items
 
-No element (E-NNN) has been withdrawn. The invariants below were merged in v35 into the item named in the last column (PROCESS.md sections 6a and 7); their IDs are not reused. One Stage 1 issue of section 8 has been withdrawn and is listed so that its ID is not reused.
+No element (E-NNN) has been withdrawn. The invariants below were merged in v35 into the item or items named in the last column (PROCESS.md sections 6a and 7); their IDs are not reused. One Stage 1 issue of section 8 has been withdrawn and is listed so that its ID is not reused.
 
 | ID | Name | Iteration | Reason | Went into |
 |---|---|---|---|---|
@@ -3581,7 +3581,7 @@ No element (E-NNN) has been withdrawn. The invariants below were merged in v35 i
 | INV-028 | Separate presentation per headache type | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-13) |
 | INV-029 | Intensity per headache type, where provided | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-14) |
 | INV-030 | Values per headache type do not exceed the combined values | 35 | restructuring (PROCESS.md section 6a), merged | INV-122 |
-| INV-036 | Markers show the treatment course | 35 | restructuring (PROCESS.md section 6a), merged | INV-123 |
+| INV-036 | Markers show the treatment course | 35 | restructuring (PROCESS.md section 6a), merged | INV-123; E-034 `event` (attribute type) |
 | INV-043 | Three-month view assigns no diagnosis | 35 | restructuring (PROCESS.md section 6a), merged | INV-119 (C2-08) |
 | INV-047 | Indicator worded as a prompt for clinical review | 35 | restructuring (PROCESS.md section 6a), merged | INV-120 (C3-04) |
 | INV-048 | Indicator is not a diagnosis of medication-overuse headache | 35 | restructuring (PROCESS.md section 6a), merged | INV-119 (C2-04) |
@@ -3843,3 +3843,4 @@ One entry per version. The details of v00 to v34 are in `history/vNN.md` and `fi
 - v34 (iteration 34, 2026-10-22): Fix of review 34 (1 remark; fixes/fix-iter-34.md). Location text only: no `omn` block changed or added, and no quote, value, axiom, `when` clause, level, level-annotated attribute declaration, Realises field, traceability row or source changed. Every formal block is byte-identical to v33.
 - v35 (iteration 35, 2026-10-22): Restructuring of the model (PROCESS.md sections 6a and 8, step 2; `restructure/plan-v35.md`; details in `fixes/fix-iter-35.md`). New: output catalogue and case tables C1–C3 (section 4); generic invariants INV-118 to INV-125 and placement markers (rule W2), into which 38 invariants were merged (section 9); source data tables (section 11); case tables (section 2.11); facts the context does not state (R-MCF, section 3.8); ISS-13. Evidence quotes, design reasons, examples and the search log moved to `RATIONALE.md`. Remark R35-01 and the findings CA-01 to CA-19 of `audits/consistency-audit-v34.md` handled; intended changes of meaning CHG-01 to CHG-07 and the reclassification CHG-R1.
   - Corrected after the equivalence check: see `fixes/fix-iter-35-equivalence.md`.
+- v36 (iteration 36, 2026-10-22): Fix of review 36 (3 remarks; details in `fixes/fix-iter-36.md`). No `omn` block changed or added. Quote URLs of `RATIONALE.md` corrected (R36-01); the Conformance, Realises and Evidence fields of invariants that lost conjuncts in v35, with the traceability table, catalogue row OC-08 and the section 9 row of INV-036, aligned with the predicates (R36-02); notation and catalogue prose aligned with the formal text (R36-03).

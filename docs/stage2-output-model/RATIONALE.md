@@ -1,5 +1,5 @@
 # Headache diary — rationale of the output model (Stage 2)
-Version: v35 (companion of OUTPUT_MODEL.md v35)
+Version: v36 (companion of OUTPUT_MODEL.md v36)
 
 ## 1. Purpose and rules
 
@@ -11,14 +11,14 @@ This file holds what the model does not state formally: the verbatim evidence qu
 
 | Kind | Content |
 |---|---|
-| `Q` | Evidence quote: the source ID and the URL where it can be read (model section 10, or Stage 1 section 5 for S-001 to S-046), and the evidence text of v34, verbatim: location, quote, translation and the notes on the text layer; where the v34 text was not a single quote with its location, the whole text verbatim |
+| `Q` | Evidence quote: the source ID and the URL at which the quoted text can be read (one of the source's URLs in model section 10, or in Stage 1 section 5 for S-001 to S-046, or another page of the same publication on which the text stands, such as the CG150 Overview page for [S-015]), one Source line per page used, and the evidence text of v34, verbatim: location, quote, translation and the notes on the text layer; where the v34 text was not a single quote with its location, the whole text verbatim |
 | `D` | Design reason, or a reading of a source or of Stage 1 |
 | `N` | What is deliberately not modelled |
 | `S` | Satisfiability argument |
 | `W` | Worked example |
 | `X` | Rejected alternative |
 
-**Moved text.** The text of an entry moved from v34 (`Text (v34 <field>)`, or `Text (v34 <ID> <field>)` for text from another item, for example a merged invariant) is verbatim, with three exceptions: a reference to a v34 invariant that v35 merged into another item names its v35 place (model section 9), as does a reference to a kept invariant for a conjunct that v35 moved to another item; a sentence that the consistency audit of v34 or remark R35-01 found to claim more than the model is corrected (`fixes/fix-iter-35.md`); and a sentence that an intended change of meaning of v35 made false is qualified (`fixes/fix-iter-35-equivalence.md`). A reference "X Notes" in moved text refers to the Notes of item X in v34, which v35 keeps in the model's Notes field of X and in the entries anchored at X.
+**Moved text.** The text of an entry moved from v34 (`Text (v34 <field>)`, or `Text (v34 <ID> <field>)` for text from another item, for example a merged invariant) is verbatim, with four exceptions: a reference to a v34 invariant that v35 merged into another item names its v35 place (model section 9), as does a reference to a kept invariant for a conjunct that v35 moved to another item; a sentence that the consistency audit of v34 or remark R35-01 found to claim more than the model is corrected (`fixes/fix-iter-35.md`); a sentence that an intended change of meaning of v35 made false is qualified (`fixes/fix-iter-35-equivalence.md`); and evidence text of a kept invariant that supports only conjuncts that v35 moved to another item is moved, verbatim, to an entry of that item (`fixes/fix-iter-36.md`). A reference "X Notes" in moved text refers to the Notes of item X in v34, which v35 keeps in the model's Notes field of X and in the entries anchored at X.
 
 **Order.** Section 2 lists the entries in model order: notation and conformance (2.1), catalogue and case-table rows (2.2), elements (2.3), invariants (2.4), traceability (2.5), Stage 1 issues (2.6), source data rows (2.7), and the text of invariants that v35 merged into another item, under that item (2.8). Within an anchor, entries are ordered by kind (Q, D, N, S, W, X) and number.
 
@@ -266,9 +266,10 @@ This file holds what the model does not state formally: the verbatim evidence qu
 #### E-008/Q00
 - Kind: Q
 - Concerns: E-008
+- Source: [S-008] — https://ricerca.univaq.it/retrieve/b7f186a9-06ec-4e9c-b132-4f785bbeb121/puledda-et-al-2024-international-headache-society-global-practice-recommendations-for-preventive-pharmacological.pdf
 - Source: [S-011] — https://pmc.ncbi.nlm.nih.gov/articles/PMC9188162/
 - Source: [S-014] — https://pmc.ncbi.nlm.nih.gov/articles/PMC6734476/
-- Source: [S-015] — https://www.nice.org.uk/guidance/cg150/chapter/Recommendations
+- Source: [S-015] — https://www.nice.org.uk/guidance/cg150
 - Source: [S-022] — https://www.ema.europa.eu/en/documents/scientific-guideline/draft-guideline-clinical-investigation-medicinal-products-treatment-migraine-cluster-headache-revision-2_en.pdf
 - Text: Stage 1 statements of the requirements listed; preventive treatments of other headache types than migraine: Stage 1 OUT-009 (weekly values "Where weekly granularity is clinically relevant (tension-type headache, cluster headache, early onset of effect)", in the view with "dated markers for the start, dose change and stop of preventive treatments") and OUT-031 ([S-014] "optimum acute and preventative treatments are maintained", for active cluster headache). Repeated withdrawals: Stage 1 OUT-017 ([S-014] "The relapse rate is high within the first year"). A restart after a pause: Stage 1 OUT-022 ("stopped, paused or reduced"; [S-011] "In individuals with migraine who pause treatment, we suggest restarting the treatment if migraine worsens after treatment withdrawal."). The course that a resumed course resumes, and the original start of the treatment (`resumes`, `originalStart`): Stage 1 OUT-022 ("compare it with both the on-treatment period and the original pre-treatment baseline"; [S-022] "to detect possible rebound phenomena (i.e. frequency of migraine days per month going above its baseline)"), with the [S-011] quote above. `ihsQ6ChronicAlternative` is the condition of the IHS Q6 statement quoted in E-045, which concerns the continuation of a treatment ("acceptable for treatment continuation beyond three months"). `aged12From` is the age limit of the population of NICE CG150, quoted in E-041 ([S-015], "young people (aged 12 years and older) and adults").
 
@@ -359,21 +360,21 @@ This file holds what the model does not state formally: the verbatim evidence qu
 #### E-018/Q01
 - Kind: Q
 - Concerns: E-018
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: section "Setting goals of migraine burden while on treatment", p. 6
 - Quote: "Modest Control. This is defined as four to six days with migraine or moderate-to-severe headache per month."
 
 #### E-018/Q02
 - Kind: Q
 - Concerns: E-018
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6, the paragraph directly after the four control levels, which are "the above goals"; in the PDF text layer line ends break "definition" and "following". The three definitions that follow classify a day from what the patient reports and are not quoted, section 1, item 3.
 - Quote: "The assessment of the above goals requires a clear definition of migraine day. The panel decided to adopt the following three definitions of a migraine day, as modified from van der Arend et al. (45), in subjects with a diagnosis of migraine:"
 
 #### E-018/Q03
 - Kind: Q
 - Concerns: E-018
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6, the paragraph after the three definitions; the omitted words describe the days included
 - Quote: "We included in our definitions of treatment goals also moderate-to-severe headache days as a proxy of migraine days [...]"
 
@@ -597,7 +598,7 @@ This file holds what the model does not state formally: the verbatim evidence qu
 #### E-041/Q01
 - Kind: Q
 - Concerns: E-041; SD-ER-01; SD-ER-02; SD-ER-03
-- Source: [S-015] — https://www.nice.org.uk/guidance/cg150/chapter/Recommendations
+- Source: [S-015] — https://www.nice.org.uk/guidance/cg150
 - Location: Overview page of CG150, https://www.nice.org.uk/guidance/cg150
 - Quote: "This guideline covers the diagnosis and management of tension-type headache, migraine (including migraine with aura and menstrual-related migraine), cluster headache and medication overuse headache in young people (aged 12 years and older) and adults."
 
@@ -981,35 +982,35 @@ This file holds what the model does not state formally: the verbatim evidence qu
 #### E-046/Q01
 - Kind: Q
 - Concerns: E-046; SD-RC-04; SD-CL-01
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: section "Setting goals of migraine burden while on treatment", p. 6
 - Quote: "Migraine Freedom. This is defined as the complete elimination of days with migraine or moderate-to-severe headache, ideally over a period of three months."
 
 #### E-046/Q02
 - Kind: Q
 - Concerns: E-046; SD-RC-04; SD-CL-02
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6
 - Quote: "Optimal Control. This is defined as less than four days with migraine or moderate-to-severe headache per month for three months, with a satisfactory response to acute treatment, defined as pain-freedom within two hours from the intake."
 
 #### E-046/Q03
 - Kind: Q
 - Concerns: E-046; SD-RC-04; SD-CL-03
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6
 - Quote: "Modest Control. This is defined as four to six days with migraine or moderate-to-severe headache per month."
 
 #### E-046/Q04
 - Kind: Q
 - Concerns: E-046; SD-RC-04; SD-CL-04
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6; in the PDF text layer the running header "Cephalalgia 45(2)" interrupts the sentence after "per", at a column break
 - Quote: "Insufficient Control. This is defined as more than six days with migraine or moderate-to-severe headache per month."
 
 #### E-046/Q05
 - Kind: Q
 - Concerns: E-046; SD-RC-04; SD-CL-04
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Location: same section, p. 6
 - Quote: "In some cases, insufficient control may be present when there are less than six MMDs, especially when attacks are associated with very high levels of disabling symptoms"
 
@@ -1407,6 +1408,12 @@ This file holds what the model does not state formally: the verbatim evidence qu
 - Concerns: INV-121
 - Text: Equivalence with v34. `daysWithin` (E-012) has one member per replaced conjunct: the day count of v34 INV-005, the covered days of v34 INV-012, the days of a level of v34 INV-032, the days with a symptom and the caregiver days of v34 INV-033; the second conjunct is the pain-time conjunct of v34 INV-033, verbatim.
 
+#### INV-122/Q01
+- Kind: Q
+- Concerns: INV-122; v34 INV-031
+- Source: [S-002] — https://ihs-headache.org/wp-content/uploads/2025/04/Clinical-Trials-Controlled-trials-of-preventive-treatment-of-migraine-attacks-in-episodic-migraine-in-adults-CEP.pdf
+- Text (v34 INV-031 Evidence): Stage 1 OUT-008 (symptom-free days defined as "the days free of premonitory, aura, headache, and postdromal symptoms" [S-002]), OUT-006.
+
 #### INV-122/D01
 - Kind: D
 - Concerns: INV-122; v34 INV-031
@@ -1416,6 +1423,14 @@ This file holds what the model does not state formally: the verbatim evidence qu
 - Kind: D
 - Concerns: INV-122
 - Text: Equivalence with v34. `nestedIn` (E-014) has one disjunct per replaced bound, with the same quantifier ranges: the four ≤ bounds of v34 INV-024, the two bounds of v34 INV-031 (moderate/severe within headache days, symptom-free within headache-free days) and the functional-impact bound of v34 INV-033. The last two conjuncts are v34 INV-030, verbatim.
+
+#### INV-123/Q01
+- Kind: Q
+- Concerns: INV-123; v34 INV-075; v34 INV-079; v34 INV-082
+- Source: [S-012] — https://pmc.ncbi.nlm.nih.gov/articles/PMC9555163/
+- Text (v34 INV-075 Evidence): Stage 1 OUT-023 ("The output SHOULD also state the formulation or route of administration (for example oral or subcutaneous) of each acute medication it summarises, and SHOULD allow the per-drug outcomes and their consistency across treated attacks to be shown separately for each formulation of the same drug").
+- Text (v34 INV-079 Evidence): Stage 1 OUT-024 ("and the reason for stopping"; "For acute treatments, the list SHOULD also show the formulation of each treatment (see OUT-023), so that different formulations of the same drug can be told apart and the EHF definition of triptan refractoriness [S-012] can be applied"; [S-012] "failure to subcutaneous triptans was considered mandatory for the definition of triptan refractoriness").
+- Text (v34 INV-082 Evidence): Stage 1 OUT-026 ("Where results of validated instruments are available").
 
 #### INV-123/D01
 - Kind: D
@@ -1486,7 +1501,7 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 - Concerns: INV-001
 - Source: [S-011] — https://pmc.ncbi.nlm.nih.gov/articles/PMC9188162/
 - Source: [S-013] — https://pmc.ncbi.nlm.nih.gov/articles/PMC7296705/
-- Source: [S-015] — https://www.nice.org.uk/guidance/cg150/chapter/Recommendations
+- Source: [S-015] — https://www.nice.org.uk/guidance/cg150
 - Text: Stage 1 OUT-001, OUT-004, OUT-009 ("where weekly granularity is clinically relevant (tension-type headache, cluster headache, early onset of effect)"), OUT-014, OUT-034 ("(or a period chosen by the clinician)", with no condition on that period), OUT-018 ("For each preventive treatment [...] at the evaluation time points named in current guidance, which differ by treatment type"; periods "after treatment start, aligned to the treatment start date"), OUT-022 ("stopped, paused or reduced"; "compare it with both the on-treatment period and the original pre-treatment baseline"; [S-011] "In individuals with migraine who pause treatment, we suggest restarting the treatment if migraine worsens after treatment withdrawal."), OUT-024 ("start and stop dates, dose changes, treatment duration"; [S-013] "information on duration, dose and adverse events is sufficient and reliable"), OUT-029; the population of NICE CG150, "young people (aged 12 years and older) and adults" ([S-015], quoted in E-041).
 
 #### INV-001/D01
@@ -1582,9 +1597,8 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 #### INV-031/Q00
 - Kind: Q
 - Concerns: INV-031
-- Source: [S-002] — https://ihs-headache.org/wp-content/uploads/2025/04/Clinical-Trials-Controlled-trials-of-preventive-treatment-of-migraine-attacks-in-episodic-migraine-in-adults-CEP.pdf
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
-- Text: Stage 1 OUT-008 (symptom-free days defined as "the days free of premonitory, aura, headache, and postdromal symptoms" [S-002]), OUT-006, OUT-020; OUT-002 Rationale ("There is no single universally adopted definition of a migraine day; different definitions give different numbers."); [S-010] the count of E-018 and the definition of a migraine day on which it rests, quoted in E-018.
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
+- Text: Stage 1 OUT-008, OUT-020; OUT-002 Rationale ("There is no single universally adopted definition of a migraine day; different definitions give different numbers."); [S-010] the count of E-018 and the definition of a migraine day on which it rests, quoted in E-018.
 
 #### INV-031/D01
 - Kind: D
@@ -1729,7 +1743,7 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 #### INV-062/Q00
 - Kind: Q
 - Concerns: INV-062
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Text: Stage 1 OUT-020; [S-010] for the count on which the control levels rest (E-018), and for the acute-treatment part of optimal control, which holds "for three months" (quoted in E-046). The other values keep the applicability conditions of the requirements OUT-020 refers to (section 3.5, reference rule): OUT-026 ("Where results of validated instruments are available") and OUT-023 ("For each acute medication"). OUT-020 names these values as examples ("for example"); the further kinds, and the criteria quoted in Stage 1 that rest on them, are in E-045 (Evidence and Notes). A per-period value or a value of another kind is required where the diary provides it (`provides`, section 3.5). The values of one headache type are those in the scope `scopeFor` (E-012): the values over all headache types combined where the subject has a headache type and every headache type it has or may have falls under that type, and otherwise the values scoped to that type (`ofType`), as in the separate presentation per headache type of OUT-029 ("When the patient has, or may have, more than one headache type").
 
 #### INV-062/D01
@@ -1799,7 +1813,7 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 #### INV-064/Q00
 - Kind: Q
 - Concerns: INV-064
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Text: Stage 1 OUT-020; [S-010] quoted in E-046, whose control levels are goals of its section "Setting goals of migraine burden while on treatment".
 
 #### INV-064/D01
@@ -1929,9 +1943,8 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 #### INV-079/Q00
 - Kind: Q
 - Concerns: INV-079
-- Source: [S-012] — https://pmc.ncbi.nlm.nih.gov/articles/PMC9555163/
 - Source: [S-013] — https://pmc.ncbi.nlm.nih.gov/articles/PMC7296705/
-- Text: Stage 1 OUT-024 ("start and stop dates, dose changes, treatment duration"; "and the reason for stopping"; "For acute treatments, the list SHOULD also show the formulation of each treatment (see OUT-023), so that different formulations of the same drug can be told apart and the EHF definition of triptan refractoriness [S-012] can be applied"; [S-012] "failure to subcutaneous triptans was considered mandatory for the definition of triptan refractoriness"; for the duration of the course, [S-013] "If therapy was inadequate (low dose or incorrect duration) the failure is to be reassessed.").
+- Text: Stage 1 OUT-024 ("start and stop dates, dose changes, treatment duration"; for the duration of the course, [S-013] "If therapy was inadequate (low dose or incorrect duration) the failure is to be reassessed.").
 
 #### INV-079/D01
 - Kind: D
@@ -1980,7 +1993,7 @@ A future fix that finds a new attribute of the class adds a member to `factsShow
 - Source: [S-101] — https://pmc.ncbi.nlm.nih.gov/articles/PMC3057423/
 - Source: [S-102] — https://pmc.ncbi.nlm.nih.gov/articles/PMC4406925/
 - Source: [S-103] — https://www.cincinnatichildrens.org/service/h/headache-center/pedmidas
-- Text: Stage 1 OUT-026 ("Where results of validated instruments are available"; "the instrument's own published grading or categories"; [S-014] "Grading is not used by HALT-30."), OUT-036; [S-101], [S-102], [S-103], [S-014] quoted in E-057.
+- Text: Stage 1 OUT-026 ("the instrument's own published grading or categories"; [S-014] "Grading is not used by HALT-30."), OUT-036; [S-101], [S-102], [S-103], [S-014] quoted in E-057.
 
 #### INV-082/D01
 - Kind: D
@@ -2185,7 +2198,7 @@ No entries in v35: no reading of a Stage 1 statement is argued outside the entri
 #### ISS-05/Q00
 - Kind: Q
 - Concerns: ISS-05
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Text: [S-010] defines its levels on one count, the days with migraine or moderate-to-severe headache: "Modest Control. This is defined as four to six days with migraine or moderate-to-severe headache per month." (section "Setting goals of migraine burden while on treatment", p. 6).
 
 #### ISS-06/Q00
@@ -2198,7 +2211,7 @@ No entries in v35: no reading of a Stage 1 statement is argued outside the entri
 #### ISS-08/Q00
 - Kind: Q
 - Concerns: ISS-08
-- Source: [S-010] — https://pubmed.ncbi.nlm.nih.gov/39980456/
+- Source: [S-010] — https://ricerca.univaq.it/bitstream/11697/264025/1/sacco-et-al-2025-setting-higher-standards-for-migraine-prevention-a-position-statement-of-the-international-headache.pdf
 - Text: [S-010] defines "Migraine Freedom", "Optimal Control", "Modest Control" and "Insufficient Control" (section "Setting goals of migraine burden while on treatment", p. 6; quoted in E-046).
 
 #### ISS-09/Q00
@@ -2217,6 +2230,7 @@ No entries in v35: no reading of a Stage 1 statement is argued outside the entri
 #### ISS-11/Q00
 - Kind: Q
 - Concerns: ISS-11
+- Source: [S-015] — https://www.nice.org.uk/guidance/cg150
 - Source: [S-015] — https://www.nice.org.uk/guidance/cg150/chapter/Recommendations
 - Text: NICE CG150 covers "young people (aged 12 years and older) and adults" ([S-015], Overview page; quoted in E-041), and recommendation 1.3.48 stands in its section on medication overuse headache: [S-015] "Review the diagnosis of medication overuse headache and further management 4 to 8 weeks after the start of withdrawal of overused medication." (recommendation 1.3.48, quoted in Stage 1 OUT-017).
 
