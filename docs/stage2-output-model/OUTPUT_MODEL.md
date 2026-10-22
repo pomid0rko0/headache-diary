@@ -1,5 +1,5 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v39 · Iteration: 39 · Status: under review
+Version: v40 · Iteration: 40 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
 Companion: RATIONALE.md v39
 
@@ -2689,7 +2689,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
   ∀ m ∈ {rb.migraineDays, rb.moderateSevereHeadacheDays} • m.period.kind ∈ MonthlyKind ∧ within(m.period, rb.change.compared.period) ∧
     (rb.change.compared.period.kind ∈ MonthlyKind ⇒ m.period = rb.change.compared.period)
 ```
-- Reading: The residual burden shows migraine days and moderate/severe headache days, with the scope of the change, for one calendar month or 28-day period: the compared on-treatment period itself when that is a calendar month or 28-day period (as in every response comparison, INV-056), and otherwise one such period within the compared period.
+- Reading: The residual burden shows migraine days and moderate/severe headache days, with the scope of the change, each count for a calendar month or 28-day period within the compared period of the change: for the compared period itself when that is a calendar month or 28-day period (as in every response comparison, INV-056), and otherwise for a calendar month or 28-day period within it, which may differ between the two counts.
 - Conformance: definitional (E-044). Scope: output.
 - Realises: OUT-019
 - Evidence: Stage 1 OUT-019 ("per month that remain on treatment").
@@ -2974,7 +2974,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
   (∀ ae ∈ l.adverseEvents • true ∈ ae.regardedMeaningful ⇒
      AttackOutcomeResult(measure ↦ adverseEventRegardedMeaningful, achieved ↦ false) ∉ l.results)
 ```
-- Reading: A treated-attack line shows each outcome once and the status of each associated symptom once; it lists adverse events only when it shows a drug-related adverse event; a meaningful adverse event is a drug-related adverse event; and an adverse event the patient regarded as meaningful is not contradicted by the line's results.
+- Reading: A treated-attack line shows at most one result for each outcome measure and at most one status for each associated symptom. Where it shows that no drug-related adverse event occurred, it lists no adverse event. Where it shows that the patient regarded a drug-related adverse event as meaningful, it also shows that a drug-related adverse event occurred. Where it lists an adverse event that the patient regarded as meaningful, it does not show that the patient regarded no drug-related adverse event as meaningful.
 - Conformance: definitional (E-053). Scope: output.
 - Realises: OUT-012, OUT-023
 - Evidence: Stage 1 OUT-012, OUT-023.
@@ -3859,3 +3859,4 @@ One entry per version. The details of v00 to v34 are in `history/vNN.md` and `fi
 - v37 (iteration 37, 2026-10-22): Fix of review 37 (1 remark; details in `fixes/fix-iter-37.md`). No `omn` block, case-table row, source-data row, level, Realises field or traceability row changed. The output catalogue no longer restates output-wide invariants row by row: section 4.2 states once that INV-003, INV-006, INV-008, INV-011, INV-121, INV-122 and INV-123 apply to every row wherever their predicates apply, and that a case of table C2 or C3 may bear on the elements of other rows; the Availability, Shown with it and Prohibited cells now hold only entries specific to their row, as the revised column definitions state (R37-01).
 - v38 (iteration 38, 2026-10-22): Fix of review 38 (3 remarks; details in `fixes/fix-iter-38.md`). Values per headache type (R38-01): case C1-13 withdrawn; INV-118 asks for the cases that the new constant `byTypeCases` names (C1-01, C1-04, C1-06, C1-10) for each headache type, each with the granularities, kinds and level of its case and a granularity of its own. Granularity (R38-02): INV-096 asks for school days and caregiver impact for the contexts of one granularity of the diary's choice, and INV-049 no longer ties the series of the follow-up view to the selected granularity (E-039 and INV-050 unchanged). ISS-10 corrected (R38-03). Five `omn` blocks changed (section 4.4, E-029 (comment only), INV-049, INV-096, INV-118); one case-table row withdrawn (C1-13); no source-data row, quote or level of an existing case changed.
 - v39 (iteration 39, 2026-10-22): Fix of review 39 (1 remark; details in `fixes/fix-iter-39.md`). The OUT-025 part "the frequency, disability and treatment-history outputs for those windows" (MAY), stated only in prose until v34 and dropped in v35, is now stated formally (R39-01): E-056 has three MAY attributes with definitional placement, and INV-080 ties each frequency value to the dates of a window; the Realises fields, catalogue rows, the OUT-025 traceability row and ISS-04 follow. A sweep of the v34 prose found no other lost Stage 1 statement part. Two `omn` blocks changed (E-056, INV-080).
+- v40 (iteration 40, 2026-10-22): Fix of review 40 (1 remark; details in `fixes/fix-iter-40.md`). The Readings of INV-061 and INV-075 now state what their predicates state (R40-01): each of the two counts of a residual burden is for a calendar month or 28-day period within the compared period of the change, and the two may differ where the compared period is not itself monthly; a treated-attack line lists no adverse event where it shows that no drug-related adverse event occurred. No `omn` block, case-table row, source-data row, level, Realises field, catalogue row, traceability row or `RATIONALE.md` entry changed.
