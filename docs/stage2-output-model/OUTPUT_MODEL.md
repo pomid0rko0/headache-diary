@@ -1,7 +1,7 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v37 · Iteration: 37 · Status: under review
+Version: v38 · Iteration: 38 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
-Companion: RATIONALE.md v36
+Companion: RATIONALE.md v38
 
 ## 1. Scope and exclusions
 
@@ -231,9 +231,9 @@ pred reportedTogether(c : OutputContext, Ks : ℙ (ℙ PeriodValue), sc : TypeSc
     tiles(sr, c.timeRange, c.granularity) ∧ ∀ K ∈ Ks • perPeriod(v, sr, K, sc)
 ```
 
-`reportedPerPeriod(c, K, sc)` holds when some output produced for c contains a view with a series of consecutive periods that spans the selected time range at the selected granularity, and shows, for every period of that series, a value of kind K with type scope sc (E-006, E-012). Where Stage 1 says "per reporting period" without naming a granularity, the availability invariant requires `reportedPerPeriod` for contexts of at least one granularity; where Stage 1 names calendar months or 28-day periods (OUT-001), at least one of these two.
+`reportedPerPeriod(c, K, sc)` holds when some output produced for c contains a view with a series of consecutive periods that spans the selected time range at the selected granularity, and shows, for every period of that series, a value of kind K with type scope sc (E-006, E-012). Where Stage 1 names no granularity for values that the model reports per period ("per reporting period"; the school days and caregiver impact of OUT-036 (b)), the availability invariant asks for a series that spans the selected time range, with these values, for contexts of at least one granularity (`reportedPerPeriod` in INV-118; INV-096); where Stage 1 names calendar months or 28-day periods (OUT-001), at least one of these two.
 
-OUT-001's frequency outputs are read as the frequency measures of OUT-004 to OUT-007 (OUT-009 wording); see ISS-04. Their availability per calendar month or 28-day period is stated by INV-118 (C1-01 to C1-06, C1-13), INV-037 and INV-057 (SEC-3.4/D01).
+OUT-001's frequency outputs are read as the frequency measures of OUT-004 to OUT-007 (OUT-009 wording); see ISS-04. Their availability per calendar month or 28-day period is stated by INV-118 (C1-01 to C1-06; for each headache type, C1-01, C1-04 and C1-06 by `byTypeCases`), INV-037 and INV-057 (SEC-3.4/D01).
 
 ### 3.5 Conditions of applicability
 
@@ -301,7 +301,7 @@ Annotation → Element (qualified);  DefinitionLabel names the definition that i
 
 The catalogue (section 4.3) has one row per kind of output that a reader is shown. A row is identified by `OC-NN`; the constant `ocNN` of `enum CatalogueRow` (section 4.4) names the same row (`OC-07` ↔ `oc07`). The rows of the case tables of section 4.4 are identified by `C1-NN`, `C2-NN` and `C3-NN`, the rows of the source data tables of section 11 by `SD-<table>-NN`. These IDs are never renumbered or reused; a withdrawn row keeps its ID and is listed in section 9.
 
-The catalogue table is an index. Its cells name items by ID, state levels, quote Stage 1 wording and repeat the OMN predicates of applicability conditions; they state no constraint of their own and have no formal force. The formal force of the catalogue lies in the enumeration `CatalogueRow` and in the case tables C1, C2 and C3 (section 4.4), over which the generic invariants INV-118, INV-119 and INV-120 quantify.
+The catalogue table is an index. Its cells name items by ID, state levels, quote Stage 1 wording and repeat the OMN predicates of applicability conditions; they state no constraint of their own and have no formal force. The formal force of the catalogue lies in the enumeration `CatalogueRow`, in the case tables C1, C2 and C3 and in the constant `byTypeCases` (section 4.4), over which the generic invariants INV-118, INV-119 and INV-120 quantify.
 
 | Column | Content |
 |---|---|
@@ -359,7 +359,7 @@ Abbreviation: "def." = definitional.
 | OC-32 | Functional impact days (E-030) | OUT-027: clinicians, patients, researchers | per reporting period | every subject | SHOULD (C1-12); comparison with the baseline period SHOULD (INV-027) | — | — | OUT-027, OUT-036 |
 | OC-33 | Comparison of selected periods (E-037) | OUT-001: patients, primary-care clinicians, specialists, researchers; OUT-010, OUT-027 | the selected periods | two or more selected periods — R-MCF (3) | MUST for equal lengths (INV-037); intensity SHOULD (INV-039); def. INV-038 | its values, of the compared periods (E-037, INV-038) | — | OUT-001, OUT-010, OUT-027, OUT-036 |
 | OC-34 | Three-month pattern view (E-038) | OUT-028: clinicians | the three most recent calendar months or 28-day periods | every context | MUST (INV-040); def. INV-041; definitions and codes SHOULD (INV-042) | series (W2, def.) | C2-08 | OUT-028, OUT-038 |
-| OC-35 | Values per headache type (E-012, scopes `ofType`) | OUT-029: clinicians, patients | calendar month or 28-day period; intensity per period | "When the patient has, or may have, more than one headache type" — `#c.subject.possibleHeadacheTypes ≥ 2` | MUST (C1-13); intensity SHOULD where provided (C1-14) | — | — | OUT-029 |
+| OC-35 | Values per headache type (E-012, scopes `ofType`) | OUT-029: clinicians, patients | headache days, moderate/severe headache days and attacks: calendar month or 28-day period; acute-medication days and intensity: per reporting period | "When the patient has, or may have, more than one headache type" — `#c.subject.possibleHeadacheTypes ≥ 2` | MUST (INV-118, `byTypeCases`: C1-01, C1-04, C1-06 and C1-10 for each headache type); intensity SHOULD where provided (C1-14) | — | — | OUT-029 |
 | OC-36 | Menstrual-relation view, cycle lines, attack marks (E-060, E-061) | OUT-030: clinicians, patients | consecutive cycles over the selected time range | "For patients who menstruate" — `menstruatesDuring(c, c.timeRange)` | MUST (INV-086); def. INV-087, INV-124 | cycle lines (INV-087, def.); attack marks (W2, def.) | — | OUT-030, OUT-035 |
 | OC-37 | Cluster-headache view, cluster and remission periods, attack rates (E-062, E-063, E-064) | OUT-031: clinicians, patients | the selected time range; bouts and remissions with their own dates | "For patients with cluster headache" — `hasType(c, c3_1)` | SHOULD (INV-088); def. INV-089, INV-124 | — (no placement: E-062/X01) | — | OUT-031 |
 | OC-38 | Trigger co-occurrence view (E-065) | OUT-032: patients, clinicians | the covered period | — | MAY; def. INV-110 | caveats C3-09 | — | OUT-001, OUT-032, OUT-038 |
@@ -381,9 +381,11 @@ fun ppGranularities(r : CatalogueRow, l : Level) : set Granularity ≙ table C1 
 fun ppRequired(r : CatalogueRow, l : Level, c : OutputContext) : set (TypeScope × set (ℙ PeriodValue)) ≙ table C1 default ∅
 fun prohibitedClaims(r : CatalogueRow, l : Level) : set (ℙ Claim × ℙ Element) ≙ table C2 default ∅
 fun requiredAnnotations(r : CatalogueRow, l : Level) : set (AnnotationKind × ℙ Element) ≙ table C3 default ∅
+const byTypeCases : set (CatalogueRow × Level) ≙ {(oc05, must), (oc07, must), (oc08, must), (oc15, must)}   -- cases of table C1 that INV-118
+                                                                                                          --   also asks for each headache type
 ```
 
-`ppGranularities(r, l)` and `ppRequired(r, l, c)` give the cases of per-period availability read by INV-118: a set of granularities, and, for a context c, pairs of a type scope and kinds of per-period value that one view and one series show together for every period of the selected time range. `prohibitedClaims(r, l)` gives the cases read by INV-119: pairs of a set of claims and a set of elements, the bearers. `requiredAnnotations(r, l)` gives the cases read by INV-120: pairs of an annotation kind and a set of elements, the bearers. In a cell, `ctx(outputOf(x))` is the context of the output of x, which is `ctx` in an output-scope invariant (section 2.9). The v34 origin of each case is stated in the `RATIONALE.md` entries C1-NN/D01, C2-NN/D01 and C3-NN/D01.
+`ppGranularities(r, l)` and `ppRequired(r, l, c)` give the cases of per-period availability read by INV-118: a set of granularities, and, for a context c, pairs of a type scope and kinds of per-period value that one view and one series show together for every period of the selected time range. `byTypeCases` names the cases of table C1 whose values INV-118 also asks for separately for each headache type, wherever the subject has, or may have, two or more headache types (OUT-029, MUST): headache days (C1-01), moderate/severe headache days and attacks where the diary provides them (C1-04, C1-06), and acute-medication days in total, per class and per drug (C1-10), each with the granularities and kinds of its case. `prohibitedClaims(r, l)` gives the cases read by INV-119: pairs of a set of claims and a set of elements, the bearers. `requiredAnnotations(r, l)` gives the cases read by INV-120: pairs of an annotation kind and a set of elements, the bearers. In a cell, `ctx(outputOf(x))` is the context of the output of x, which is `ctx` in an output-scope invariant (section 2.9). The v34 origin of each case is stated in the `RATIONALE.md` entries C1-NN/D01, C2-NN/D01 and C3-NN/D01.
 
 Case table C1 — form C: cases of `ppGranularities` and `ppRequired` (per-period availability, read by INV-118)
 
@@ -401,7 +403,6 @@ Case table C1 — form C: cases of `ppGranularities` and `ppRequired` (per-perio
 | C1-10 | `oc15` | `must` | `Granularity` | `{(allTypes, medicationKinds(c))}` | OUT-014 (MUST) |
 | C1-11 | `oc16` | `should` | `{calendarWeek}` | `{(allTypes, {TotalAcuteMedicationDays})}` | OUT-015 (SHOULD) |
 | C1-12 | `oc32` | `should` | `Granularity` | `{(allTypes, {fiDays(paidWorkOrSchool, affected), fiDays(householdWork, affected), fiDays(socialOrLeisure, affected), {m : DayCount \| ∃ d : ImpactDomain • m.measure = functionalImpactDays((d, severelyImpaired))}})}` | OUT-027 (SHOULD) |
-| C1-13 | `oc35` | `must` | `MonthlyKind` | `{q : TypeScope × set (ℙ PeriodValue) \| #c.subject.possibleHeadacheTypes ≥ 2 ∧ q.1 ∈ {allTypes} ∪ {t ∈ c.subject.possibleHeadacheTypes • ofType(t)} ∧ q.2 = {HeadacheDays} ∪ medicationKinds(c) ∪ {K ∈ {ModerateSevereHeadacheDays, AttackCount} \| provides(K)}}` | OUT-029 (MUST) |
 | C1-14 | `oc35` | `should` | `Granularity` | `{q : TypeScope × set (ℙ PeriodValue) \| #c.subject.possibleHeadacheTypes ≥ 2 ∧ provides(IntensitySummary) ∧ q.2 = {IntensitySummary} ∧ ∃ t ∈ c.subject.possibleHeadacheTypes • q.1 = ofType(t)}` | OUT-029 (SHOULD, where OUT-010 is provided) |
 
 Case table C2 — form C: cases of `prohibitedClaims` (read by INV-119)
@@ -1083,13 +1084,13 @@ const classesOf821to825 : set1 AcuteDrugClass ≙ {ergotamine, triptans, nonOpio
 variant MedicationScope ::= allAcuteMedication | ofClass ⟨AcuteDrugClass⟩ | ofDrug ⟨Drug⟩ | ofClasses ⟨set1 AcuteDrugClass⟩
 type AcuteMedicationDays == {m : DayCount | ∃ s : MedicationScope • m.measure = acuteMedicationDays(s)}
 type TotalAcuteMedicationDays == {m : DayCount | m.measure = acuteMedicationDays(allAcuteMedication)}
--- medicationKinds(c): the kinds of acute-medication day counts asked for per period (table C1, rows C1-10 and C1-13)
+-- medicationKinds(c): the kinds of acute-medication day counts asked for per period (table C1, row C1-10; per headache type: byTypeCases)
 fun medicationKinds(c : OutputContext) : set (ℙ PeriodValue) ≙ {TotalAcuteMedicationDays} ∪
   {m ∈ c.subject.acuteMedications • {d : DayCount | d.measure = acuteMedicationDays(ofClass(classOf(m.drug)))}} ∪
   {m ∈ c.subject.acuteMedications • {d : DayCount | d.measure = acuteMedicationDays(ofDrug(m.drug))}}
 ```
 - Meaning: The number of days in the reporting period with acute (symptomatic) headache medication: in total across classes (`allAcuteMedication`), per ICHD-3 8.2 class (`ofClass`), per individual drug (`ofDrug`), and, as the basis of the 8.2.6 indicator, for any medication of a set of classes (`ofClasses(classesOf826)`).
-- Conformance: Availability: MUST (INV-118, C1-10); per calendar week SHOULD (INV-118, C1-11); per headache type MUST (INV-118, C1-13). Definitional: INV-024, INV-045, INV-122, INV-123 (`usedScope`).
+- Conformance: Availability: MUST (INV-118, C1-10); per calendar week SHOULD (INV-118, C1-11); per headache type MUST (INV-118, C1-10 by `byTypeCases`). Definitional: INV-024, INV-045, INV-122, INV-123 (`usedScope`).
 - Realises: OUT-014, OUT-015, OUT-016, OUT-029
 - Evidence: Stage 1 OUT-014, OUT-015, OUT-016, OUT-029; [S-001] 8.2.6 criterion B quoted in E-028.
 - Notes: Relations: INV-024, INV-122, INV-123. A day with two classes counts once in the total and once in each class, so the total is in general not the sum. See ISS-01, ISS-09. Rationale: E-029/D01.
@@ -2013,14 +2014,17 @@ The invariants of this section state, once each, rules that v34 stated for each 
 ### INV-118 Per-period values are available for every period of the selected time range
 - Predicate:
 ```omn
-∀ r : CatalogueRow • ppGranularities(r, l) ≠ ∅ ⇒
-  ∃ g ∈ ppGranularities(r, l) • ∀ c ∈ Ctx • c.granularity = g ⇒ ∀ q ∈ ppRequired(r, l, c) • reportedTogether(c, q.2, q.1)
+(∀ r : CatalogueRow • ppGranularities(r, l) ≠ ∅ ⇒
+   ∃ g ∈ ppGranularities(r, l) • ∀ c ∈ Ctx • c.granularity = g ⇒ ∀ q ∈ ppRequired(r, l, c) • reportedTogether(c, q.2, q.1)) ∧
+(∀ r : CatalogueRow • (r, l) ∈ byTypeCases ⇒
+   ∃ g ∈ ppGranularities(r, l) • ∀ c ∈ Ctx • c.granularity = g ∧ #c.subject.possibleHeadacheTypes ≥ 2 ⇒
+     ∀ q ∈ ppRequired(r, l, c); t ∈ c.subject.possibleHeadacheTypes • reportedTogether(c, q.2, ofType(t)))
 ```
-- Reading: For every catalogue row with a case at level l in table C1, there is a granularity among those that the case names such that, for every admissible context of that granularity and for every pair of a type scope and kinds of per-period value that the case asks for in that context (`ppRequired`), the diary can produce an output in which one view and one series that spans the selected time range show, for every period of the series, values of each of these kinds with that type scope (`reportedTogether`, section 3.4).
-- Conformance: level-indexed (section 3.3, item 7): MUST for the cases of table C1 with `l = must` (C1-01, C1-02, C1-04, C1-06, C1-10, C1-13); SHOULD for those with `l = should` (C1-03, C1-05, C1-07, C1-08, C1-09, C1-11, C1-12, C1-14). Scope: repertoire.
+- Reading: For every catalogue row with a case at level l in table C1, there is a granularity among those that the case names such that, for every admissible context of that granularity and for every pair of a type scope and kinds of per-period value that the case asks for in that context (`ppRequired`), the diary can produce an output in which one view and one series that spans the selected time range show, for every period of the series, values of each of these kinds with that type scope (`reportedTogether`, section 3.4). For every case at level l that `byTypeCases` names, there is also a granularity among those that the case names such that, for every admissible context of that granularity in which the subject has, or may have, two or more headache types, for every pair that the case asks for in that context and for every headache type that the subject has or may have, the diary can produce such an output with values of each of the pair's kinds for that headache type (`ofType`).
+- Conformance: level-indexed (section 3.3, item 7): MUST for the cases of table C1 with `l = must` (C1-01, C1-02, C1-04, C1-06, C1-10) and for the instances per headache type of the cases that `byTypeCases` names (C1-01, C1-04, C1-06, C1-10); SHOULD for those with `l = should` (C1-03, C1-05, C1-07, C1-08, C1-09, C1-11, C1-12, C1-14). Scope: repertoire.
 - Realises: OUT-001, OUT-004, OUT-005, OUT-006, OUT-007, OUT-010, OUT-011, OUT-012, OUT-014, OUT-015, OUT-027, OUT-029
-- Evidence: Stage 1 statement parts named in the Stage 1 part column of table C1.
-- Notes: Each case has its own existential granularity: the two measures of C1-04 and C1-06, and the cases C1-07 and C1-14, are separate cases. Replaces INV-014 to INV-019, INV-022, INV-023, INV-025, INV-026, INV-028, INV-029 and INV-108 (section 9). Rationale: INV-118/D01, INV-118/D02, INV-118/D03.
+- Evidence: Stage 1 statement parts named in the Stage 1 part column of table C1; for the instances per headache type, OUT-029 (MUST for "frequency and acute medication outputs per headache type").
+- Notes: Each case has its own existential granularity, and so has the instance per headache type of each case that `byTypeCases` names: the two measures of C1-04 and C1-06, the cases C1-07 and C1-14, and a case and its instance per headache type are separate. Replaces INV-014 to INV-019, INV-022, INV-023, INV-025, INV-026, INV-028, INV-029 and INV-108 (section 9); the case C1-13 was withdrawn in v38 (section 9). Rationale: INV-118/D01, INV-118/D02, INV-118/D03, INV-118/D04.
 
 ### INV-119 No element is presented with a prohibited claim
 - Predicate:
@@ -2529,16 +2533,16 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 ∀ c ∈ Ctx; ws ∈ c.subject.withdrawalStart •
   (c.timeRange.from = ws ∧ c.timeRange.to < plusMonths(ws, followUpMonths) ⇒
      ∃ o : Output • (c, o) ∈ Rep ∧ ∃ v ∈ o.views ∩ WithdrawalFollowUpView • v.withdrawalStart = ws ∧
-       sameSpan(v.covers, c.timeRange) ∧ ∃ sr ∈ v.series • tiles(sr, c.timeRange, c.granularity)) ∧
+       sameSpan(v.covers, c.timeRange)) ∧
   (c.asOf < plusMonths(ws, followUpMonths) ⇒
      ∃ o : Output • (c, o) ∈ Rep ∧ ∃ v ∈ o.views ∩ WithdrawalFollowUpView • v.withdrawalStart = ws ∧
        v.covers.start = ws ∧ v.covers.end = c.asOf)
 ```
-- Reading: For each start of withdrawal of overused medication of the subject (every start up to the as-of date, E-008), the follow-up view is available for every time range that starts at that start of withdrawal and ends within the following year (the days from the start of withdrawal to the day before the same date 12 months later, section 2.8); it covers that time range, with a series of the selected granularity that spans it. While the as-of date lies within that year, the follow-up view is also available from the start of withdrawal to the as-of date, whatever the number of days between them.
+- Reading: For each start of withdrawal of overused medication of the subject (every start up to the as-of date, E-008), the follow-up view is available for every time range that starts at that start of withdrawal and ends within the following year (the days from the start of withdrawal to the day before the same date 12 months later, section 2.8), and it covers that time range. While the as-of date lies within that year, the follow-up view is also available from the start of withdrawal to the as-of date, whatever the number of days between them.
 - Conformance: SHOULD. Scope: repertoire.
 - Realises: OUT-017
 - Evidence: Stage 1 OUT-017 ("SHOULD show headache days and acute medication days from the start of withdrawal onward, including the review window 4 to 8 weeks after the start of withdrawal").
-- Notes: Rationale: INV-049/D01, INV-049/S01, INV-049/W01.
+- Notes: The view's series, of a granularity of the diary's choice: E-039 `series`, INV-050. Rationale: INV-049/D01, INV-049/D02, INV-049/S01, INV-049/W01.
 
 ### INV-050 Withdrawal follow-up content
 - Predicate:
@@ -2826,7 +2830,7 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Reading: The treatment review view shows, for the same baseline and on-treatment periods (a baseline period that ends before a start of the treatment that the context states, and on-treatment periods that begin on or after it and end on or before the date of every stop or pause of the treatment, the last day of its course, section 2.8), headache days, migraine days (for patients with migraine) and acute-medication days, over all headache types combined: in total across classes, for each ICHD-3 8.2 class of the subject's acute medications, and for each of their drugs.
 - Conformance: MUST. Scope: output.
 - Realises: OUT-021
-- Evidence: Stage 1 OUT-021 (MUST for OUT-004, OUT-005 and OUT-014 together; OUT-005 keeps its condition by the reference rule of section 3.5); the acute-medication days of OUT-014 ("broken down by drug class [...] and by individual drug, together with the total across classes"), as in INV-118 (C1-10, C1-13) and INV-104.
+- Evidence: Stage 1 OUT-021 (MUST for OUT-004, OUT-005 and OUT-014 together; OUT-005 keeps its condition by the reference rule of section 3.5); the acute-medication days of OUT-014 ("broken down by drug class [...] and by individual drug, together with the total across classes"), as in INV-118 (C1-10) and INV-104.
 - Notes: R-MCF (1). Rationale: INV-068/D01, INV-068/S01, INV-068/W01.
 
 ### INV-069 Treatment review view: further dimensions where provided
@@ -3296,23 +3300,22 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 ### INV-096 Paediatric outputs: PedMIDAS, school days and caregiver impact
 - Predicate:
 ```omn
-∀ c ∈ Ctx •
-  (∀ a ∈ c.subject.instrumentAdministrations • a.instrument = pedmidas ∧ inSpan(a.date, c.timeRange) ∧ childOn(c, a.date) ⇒
-     ∃ o : Output • (c, o) ∈ Rep ∧ ∃ r ∈ parts(o) ∩ InstrumentResult • r.instrument = pedmidas ∧ r.completionDate = {a.date} ∧
-       r.recallPeriod = {recallMonths(3)}) ∧
-  (childOn(c, c.timeRange.from) ⇒
-     ∃ o : Output • (c, o) ∈ Rep ∧ ∃ v ∈ o.views; sr ∈ v.content ∩ Series • tiles(sr, c.timeRange, c.granularity) ∧
-       let C == {p ∈ ran sr.periods | childOn(c, p.start)} •
-         ((∀ p ∈ C • ∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, affected) • m.period = p ∧ m.typeScope = allTypes) ∨
-          (∀ p ∈ C • (∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, missed) • m.period = p ∧ m.typeScope = allTypes) ∧
-             ∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, impaired) • m.period = p ∧ m.typeScope = allTypes)) ∧
-         ∀ p ∈ C • ∃ m ∈ v.content ∩ CaregiverImpact • m.period = p ∧ m.typeScope = allTypes)
+(∀ c ∈ Ctx • ∀ a ∈ c.subject.instrumentAdministrations • a.instrument = pedmidas ∧ inSpan(a.date, c.timeRange) ∧ childOn(c, a.date) ⇒
+   ∃ o : Output • (c, o) ∈ Rep ∧ ∃ r ∈ parts(o) ∩ InstrumentResult • r.instrument = pedmidas ∧ r.completionDate = {a.date} ∧
+     r.recallPeriod = {recallMonths(3)}) ∧
+(∃ g ∈ Granularity • ∀ c ∈ Ctx • c.granularity = g ∧ childOn(c, c.timeRange.from) ⇒
+   ∃ o : Output • (c, o) ∈ Rep ∧ ∃ v ∈ o.views; sr ∈ v.content ∩ Series • tiles(sr, c.timeRange, c.granularity) ∧
+     let C == {p ∈ ran sr.periods | childOn(c, p.start)} •
+       ((∀ p ∈ C • ∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, affected) • m.period = p ∧ m.typeScope = allTypes) ∨
+        (∀ p ∈ C • (∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, missed) • m.period = p ∧ m.typeScope = allTypes) ∧
+           ∃ m ∈ v.content ∩ fiDays(paidWorkOrSchool, impaired) • m.period = p ∧ m.typeScope = allTypes)) ∧
+       ∀ p ∈ C • ∃ m ∈ v.content ∩ CaregiverImpact • m.period = p ∧ m.typeScope = allTypes)
 ```
-- Reading: Available PedMIDAS results completed within the selected time range while the subject is a child or adolescent are reported with their 3-month recall period. Where the subject is a child or adolescent on the first day of the selected time range, then for every period of the selected time range that begins while the subject is a child or adolescent, school days missed or impaired (as one count of the days on which headache affected school, or as separate counts of the days missed and the days impaired) and the impact on parents or caregivers are reported.
+- Reading: Available PedMIDAS results completed within the selected time range while the subject is a child or adolescent are reported with their 3-month recall period. For the contexts of one granularity, of the diary's choice, in which the subject is a child or adolescent on the first day of the selected time range, school days missed or impaired (as one count of the days on which headache affected school, or as separate counts of the days missed and the days impaired) and the impact on parents or caregivers are reported for every period of the selected time range that begins while the subject is a child or adolescent.
 - Conformance: SHOULD. Scope: repertoire.
 - Realises: OUT-036
 - Evidence: Stage 1 OUT-036 (a), (b).
-- Notes: R-MCF (4). Rationale: INV-096/D01.
+- Notes: Granularity: section 3.4. R-MCF (4). Rationale: INV-096/D01, INV-096/D02.
 
 ### INV-097 Paediatric comparisons use periods of equal length
 - Predicate:
@@ -3461,7 +3464,7 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with its 
 | OUT-026 | SHOULD | OC-31 | E-008, E-057, E-058 | INV-081, INV-082, INV-120, INV-123 | full<br>results of validated instruments where available, with name, date, recall period, score, grading and change from baseline (SHOULD): E-057, E-058, SD-IN, SD-GB, INV-081, INV-082, INV-123; clinical interpretation of categories (OUT-038): INV-120 (C3-08) |
 | OUT-027 | SHOULD | OC-32, OC-33 | E-014, E-030, E-037 | INV-027, INV-118, INV-121, INV-122 | full<br>functional impact per reporting period, with severe impairment (SHOULD): E-030, INV-118 (C1-12), INV-121, INV-122<br>comparison with the baseline period (SHOULD): INV-027 |
 | OUT-028 | MUST; SHOULD; SHOULD NOT | OC-02, OC-03, OC-34 | E-001, E-006, E-009, E-011, E-038 | INV-008, INV-040, INV-041, INV-042, INV-119 | full<br>three-month view of headache days and migraine days (MUST): E-038, INV-040, INV-041, W2 (E-038)<br>source definitions shown (SHOULD): INV-042<br>no diagnosis assigned (SHOULD NOT): INV-119 (C2-08) |
-| OUT-029 | MUST; SHOULD (intensity) | OC-11, OC-15, OC-35 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-118, INV-122 | full<br>frequency and acute-medication outputs per headache type and combined (MUST): E-012, INV-118 (C1-13); values per type do not exceed the combined values: INV-122<br>intensity per headache type where provided (SHOULD): INV-118 (C1-14) |
+| OUT-029 | MUST; SHOULD (intensity) | OC-11, OC-15, OC-35 | E-008, E-009, E-012, E-023, E-029 | INV-001, INV-118, INV-122 | full<br>frequency and acute-medication outputs per headache type (MUST): E-012, INV-118 (`byTypeCases`: C1-01, C1-04, C1-06, C1-10); combined (MUST): INV-118 (C1-01, C1-04, C1-06, C1-10); values per type do not exceed the combined values: INV-122<br>intensity per headache type where provided (SHOULD): INV-118 (C1-14) |
 | OUT-030 | MUST | OC-36 | E-008, E-060, E-061 | INV-086, INV-087, INV-124 | full<br>migraine attacks and migraine days in relation to menstruation across consecutive cycles, with the ICHD-3 A1.1 perimenstrual window, and the number of complete cycles (MUST): E-060, E-061, INV-086, INV-087, INV-124, W2 (E-060), SD-FX-01, SD-FX-02 |
 | OUT-031 | SHOULD | OC-28, OC-37 | E-008, E-009, E-012, E-050, E-051, E-052, E-062, E-063, E-064 | INV-072, INV-073, INV-088, INV-089, INV-124 | full<br>cluster periods and remission periods with dates and durations, attacks per day and per week, acute effectiveness at 15 minutes and rescue, previous bouts (SHOULD): E-062, E-063, E-064, INV-088, INV-089, INV-124, SD-FX-07, SD-ET-01 |
 | OUT-032 | MAY; caveats SHOULD | OC-38, OC-44 | E-010, E-065 | INV-110, INV-120 | full<br>co-occurrence of attacks with trigger factors (MAY): E-065, INV-110<br>caveats (SHOULD): INV-120 (C3-09) |
@@ -3525,11 +3528,11 @@ The model follows Stage 1 in each case below. Each issue is pointed to from the 
 ### ISS-09 Which "acute medication outputs" OUT-029 breaks down by headache type
 - Stage 1: OUT-029 (MUST) asks for "frequency and acute medication outputs separately for each headache type [...] as well as combined", without naming which acute-medication outputs it means. Group D of Stage 1 contains the acute-medication days of OUT-014 (total, by class and by drug), the weekly view of OUT-015 (SHOULD) and the medication-overuse indicator of OUT-016 (MUST).
 - Evidence: [S-001] ISS-09/Q00.
-- Effect on the model: INV-118 (C1-13) presents the acute-medication days of OUT-014 (total, per class and per drug) for each headache type and combined. The weekly view (E-036, INV-118 (C1-11)) and the medication-overuse indicator (E-032, INV-044) are required for all headache types combined only; an indicator per headache type would not correspond to the ICHD-3 levels.
+- Effect on the model: INV-118 presents the acute-medication days of OUT-014 (total, per class and per drug) over all headache types combined (C1-10) and, by `byTypeCases`, for each headache type. The weekly view (E-036, INV-118 (C1-11)) and the medication-overuse indicator (E-032, INV-044) are required for all headache types combined only; an indicator per headache type would not correspond to the ICHD-3 levels.
 - For the human: decide whether "acute medication outputs" in OUT-029 also covers the weekly view of OUT-015 and the medication-overuse indicator of OUT-016.
 
 ### ISS-10 Evaluation time points for preventive treatments outside the populations of the guidance quoted in OUT-018
-- Stage 1: OUT-018 (MUST) asks, "For each preventive treatment", for the comparison "at the evaluation time points named in current guidance, which differ by treatment type". Every guidance that Stage 1 cites for OUT-018 concerns preventive treatment of migraine, and four of them concern adults only (AAN/AHS 2026, SIGN 155, the EHF 2022 guideline and the Russian clinical recommendations for adults). NICE CG150 covers people aged 12 years and older, and its 1.3.28 and 1.3.29 concern treatments that it recommends for adults; the IHS 2024 recommendations, the NVN module and the Turkish protocol also address children (E-041). Stage 1 also covers preventive treatments of other headache types (OUT-009: "tension-type headache, cluster headache", in the view with markers for preventive treatments; OUT-031: [S-014] "optimum acute and preventative treatments are maintained") and of children and adolescents (OUT-036 (d): "present efficacy of treatment from diary data as recommended in paediatric guidance").
+- Stage 1: OUT-018 (MUST) asks, "For each preventive treatment", for the comparison "at the evaluation time points named in current guidance, which differ by treatment type". Every guidance that Stage 1 cites for OUT-018 concerns preventive treatment of migraine, and five of them concern adults only (AAN/AHS 2026, SIGN 155, the EHF 2022 guideline, the Russian clinical recommendations for adults, and the IHS guidelines for controlled trials of preventive treatment of episodic migraine in adults [S-002], which name durations and analysis periods of trials, not evaluation time points for a person's treatment, E-041/D01). NICE CG150 covers people aged 12 years and older, and its 1.3.28 and 1.3.29 concern treatments that it recommends for adults; the IHS 2024 recommendations, the NVN module and the Turkish protocol also address children (E-041). Stage 1 also covers preventive treatments of other headache types (OUT-009: "tension-type headache, cluster headache", in the view with markers for preventive treatments; OUT-031: [S-014] "optimum acute and preventative treatments are maintained") and of children and adolescents (OUT-036 (d): "present efficacy of treatment from diary data as recommended in paediatric guidance").
 - Evidence: [S-015], [S-034] ISS-10/Q00.
 - Effect on the model: every evaluation rule applies only within the population of its guidance (E-041 `inPopulation`): to a preventive treatment given for migraine, for a subject who was, on the start of the treatment, of the ages the guidance covers. A response comparison is still required for every preventive treatment whose start the context states (INV-055; R-MCF (1)), but no guidance time point is required for a preventive treatment given only for another headache type. For a treatment started in childhood or adolescence, only the time points of guidance that covers that age are required: the NVN module, IHS 2024 Q2, the Turkish protocol, the Russian clinical recommendations for children and, from the age of 12, NICE CG150 1.3.27. The rule list holds every time point that the guidance cited for OUT-018 names (since v07; the time point of the Turkish protocol section 7.3 since v14), and, for children and adolescents, the [S-034] time point above, because OUT-036 (d) asks for the efficacy of treatment "as recommended in paediatric guidance" and Stage 1 cites [S-034] there (E-041/D01, E-041/D02).
 - For the human: decide whether OUT-018 should name evaluation time points for preventive treatments of tension-type headache, cluster headache and other headache types; and confirm that the time point of the paediatric guidance [S-034], which Stage 1 cites for OUT-036 (d) but not for OUT-018, belongs to the time points of OUT-018 (E-041, `ruleRuChildren`).
@@ -3558,7 +3561,7 @@ No output was found in the Stage 2 research that EBM supports and Stage 1 lacks.
 
 ## 9. Withdrawn and merged items
 
-No element (E-NNN) has been withdrawn. The invariants below were merged in v35 into the item or items named in the last column (PROCESS.md sections 6a and 7); their IDs are not reused. One Stage 1 issue of section 8 has been withdrawn and is listed so that its ID is not reused.
+No element (E-NNN) has been withdrawn. The invariants below were merged in v35 into the item or items named in the last column (PROCESS.md sections 6a and 7); their IDs are not reused. One Stage 1 issue of section 8 has been withdrawn and is listed so that its ID is not reused. One case-table row, C1-13, was withdrawn in v38 and is listed with the items its content went into.
 
 | ID | Name | Iteration | Reason | Went into |
 |---|---|---|---|---|
@@ -3580,7 +3583,7 @@ No element (E-NNN) has been withdrawn. The invariants below were merged in v35 i
 | INV-023 | Acute-medication days per reporting period: total, by class and by drug | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-10) |
 | INV-025 | Weekly view of acute-medication days | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-11) |
 | INV-026 | Functional impact per reporting period | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-12) |
-| INV-028 | Separate presentation per headache type | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-13) |
+| INV-028 | Separate presentation per headache type | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-13; C1-13 withdrawn in v38, see its row below) |
 | INV-029 | Intensity per headache type, where provided | 35 | restructuring (PROCESS.md section 6a), merged | INV-118 (C1-14) |
 | INV-030 | Values per headache type do not exceed the combined values | 35 | restructuring (PROCESS.md section 6a), merged | INV-122 |
 | INV-036 | Markers show the treatment course | 35 | restructuring (PROCESS.md section 6a), merged | INV-123; E-034 `event` (attribute type) |
@@ -3601,6 +3604,7 @@ No element (E-NNN) has been withdrawn. The invariants below were merged in v35 i
 | INV-106 | No output decides on the continuation of a preventive treatment | 35 | restructuring (PROCESS.md section 6a), merged | INV-119 (C2-05) |
 | INV-107 | No output decides which definition of acute treatment response applies | 35 | restructuring (PROCESS.md section 6a), merged | INV-119 (C2-07) |
 | ISS-07 | Overlapping bands in two Stage 1 sources (a Stage 1 issue of section 8) | 01 | Not a gap or defect of Stage 1, which does not state the bands (review remark R01-12). The overlaps of the HALT-90 bands at 20 and of the IHS Q6 MIDAS baseline ranges at 20 remain described in E-057/D02 and E-045/D03. | — |
+| C1-13 | Separate presentation per headache type (case of table C1, `oc35`, `must`) | 38 | Review remark R38-01: the case asked for the frequency and acute-medication values per headache type and combined in one view and one series of one calendar-month or 28-day granularity, which Stage 1 does not ask; split by measure (INV-118/D04). | INV-118 (`byTypeCases`: the instances per headache type of C1-01, C1-04, C1-06 and C1-10); the combined values: C1-01, C1-04, C1-06, C1-10 |
 
 ## 10. Sources
 
@@ -3847,3 +3851,4 @@ One entry per version. The details of v00 to v34 are in `history/vNN.md` and `fi
   - Corrected after the equivalence check: see `fixes/fix-iter-35-equivalence.md`.
 - v36 (iteration 36, 2026-10-22): Fix of review 36 (3 remarks; details in `fixes/fix-iter-36.md`). No `omn` block changed or added. Quote URLs of `RATIONALE.md` corrected (R36-01); the Conformance, Realises and Evidence fields of invariants that lost conjuncts in v35, with the traceability table, catalogue row OC-08 and the section 9 row of INV-036, aligned with the predicates (R36-02); notation and catalogue prose aligned with the formal text (R36-03).
 - v37 (iteration 37, 2026-10-22): Fix of review 37 (1 remark; details in `fixes/fix-iter-37.md`). No `omn` block, case-table row, source-data row, level, Realises field or traceability row changed. The output catalogue no longer restates output-wide invariants row by row: section 4.2 states once that INV-003, INV-006, INV-008, INV-011, INV-121, INV-122 and INV-123 apply to every row wherever their predicates apply, and that a case of table C2 or C3 may bear on the elements of other rows; the Availability, Shown with it and Prohibited cells now hold only entries specific to their row, as the revised column definitions state (R37-01).
+- v38 (iteration 38, 2026-10-22): Fix of review 38 (3 remarks; details in `fixes/fix-iter-38.md`). Values per headache type (R38-01): case C1-13 withdrawn; INV-118 asks for the cases that the new constant `byTypeCases` names (C1-01, C1-04, C1-06, C1-10) for each headache type, each with the granularities, kinds and level of its case and a granularity of its own. Granularity (R38-02): INV-096 asks for school days and caregiver impact for the contexts of one granularity of the diary's choice, and INV-049 no longer ties the series of the follow-up view to the selected granularity (E-039 and INV-050 unchanged). ISS-10 corrected (R38-03). Five `omn` blocks changed (section 4.4, E-029 (comment only), INV-049, INV-096, INV-118); one case-table row withdrawn (C1-13); no source-data row, quote or level of an existing case changed.
