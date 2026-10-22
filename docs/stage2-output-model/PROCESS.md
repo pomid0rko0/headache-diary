@@ -112,8 +112,15 @@ How to stay in scope:
 docs/stage2-output-model/
   PROCESS.md                          this file
   OUTPUT_MODEL.md                     the current model (the single living document)
+  RATIONALE.md                        companion of the model, from v35 on: verbatim evidence quotes,
+                                      design reasons, what is deliberately not modelled,
+                                      satisfiability arguments, worked examples, search log
   history/vNN.md                      snapshot of OUTPUT_MODEL.md for each version
                                       (v00 = initial draft, vNN = after the fix of iteration NN)
+  history/vNN-rationale.md            snapshot of RATIONALE.md for each version, from v35 on
+  audits/                             one-off audits ordered by the orchestrator
+  restructure/plan-v35.md             the restructuring plan of iteration 35 (section 8)
+  restructure/equivalence-v35.md      the check that v35 is v34 plus the intended changes only
   reviews/review-iter-NN.md           fact-check and review of iteration NN
   reviews/review-iter-NNb.md          first re-check of iteration NN (only after a NO_REMARKS review)
   reviews/review-iter-NNc.md          second re-check of iteration NN (only after a NO_REMARKS re-check)
@@ -164,12 +171,31 @@ Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
 ## 12. Change log                (one entry per version)
 ```
 
+**From v35 on**, the model is restructured under section 6a. The skeleton above still applies with these changes:
+
+- The model adds an **output catalogue** (one row per kind of output) and **source data tables** (one row per value that a source fixes: evaluation rules, responder criteria, instrument value sets, codes, reference levels). The exact section layout is set by `restructure/plan-v35.md` and is then stable.
+- **Evidence fields** in the model give the source ID and an entry ID in `RATIONALE.md`. The verbatim quote, its translation, its location and its URL are given once, in that `RATIONALE.md` entry. Stage 1 quotes are still not repeated.
+- **Notes** in the model are short and explain only the formal text next to them. Everything listed for `RATIONALE.md` in section 5 lives there, under the ID of the item it concerns.
+- The **search log** moves to `RATIONALE.md`. The **change log** keeps one short entry per version and points to `fixes/fix-iter-NN.md` for details.
+- "Withdrawn elements" also lists items **merged** into another item, with the item they were merged into.
+
+## 6a. Generality and no accretion
+
+These rules exist because v34 grew to about 820 KB by adding one special case per fix, and an audit of v34 (`audits/consistency-audit-v34.md`) found 19 internal inconsistencies, about half of them in prose that restated other items.
+
+- **State a rule once.** A rule that applies to several outputs is stated once, as a generic invariant over the output catalogue or over a common supertype. An invariant about one output is allowed only when its content is specific to that output, for example data that one source fixes.
+- **Fix the class, not the case.** When a remark shows a missing or wrong case, the fixer first checks whether the case is an instance of a rule that applies to a class of outputs. If it is, the fix states or corrects the rule for the whole class, and the fix log names the class.
+- **Prose claims nothing beyond the formal text.** Meaning, Reading and Notes say what the formal text says, and no more. A statement about another item is a reference to its ID, not a restatement of it.
+- **Rationale lives outside the model.** Design reasons, rejected alternatives, satisfiability arguments, worked examples and lists of what is not modelled go to `RATIONALE.md`. `RATIONALE.md` must agree with the model; where they differ, the model governs and the difference is a defect.
+- **One general treatment of missing context facts.** When an output depends on a fact that the context may not state, one general rule says what happens. Individual items refer to that rule and do not repeat it.
+
 ## 7. Stable identifiers
 
 - Model elements are numbered `E-NNN`, invariants `INV-NNN`, new sources `S-1NN`. Never renumber or reuse an ID. A removed element or invariant moves to "Withdrawn elements" with its reason and the iteration in which it was withdrawn.
 - Attributes are referred to as `E-NNN.attributeName`.
 - Review remarks are numbered `R{iteration}-{n}`, for example `R03-07`. Remarks from re-checks carry the re-check letter: `R07b-01`, `R07c-02`.
 - Oscillation findings are numbered `OSC-{iteration}-{n}`.
+- **Restructuring (v35).** Items merged or split keep the rule above: an old ID is never reused; it moves to "Withdrawn elements" with the item(s) it went into, and new items continue the numbering. New kinds of ID (for example catalogue rows or source-data rows) are defined in `restructure/plan-v35.md` and are then stable under the same rule. The mapping from every v34 ID to its place in v35 is part of `fixes/fix-iter-35.md`.
 
 ## 8. The loop
 
@@ -182,6 +208,26 @@ Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
 3. An **oscillation checker** (a new agent) runs after iterations 4, 8, 12 and so on, and after the final iteration. It looks for items that keep changing back and forth. Oscillating items are frozen and handed to the human (section 10).
 
 The orchestrator may stop the loop after 64 iterations if it has not converged, and hand the question back to the human. (The limit was 32 until iteration 31; the human raised it to 64.)
+
+**Restructuring at iteration 35.** After review 35, the human decided to restructure the model before continuing (section 6a). The fix of iteration 35 therefore runs in three steps, each by a new agent:
+
+1. **Plan.** An architect writes `restructure/plan-v35.md`. The plan contains:
+   - the new section layout;
+   - the output catalogue's columns;
+   - the families of v34 items that are instances of one rule, each with the generic rule in OMN;
+   - the source data tables;
+   - the general rule for missing context facts;
+   - the mapping from every v34 element and invariant to its place in v35.
+2. **Rewrite.** An author writes v35 under the plan: `OUTPUT_MODEL.md`, `RATIONALE.md`, their snapshots, and `fixes/fix-iter-35.md`. The rewrite also addresses remark R35-01 and the findings CA-01 to CA-19 of `audits/consistency-audit-v34.md`; the fix log handles each of them as it handles a remark. Every intended change of meaning is listed in the fix log with its reason. Anything else must keep the meaning of v34.
+3. **Equivalence check.** A checker writes `restructure/equivalence-v35.md`. It confirms that:
+   - every v34 item is accounted for;
+   - every difference in meaning between v34 and v35 is one of the listed intended changes;
+   - no decision recorded as a watch point by an oscillation check is reversed;
+   - every quote moved to `RATIONALE.md` is unchanged.
+
+   If the check finds defects, a new fixer corrects v35 before the review of iteration 36.
+
+The loop then continues with iteration 36. The oscillation check after iteration 36 compares items across the restructuring by meaning, using the mapping.
 
 ## 9. What counts as a remark
 
@@ -210,6 +256,8 @@ Raise only issues that require a change:
   - contradictory or unsatisfiable invariants;
   - an invariant that excludes an output Stage 1 permits, or admits an output Stage 1 forbids.
 - **Contradiction or duplication** between elements or invariants.
+- **Prose overclaim**: a Meaning, Reading, Notes or `RATIONALE.md` statement that claims more than, or other than, what the formal text guarantees.
+- **Rule stated per case**: the same rule stated separately for several outputs where section 6a requires one generic rule. Raise it only when the per-case statements differ in content or one case is missing; the fix is the generic rule.
 - **Stage 1 issue handling**: a Stage 1 issue that the model silently works around instead of recording it in section 8, or an entry in section 8 that is unfounded.
 
 These are **not** remarks:
