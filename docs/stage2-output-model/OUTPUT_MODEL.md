@@ -1,7 +1,7 @@
 # Headache diary — formal model of output data (Stage 2)
-Version: v38 · Iteration: 38 · Status: under review
+Version: v39 · Iteration: 39 · Status: under review
 Baseline: Stage 1 OUTPUT_REQUIREMENTS.md v18 (converged)
-Companion: RATIONALE.md v38
+Companion: RATIONALE.md v39
 
 ## 1. Scope and exclusions
 
@@ -329,10 +329,10 @@ Abbreviation: "def." = definitional.
 | OC-02 | Time series of consecutive periods (E-006) | as the views that show it | calendar months, 28-day periods, calendar weeks | — | structural; def. INV-004 | — | — | OUT-001, OUT-004, OUT-009, OUT-015, OUT-028 |
 | OC-03 | Definition label (E-011) | OUT-002: clinicians, researchers | per view | views that report the measure (`reports`) | SHOULD (INV-008); def. INV-111; fixed definitions (INV-125: SD-DF-01 MUST, SD-DF-02 SHOULD) | — | — | OUT-002, OUT-004, OUT-005, OUT-006, OUT-007, OUT-028 |
 | OC-04 | Completeness indicator (E-013) | OUT-003: clinicians, researchers, patients | each reporting period of a summary measure | — | SHOULD (INV-011); def. INV-012 | — | C2-02 | OUT-003, OUT-034 |
-| OC-05 | Headache days (E-015; E-014) | OUT-004: patients, primary-care clinicians, specialists, researchers | per period; calendar month or 28-day period | every subject | MUST (C1-01) | the definition its label names (INV-125: SD-DF-01 MUST) | — | OUT-001, OUT-002, OUT-004 |
-| OC-06 | Migraine days (E-016) | OUT-005: patients, clinicians, researchers | calendar month or 28-day period | "For patients with migraine" — `hasType(c, c1)` | MUST (C1-02) | — | — | OUT-001, OUT-002, OUT-005 |
-| OC-07 | Moderate/severe headache days (E-017) | OUT-006: clinicians, researchers, patients | calendar month or 28-day period | every subject; MUST "where provided" — `provides(…)` | SHOULD (C1-03); MUST where provided (C1-04) | — | — | OUT-001, OUT-002, OUT-006 |
-| OC-08 | Number of attacks (E-019 `AttackCount`) | OUT-007: clinicians, researchers | calendar month or 28-day period | every subject; MUST where provided | SHOULD (C1-05); MUST where provided (C1-06) | the definition its label names (INV-125: SD-DF-02 SHOULD) | — | OUT-001, OUT-002, OUT-007 |
+| OC-05 | Headache days (E-015; E-014) | OUT-004: patients, primary-care clinicians, specialists, researchers | per period; calendar month or 28-day period | every subject | MUST (C1-01) | the definition its label names (INV-125: SD-DF-01 MUST) | — | OUT-001, OUT-002, OUT-004, OUT-025 |
+| OC-06 | Migraine days (E-016) | OUT-005: patients, clinicians, researchers | calendar month or 28-day period | "For patients with migraine" — `hasType(c, c1)` | MUST (C1-02) | — | — | OUT-001, OUT-002, OUT-005, OUT-025 |
+| OC-07 | Moderate/severe headache days (E-017) | OUT-006: clinicians, researchers, patients | calendar month or 28-day period | every subject; MUST "where provided" — `provides(…)` | SHOULD (C1-03); MUST where provided (C1-04) | — | — | OUT-001, OUT-002, OUT-006, OUT-025 |
+| OC-08 | Number of attacks (E-019 `AttackCount`) | OUT-007: clinicians, researchers | calendar month or 28-day period | every subject; MUST where provided | SHOULD (C1-05); MUST where provided (C1-06) | the definition its label names (INV-125: SD-DF-02 SHOULD) | — | OUT-001, OUT-002, OUT-007, OUT-025 |
 | OC-09 | Headache-free days, symptom-free days, periods without migraine days (E-020, E-021, E-022) | OUT-008: patients, clinicians, researchers | per reporting period | every subject (ISS-03) | MAY; SHOULD in the clinician-facing summary (INV-104; ISS-04); def. INV-031 | exploratory label MAY (C3-02) | — | OUT-008 |
 | OC-10 | Time-course view with treatment markers (E-034, E-035) | OUT-009: patients, clinicians, researchers | series of calendar months or 28-day periods; calendar weeks where weekly granularity is clinically relevant | every subject; weekly: `ctx.weeklyGranularityRelevant` | SHOULD (INV-034); content SHOULD (INV-035) | series and markers (W2 SHOULD, E-035) | — | OUT-009, OUT-034, OUT-035 |
 | OC-11 | Intensity summary (E-023) | OUT-010: clinicians, patients | per reporting period | every subject | SHOULD (C1-07); between periods (INV-039, OC-33); def. INV-032 | scale SHOULD (E-023) | — | OUT-010, OUT-021, OUT-029, OUT-035 |
@@ -347,14 +347,14 @@ Abbreviation: "def." = definitional.
 | OC-20 | Evaluation time point (E-041, E-042; SD-ER) | OUT-018: clinicians, patients, researchers | anchor date; date or window of evaluation | rules applicable to the treatment (`applicable`, E-041) | MUST with each response comparison (INV-059); def. INV-058 | — | — | OUT-018, OUT-036 |
 | OC-21 | Response comparison (E-043) | OUT-018: clinicians, patients, researchers | baseline month; monthly on-treatment periods | "For each preventive treatment", whose start the context states — R-MCF (1) | MUST (INV-055); content MUST (INV-056, INV-057, INV-059) | values and changes (INV-056, W2); time points (W2 MUST); adherence (INV-066); acute summaries per phase (INV-071); functional impact (INV-027) | C2-05 | OUT-001, OUT-018, OUT-036 |
 | OC-22 | Residual burden (E-044) | OUT-019: clinicians, patients | a calendar month or 28-day period within the compared period | "Wherever the output shows a relative (percentage) change in migraine or headache days" (compared period of at least 28 days: INV-060; ISS-13) | SHOULD (INV-060); def. INV-061 | its change and its two day counts, in one view, for the burden that INV-060 asks for next to a percentage change (INV-060) | — | OUT-019 |
-| OC-23 | Responder label and its named criterion (E-045, E-046; SD-RC, SD-CL) | OUT-020: clinicians, patients | evaluated on-treatment periods | "If the output displays a responder or non-responder label" (MAY) | MAY; content SHOULD (INV-062); def. INV-063, INV-064, INV-114, INV-116 | comparison, residual burden, other values (W2 SHOULD); clinical-interpretation caveat (C3-07) | C2-06 | OUT-020, OUT-025, OUT-038 |
+| OC-23 | Responder label and its named criterion (E-045, E-046; SD-RC, SD-CL) | OUT-020: clinicians, patients | evaluated on-treatment periods | "If the output displays a responder or non-responder label" (MAY) | MAY; content SHOULD (INV-062); def. INV-063, INV-064, INV-114, INV-116 | comparison, residual burden, other values (W2 SHOULD); clinical-interpretation caveat (C3-07) | C2-06 | OUT-020, OUT-038 |
 | OC-24 | Days with migraine or moderate-to-severe headache, the count of the IHS position statement 2025 (E-018) | OUT-020: clinicians, patients | each evaluated month of a control-level label | with control-level labels | SHOULD with such a label (INV-062); def. INV-031 (relation to migraine days under `ihs2025MigraineDay`) | — | — | OUT-020 |
 | OC-25 | Adherence summary (E-047) | OUT-039: clinicians, patients | an evaluation window of the response comparison | "For each preventive treatment" | SHOULD next to the comparison (INV-066), in the treatment history (INV-109), in the clinician-facing summary (INV-104); def. INV-067 | — | — | OUT-039 |
 | OC-26 | Treatment review view (E-048) | OUT-021: clinicians, patients | the same baseline and on-treatment periods | each preventive treatment whose start the context states — R-MCF (1) | MUST (INV-102); content MUST (INV-068), SHOULD where provided (INV-069) | — | — | OUT-021, OUT-023, OUT-036 |
 | OC-27 | Post-stop monitoring view (E-049) | OUT-022: clinicians, patients | from the first changed day; on-treatment period; original baseline | each stop, pause or dose reduction of a preventive treatment, whether or not its start is stated — R-MCF (2) | SHOULD (INV-103); content SHOULD (INV-070, E-049 `when` clauses); def. INV-112 | — | — | OUT-022, OUT-036 |
 | OC-28 | Acute-treatment summary, outcome summaries, treated-attack lines (E-050, E-051, E-052, E-053; SD-ET) | OUT-023: clinicians, patients | the selected time range; baseline and on-treatment periods; periods named by other rows | "For each acute medication" used up to the as-of date | SHOULD (INV-071); content SHOULD (INV-072, INV-073, INV-076); def. INV-074, INV-075 | outcome summaries and lines (W2 SHOULD) | C2-07 | OUT-012, OUT-021, OUT-023, OUT-024, OUT-031 |
-| OC-29 | Treatment history: view, class groups, treatment lines (E-054, E-055) | OUT-024: clinicians (primary), patients | the dates of each course | every treatment of the subject | SHOULD (INV-077); content SHOULD (INV-078, INV-109); def. INV-079 | groups (W2 SHOULD) and their lines (INV-078); response summaries and adherence (W2 SHOULD) | — | OUT-024, OUT-034, OUT-039 |
-| OC-30 | Scheme-window view (E-056) | OUT-025: clinicians preparing reimbursement or registry documentation | the selected windows | contexts with a scheme selection — R-MCF (3) | MAY; def. INV-080 | — | — | OUT-025 |
+| OC-29 | Treatment history: view, class groups, treatment lines (E-054, E-055) | OUT-024: clinicians (primary), patients | the dates of each course | every treatment of the subject | SHOULD (INV-077); content SHOULD (INV-078, INV-109); def. INV-079 | groups (W2 SHOULD) and their lines (INV-078); response summaries and adherence (W2 SHOULD) | — | OUT-024, OUT-025, OUT-034, OUT-039 |
+| OC-30 | Scheme-window view and the frequency, disability and treatment-history outputs it shows (E-056) | OUT-025: clinicians preparing reimbursement or registry documentation | the selected windows; frequency values: periods with the dates of a window (INV-080) | contexts with a scheme selection — R-MCF (3) | MAY; content MAY (E-056); def. INV-080 | frequency values, instrument results and treatment lines (W2, def.) | — | OUT-025 |
 | OC-31 | Instrument result (E-057, E-058; SD-IN, SD-GB) | OUT-026: clinicians, patients, researchers | completion date | "Where results of validated instruments are available" — R-MCF (4) | SHOULD (INV-081); def. INV-082 | clinical-interpretation caveat where a category is shown (C3-08) | — | OUT-020, OUT-021, OUT-025, OUT-026, OUT-034, OUT-036, OUT-038 |
 | OC-32 | Functional impact days (E-030) | OUT-027: clinicians, patients, researchers | per reporting period | every subject | SHOULD (C1-12); comparison with the baseline period SHOULD (INV-027) | — | — | OUT-027, OUT-036 |
 | OC-33 | Comparison of selected periods (E-037) | OUT-001: patients, primary-care clinicians, specialists, researchers; OUT-010, OUT-027 | the selected periods | two or more selected periods — R-MCF (3) | MUST for equal lengths (INV-037); intensity SHOULD (INV-039); def. INV-038 | its values, of the compared periods (E-037, INV-038) | — | OUT-001, OUT-010, OUT-027, OUT-036 |
@@ -883,7 +883,7 @@ type HeadacheDays == {m : DayCount | m.measure = headacheDays}
 ```
 - Meaning: The number of headache days in the reporting period, with "headache days" as defined in ICHD-3 "Definitions of terms" [S-001].
 - Conformance: Availability: MUST (INV-118, C1-01). Definition label: SHOULD (INV-008); fixed definition MUST (INV-125, SD-DF-01).
-- Realises: OUT-001, OUT-002, OUT-004
+- Realises: OUT-001, OUT-002, OUT-004, OUT-025
 - Evidence: Stage 1 OUT-001, OUT-002, OUT-004.
 
 ### E-016 MigraineDays
@@ -893,7 +893,7 @@ type MigraineDays == {m : DayCount | m.measure = migraineDays}
 ```
 - Meaning: The number of migraine days in the reporting period (monthly migraine days for calendar months or 28-day periods), under the one published definition that the view follows for migraine days, which its definition labels name (E-011, INV-111).
 - Conformance: Availability: MUST (INV-118, C1-02); applicability: "For patients with migraine", `hasType(c, c1)`. Definition label: SHOULD (INV-008).
-- Realises: OUT-001, OUT-002, OUT-005
+- Realises: OUT-001, OUT-002, OUT-005, OUT-025
 - Evidence: Stage 1 OUT-001, OUT-002, OUT-005.
 - Notes: Relations: INV-031. Rationale: E-016/D01.
 
@@ -904,7 +904,7 @@ type ModerateSevereHeadacheDays == {m : DayCount | m.measure = moderateSevereHea
 ```
 - Meaning: The number of days in the reporting period with headache of moderate or severe intensity, under the one published definition that the view follows for these days, which its definition labels name (E-011, INV-111).
 - Conformance: Availability: SHOULD (INV-118, C1-03); MUST where provided (INV-118, C1-04). Definition label: SHOULD (INV-008). Definitional: INV-122.
-- Realises: OUT-001, OUT-002, OUT-006
+- Realises: OUT-001, OUT-002, OUT-006, OUT-025
 - Evidence: Stage 1 OUT-001, OUT-002, OUT-006.
 
 ### E-018 MigraineOrModerateSevereHeadacheDays
@@ -930,7 +930,7 @@ type AttackCount == {m : EventCount | m.event = attacks}
 ```
 - Meaning: The number of attacks or of auras (E-027) in the reporting period, shown as a value of its own, separately from headache or migraine days. Attacks are counted under the one published definition that the view follows for attacks, which its definition labels name (E-011, INV-111); INV-125 (SD-DF-02) asks, at SHOULD, that the label name the frequency of attacks as defined in ICHD-3 "Definitions of terms" [S-001].
 - Conformance: Availability: attacks SHOULD (INV-118, C1-05); MUST where provided (INV-118, C1-06); aura counts MAY (E-027). Definition label: SHOULD (INV-008); fixed definition SHOULD (INV-125, SD-DF-02). Definitional: INV-006, INV-122.
-- Realises: OUT-001, OUT-002, OUT-007, OUT-013
+- Realises: OUT-001, OUT-002, OUT-007, OUT-013, OUT-025
 - Evidence: Stage 1 OUT-001, OUT-002, OUT-007, OUT-013.
 - Notes: Relations: INV-006, INV-033, INV-089, INV-122. Rationale: E-019/D01.
 
@@ -1551,7 +1551,7 @@ fun forcedAbove(k : ControlLevel) : set ℕ ≙ table SD-CL default ∅        -
 ```
 - Meaning: An optional label that classifies the response to a preventive treatment under a named criterion: responder or non-responder, or a control level of the IHS position statement 2025. It is shown with the criterion it applies, the values it rests on, and the residual burden, and it is not presented as the sole indicator of individual benefit. `evaluationResult(L, r)` holds when r is the latest available result of its instrument that was completed after the treatment start shown in the label's response comparison and within the last period the label refers to; `pretreatmentBaseline(L, b)` holds when b is the latest available result of its instrument that was completed on or before that treatment start. `attackScope(c, a, sc)` holds when sc is the type scope of the attacks that the attack-reduction component a counts (E-045). `evaluatedOnTreatment(L)` holds when every period the label refers to ends on or before the date of every stop or pause of its treatment, the last day of the course (`notStoppedBefore`, E-042; section 2.8).
 - Conformance: Availability: MAY ("If the output displays a responder or non-responder label"). Content: SHOULD (INV-062). Definitional: INV-063, INV-064, INV-114, INV-116, INV-123. Labels and caveats: C3-07. Prohibited: C2-06; C2-05 (MUST NOT). Placement: `comparison`, `residual`, `otherValues` (W2, SHOULD).
-- Realises: OUT-020, OUT-025, OUT-038
+- Realises: OUT-020, OUT-038
 - Evidence: Stage 1 OUT-020. Control levels, not stated in Stage 1: [S-010] E-046/Q01, [S-010] E-046/Q02, [S-010] E-046/Q03, [S-010] E-046/Q04, [S-010] E-046/Q05.
 - Notes: Relations: INV-063, INV-064, INV-114, INV-116, INV-123. See ISS-08. R-MCF (1), (4). Rationale: E-046/D01, E-046/D02, E-046/D03, E-046/D04, E-046/D05, E-046/D06.
 
@@ -1758,7 +1758,7 @@ pred hasDoseChange(c : OutputContext, t : Treatment) ≙ ∃ e ∈ c.subject.cou
 ```
 - Meaning: One treatment of the history: start and stop dates, dose changes, treatment duration (from the start to the stop or, for a treatment that has not stopped, to the as-of date of the output, that is, its duration to date), the response summary (from OUT-018 for preventive and OUT-023 for acute treatments), adverse effects during the treatment, the reason for stopping, for acute treatments the formulation, and for preventive treatments the adherence (OUT-039).
 - Conformance: Content of E-054: SHOULD (INV-077, INV-078, INV-109); the `when` clauses of `startDate`, `duration`, `preventiveResponse` and `adherence`: R-MCF (1). Definitional: INV-079, INV-123. Placement: `preventiveResponse`, `acuteResponse`, `adherence` (W2, SHOULD).
-- Realises: OUT-024, OUT-039
+- Realises: OUT-024, OUT-025, OUT-039
 - Evidence: Stage 1 OUT-024, OUT-039.
 - Notes: Relations: INV-079, INV-123. R-MCF (1). Rationale: E-055/D01, E-055/D02.
 
@@ -1768,13 +1768,16 @@ pred hasDoseChange(c : OutputContext, t : Treatment) ≙ ∃ e ∈ c.subject.cou
 element SchemeWindowView extends View {
   scheme : SchemeName  core                     -- shown as the label of the view
   windows : seq1 →Period  core                  -- the evaluation windows the clinician selected
+  frequencyValues : set →PeriodValue  MAY  shown           -- frequency outputs for the windows (INV-080)
+  instrumentResults : set →InstrumentResult  MAY  shown    -- disability outputs: results of validated instruments
+  treatmentLines : set →TreatmentLine  MAY  shown          -- treatment-history outputs
 }
 ```
-- Meaning: Frequency, disability and treatment-history outputs for evaluation windows defined by a national reimbursement or monitoring scheme (for example specified treatment weeks, the three months preceding an application, month-by-month responder views or six-monthly reassessments), labelled with the name of the scheme.
-- Conformance: Availability: MAY, for contexts with a scheme selection — R-MCF (3). Definitional: INV-080.
+- Meaning: Evaluation windows defined by a national reimbursement or monitoring scheme (for example specified treatment weeks, the three months preceding an application, month-by-month responder views or six-monthly reassessments), labelled with the name of the scheme, with the frequency, disability and treatment-history outputs that the view shows. Its frequency outputs (`frequencyValues`) are counts of headache days, migraine days, moderate/severe headache days or attacks, each of a period with the dates of one of its windows (INV-080); its disability outputs (`instrumentResults`) are results of validated instruments (E-058); its treatment-history outputs (`treatmentLines`) are treatment lines (E-055). All of them are shown in the view.
+- Conformance: Availability: MAY, for contexts with a scheme selection — R-MCF (3). Definitional: INV-080. Placement: `frequencyValues`, `instrumentResults`, `treatmentLines` (W2, definitional).
 - Realises: OUT-025
 - Evidence: Stage 1 OUT-025.
-- Notes: Relations: INV-080. R-MCF (3). Rationale: E-056/D01.
+- Notes: Relations: INV-080. R-MCF (3). See ISS-04. Rationale: E-056/D01, E-056/D02, E-056/S01, E-056/X01.
 
 ### 5.8 Instruments
 
@@ -2130,6 +2133,7 @@ The attributes that carry a placement marker (section 2.5, rule W2). This list i
 | E-051 | `outcomes`, `sequence` | `shown SHOULD` |
 | E-054 | `preventiveGroups`, `acuteGroups` | `shown SHOULD` |
 | E-055 | `preventiveResponse`, `acuteResponse`, `adherence` | `shown SHOULD` |
+| E-056 | `frequencyValues`, `instrumentResults`, `treatmentLines` | `shown` (definitional) |
 | E-060 | `attacks` (`CycleLine`) | `shown` (definitional) |
 
 Not marked: `ClassGroup.lines` (INV-078 places the lines in the history view), `MenstrualRelationView.cycles` (INV-087 states an equality), `ResidualBurden.change`, `migraineDays` and `moderateSevereHeadacheDays` (INV-060 places, for the residual burden it asks for next to a percentage change, the burden and its two day counts in the view of the change), the references of the cluster view (E-062/X01), and references to periods (INV-003).
@@ -3058,17 +3062,19 @@ c.subject.aged12From ≤ c.subject.adultFrom ∧ (∀ s ∈ c.subject.menstruati
 - Evidence: Stage 1 OUT-024 ("a chronological list of preventive (and, separately, acute) treatments with start and stop dates, dose changes, treatment duration, the response summary from OUT-018 or OUT-023 for each treatment, adverse effects during each treatment, and the reason for stopping"), OUT-034 ("current and past treatments with response (OUT-018, OUT-023, OUT-024)"), OUT-039 ("The adherence output SHOULD also be available in the treatment history (OUT-024) and in the clinician-facing summary (OUT-034)").
 - Notes: R-MCF (2). Rationale: INV-109/D01, INV-109/D02, INV-109/D03, INV-109/D04, INV-109/D05, INV-109/S01.
 
-### INV-080 Scheme windows are the selected windows
+### INV-080 Scheme windows are the selected windows, and frequency values are values of these windows
 - Predicate:
 ```omn
-∀ v : SchemeWindowView • ∃ sel ∈ ctx.schemeSelection • v.scheme = sel.scheme ∧ #v.windows = #sel.windows ∧
-  ∀ i ∈ dom v.windows • sameSpan(v.windows(i), sel.windows(i))
+∀ v : SchemeWindowView • (∃ sel ∈ ctx.schemeSelection • v.scheme = sel.scheme ∧ #v.windows = #sel.windows ∧
+  ∀ i ∈ dom v.windows • sameSpan(v.windows(i), sel.windows(i))) ∧
+  ∀ m ∈ v.frequencyValues • m ∈ HeadacheDays ∪ MigraineDays ∪ ModerateSevereHeadacheDays ∪ AttackCount ∧
+    ∃ w ∈ ran v.windows • sameSpan(m.period, spanOf(w))
 ```
-- Reading: A scheme-window view shows exactly the windows the clinician selected and is labelled with the selected scheme.
+- Reading: A scheme-window view shows exactly the windows the clinician selected and is labelled with the selected scheme. Every frequency value that it shows for its windows (`frequencyValues`) is a count of headache days, migraine days, moderate/severe headache days or attacks of a period with the dates of one of its windows.
 - Conformance: definitional (E-056). Scope: output.
 - Realises: OUT-025
 - Evidence: Stage 1 OUT-025.
-- Notes: R-MCF (3).
+- Notes: R-MCF (3). Rationale: E-056/D02, E-056/S01.
 
 ### 6.9 Instruments
 
@@ -3459,7 +3465,7 @@ Every Stage 1 requirement, in Stage 1 order (OUT-039 follows OUT-025), with its 
 | OUT-022 | SHOULD | OC-27 | E-008, E-049 | INV-001, INV-070, INV-103, INV-112, INV-123 | full<br>frequency after a stop, pause or reduction, compared with the on-treatment period and the original baseline (SHOULD): E-049, INV-103, INV-070, INV-112, INV-123 |
 | OUT-023 | SHOULD; Caveat SHOULD | OC-26, OC-28 | E-001, E-008, E-012, E-050, E-051, E-052, E-053 | INV-069, INV-071, INV-072, INV-073, INV-074, INV-075, INV-119, INV-123 | full<br>outcome measures per acute medication, their consistency across treated attacks, relief, non-pain symptoms, adverse events, intake timing, formulation, per formulation (SHOULD): E-050, E-051, E-052, E-053, SD-ET, INV-071, INV-072, INV-073, INV-074, INV-075, W2 (E-051), INV-123<br>Caveat, no decision on the definition of response (SHOULD NOT): INV-119 (C2-07) |
 | OUT-024 | SHOULD | OC-28, OC-29 | E-008, E-051, E-054, E-055 | INV-001, INV-077, INV-078, INV-079, INV-109, INV-123 | full<br>chronological list of preventive and acute treatments, grouped by class, with dates, dose changes, duration, response summary, adverse effects, reason for stopping and formulation (SHOULD): E-054, E-055, INV-077, INV-078, INV-079, INV-109, W2 (E-054, E-055), INV-123 |
-| OUT-025 | MAY | OC-23, OC-30, OC-31 | E-007, E-046, E-056, E-058 | INV-080 | full<br>evaluation windows of a scheme, labelled with the scheme (MAY): E-056, INV-080 |
+| OUT-025 | MAY | OC-05, OC-06, OC-07, OC-08, OC-29, OC-30, OC-31 | E-007, E-015, E-016, E-017, E-019, E-055, E-056, E-058 | INV-080 | full<br>evaluation windows defined by a scheme, selected by the clinician (MAY): E-007 (`schemeSelection`), E-056 (`windows`), INV-080<br>frequency, disability and treatment-history outputs for those windows (MAY): E-056 (`frequencyValues`: E-015, E-016, E-017, E-019; `instrumentResults`: E-058; `treatmentLines`: E-055), INV-080, W2 (E-056)<br>labelled with the name of the scheme (MAY): E-056 (`scheme`), INV-080 |
 | OUT-039 | SHOULD | OC-25, OC-29, OC-40 | E-008, E-047, E-054, E-055, E-066 | INV-066, INV-067, INV-079, INV-104, INV-109, INV-123 | full<br>adherence over the evaluation window next to the response comparison (SHOULD): E-047, INV-066, INV-067, INV-123<br>in the treatment history and the clinician-facing summary (SHOULD): INV-109, W2 (E-055), INV-104 |
 | OUT-026 | SHOULD | OC-31 | E-008, E-057, E-058 | INV-081, INV-082, INV-120, INV-123 | full<br>results of validated instruments where available, with name, date, recall period, score, grading and change from baseline (SHOULD): E-057, E-058, SD-IN, SD-GB, INV-081, INV-082, INV-123; clinical interpretation of categories (OUT-038): INV-120 (C3-08) |
 | OUT-027 | SHOULD | OC-32, OC-33 | E-014, E-030, E-037 | INV-027, INV-118, INV-121, INV-122 | full<br>functional impact per reporting period, with severe impairment (SHOULD): E-030, INV-118 (C1-12), INV-121, INV-122<br>comparison with the baseline period (SHOULD): INV-027 |
@@ -3504,8 +3510,8 @@ The model follows Stage 1 in each case below. Each issue is pointed to from the 
 
 ### ISS-04 The clinician-facing summary includes MAY measures at SHOULD level, and the frequency outputs of OUT-001
 - Stage 1: OUT-034 (SHOULD) brings together "frequency measures and their time course (OUT-004 to OUT-009)". The range includes OUT-008 (headache-free days, symptom-free days, periods without migraine days), which is MAY in its own requirement. OUT-009 instead names "frequency measures (OUT-004 to OUT-007)", and OUT-008 calls its own measures "exploratory measures of residual burden". OUT-001 (MUST) requires "Frequency outputs" to be available per calendar month or per 28-day period without saying which outputs these are.
-- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free days, symptom-free days and the marks of periods without migraine days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034. The frequency outputs of OUT-001 are read as the frequency measures of OUT-004 to OUT-007, as OUT-009 names them (section 3.4). So the MUST of OUT-001 makes headache days, migraine days for patients with migraine, and, where provided, moderate/severe headache days and attacks available per calendar month or 28-day period (INV-118 (C1-01, C1-02, C1-04, C1-06)). It does not do so for the OUT-008 measures or for the aura counts of OUT-013, which keep "per reporting period" at MAY.
-- For the human: decide whether OUT-034 means OUT-008 measures "where provided"; and whether the frequency outputs of OUT-001 also include the OUT-008 measures (and the aura counts of OUT-013), which would make their availability per calendar month or 28-day period MUST wherever the diary provides them.
+- Effect on the model: each part keeps its own strength (Stage 2 PROCESS.md section 4), so INV-104 includes headache-free days, symptom-free days and the marks of periods without migraine days in the clinician-facing summary at SHOULD. A diary that provides no OUT-008 measures at all, as OUT-008 permits, then deviates from the SHOULD of OUT-034. The frequency outputs of OUT-001 are read as the frequency measures of OUT-004 to OUT-007, as OUT-009 names them (section 3.4). So the MUST of OUT-001 makes headache days, migraine days for patients with migraine, and, where provided, moderate/severe headache days and attacks available per calendar month or 28-day period (INV-118 (C1-01, C1-02, C1-04, C1-06)). It does not do so for the OUT-008 measures or for the aura counts of OUT-013, which keep "per reporting period" at MAY. The frequency outputs of the scheme-window view of OUT-025 (MAY) are read in the same way (E-056 `frequencyValues`, INV-080).
+- For the human: decide whether OUT-034 means OUT-008 measures "where provided"; and whether the frequency outputs of OUT-001 also include the OUT-008 measures (and the aura counts of OUT-013), which would make their availability per calendar month or 28-day period MUST wherever the diary provides them, and would make them frequency outputs of the scheme-window view of OUT-025 as well.
 
 ### ISS-05 OUT-019 and the single count of the IHS position statement 2025
 - Stage 1: OUT-019 asks for "the absolute number of migraine days and moderate/severe headache days per month that remain on treatment", citing [S-010]. OUT-020 names the "IHS position statement 2025 control levels" as a criterion.
@@ -3852,3 +3858,4 @@ One entry per version. The details of v00 to v34 are in `history/vNN.md` and `fi
 - v36 (iteration 36, 2026-10-22): Fix of review 36 (3 remarks; details in `fixes/fix-iter-36.md`). No `omn` block changed or added. Quote URLs of `RATIONALE.md` corrected (R36-01); the Conformance, Realises and Evidence fields of invariants that lost conjuncts in v35, with the traceability table, catalogue row OC-08 and the section 9 row of INV-036, aligned with the predicates (R36-02); notation and catalogue prose aligned with the formal text (R36-03).
 - v37 (iteration 37, 2026-10-22): Fix of review 37 (1 remark; details in `fixes/fix-iter-37.md`). No `omn` block, case-table row, source-data row, level, Realises field or traceability row changed. The output catalogue no longer restates output-wide invariants row by row: section 4.2 states once that INV-003, INV-006, INV-008, INV-011, INV-121, INV-122 and INV-123 apply to every row wherever their predicates apply, and that a case of table C2 or C3 may bear on the elements of other rows; the Availability, Shown with it and Prohibited cells now hold only entries specific to their row, as the revised column definitions state (R37-01).
 - v38 (iteration 38, 2026-10-22): Fix of review 38 (3 remarks; details in `fixes/fix-iter-38.md`). Values per headache type (R38-01): case C1-13 withdrawn; INV-118 asks for the cases that the new constant `byTypeCases` names (C1-01, C1-04, C1-06, C1-10) for each headache type, each with the granularities, kinds and level of its case and a granularity of its own. Granularity (R38-02): INV-096 asks for school days and caregiver impact for the contexts of one granularity of the diary's choice, and INV-049 no longer ties the series of the follow-up view to the selected granularity (E-039 and INV-050 unchanged). ISS-10 corrected (R38-03). Five `omn` blocks changed (section 4.4, E-029 (comment only), INV-049, INV-096, INV-118); one case-table row withdrawn (C1-13); no source-data row, quote or level of an existing case changed.
+- v39 (iteration 39, 2026-10-22): Fix of review 39 (1 remark; details in `fixes/fix-iter-39.md`). The OUT-025 part "the frequency, disability and treatment-history outputs for those windows" (MAY), stated only in prose until v34 and dropped in v35, is now stated formally (R39-01): E-056 has three MAY attributes with definitional placement, and INV-080 ties each frequency value to the dates of a window; the Realises fields, catalogue rows, the OUT-025 traceability row and ISS-04 follow. A sweep of the v34 prose found no other lost Stage 1 statement part. Two `omn` blocks changed (E-056, INV-080).

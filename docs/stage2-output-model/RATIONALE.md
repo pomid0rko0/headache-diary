@@ -1,5 +1,5 @@
 # Headache diary — rationale of the output model (Stage 2)
-Version: v38 (companion of OUTPUT_MODEL.md v38)
+Version: v39 (companion of OUTPUT_MODEL.md v39)
 
 ## 1. Purpose and rules
 
@@ -1123,6 +1123,21 @@ This file holds what the model does not state formally: the verbatim evidence qu
 - Kind: D
 - Concerns: E-056
 - Text (v34 Notes): Scheme criteria are not shown as requirements of the model (OUT-025 Caveats).
+
+#### E-056/D02
+- Kind: D
+- Concerns: E-056; INV-080; E-015; E-016; E-017; E-019; E-046; E-055; E-058; OC-30; ISS-04
+- Text: The content of the scheme-window view (v39, R39-01). OUT-025 (MAY) asks the diary "to show the frequency, disability and treatment-history outputs for those windows, labelled with the name of the scheme". From v00 to v34 this part was stated only in prose, in a sentence of the E-056 Conformance field that listed headache days and migraine days per window, instrument results, treatment lines and responder labels; v35 dropped the sentence, and v39 states the part formally. **Frequency outputs** are read as the frequency measures of OUT-004 to OUT-007, as for OUT-001 (section 3.4; ISS-04): headache days, migraine days, moderate/severe headache days and attacks. A frequency output for a window is a value of a period with the dates of that window (`sameSpan`, by which INV-080 also relates the windows to the selection). A month-by-month presentation is a selection of monthly windows, which a selection admits in any number and with any dates (E-007; INV-001 states no condition on them). **Disability outputs** are the results of validated impact, disability and quality-of-life instruments (OUT-026; E-058), and **treatment-history outputs** are the treatment lines of the treatment history (OUT-024; E-055). Stage 1 relates these two kinds to the windows by no date, and the scheme criteria quoted in the Evidence of OUT-025 relate them in different ways: the Kela criterion [S-039] asks for the previous treatment and its results, and the AIFA criterion [S-040] defines disabling migraine by a MIDAS score, whose recall period is 3 months (SD-IN-01). Any date relation would be a scheme criterion, which the Caveats of OUT-025 exclude (E-056/D01). So the model relates instrument results and treatment lines to the windows only by showing them in the view that shows the windows and is labelled with the scheme. All three attributes are MAY: they ask for nothing, and they fix the type and meaning of the content (section 3.2). Their placement (rule W2, definitional) makes the content part of the view. **Responder labels** are not content of the view. In OUT-025, "month-by-month responder views" is an example of an evaluation window that a scheme defines, and a label under a scheme's own responder rule would apply a scheme criterion (E-045/N02). So, from v39, E-046 does not realise OUT-025. The kinds that the view shows (E-015, E-016, E-017, E-019, E-055, E-058) do, because OUT-025's statement names them (catalogue column Realises, section 4.2).
+
+#### E-056/S01
+- Kind: S
+- Concerns: E-056; INV-080
+- Text: Satisfiability (v39). The three content attributes are MAY and may be empty, so every scheme-window view that v38 admitted is still admitted. For every context with a scheme selection, a view with content also exists. A frequency value may refer to a window itself, for which `sameSpan` holds, and INV-003 places that period in the view. A count of days of a window does not exceed its length (INV-121), and the values of one window and type scope can be chosen to meet INV-006, INV-031 and INV-122. INV-008, INV-011 and INV-120 (C3-01) ask for labels, completeness indicators and annotations, which can be added to any view. An instrument result and a treatment line meet their own definitional invariants (INV-079, INV-082, INV-123) in any view that shows them, as in the treatment history or the clinician-facing summary. A witness was checked by script (`fixes/fix-iter-39.md`).
+
+#### E-056/X01
+- Kind: X
+- Concerns: E-056; INV-080
+- Text: Rejected alternatives (v39). (1) A tie of each frequency value to a period within a window (`within`) instead of a period with the dates of a window: OUT-025 asks for the outputs "for those windows", and a period within a window is a window of its own where the clinician selects it as one (E-056/D02). (2) A tie of instrument results to the windows (for example a completion date within a window), or of treatment lines (for example a course that overlaps a window): Stage 1 states no such relation, the schemes quoted in OUT-025 relate these outputs to their windows in different ways, and a tie would make a scheme criterion part of the model (E-056/D02). (3) Responder labels as content of the view, as the v34 prose listed them (E-056/D02).
 
 #### E-057/Q00
 - Kind: Q
