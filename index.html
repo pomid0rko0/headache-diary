@@ -1,0 +1,883 @@
+<meta charset="utf-8">
+<title>Дневник головной боли</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,600&display=swap">
+<style>
+/* Layout: one narrow column. The card for the chosen day sits on top, the month calendar and its totals below. */
+:root {
+  --bg: #f2f4f7;
+  --surface: #ffffff;
+  --ink: #1a2230;
+  --muted: #5b6475;
+  --line: #dce1e9;
+  --accent: #3a4aa6;
+  --accent-ink: #ffffff;
+  --p0: #d3e8db; --on-p0: #1d3b2b;
+  --p1: #f5d68f; --on-p1: #4a3500;
+  --p2: #ec9757; --on-p2: #3b1a00;
+  --p3: #c3384b; --on-p3: #ffffff;
+  --warn-bg: #fbeee0; --warn-ink: #6b3a0c;
+  --font-display: "Literata", Georgia, "Times New Roman", serif;
+  --font-ui: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d; --surface: #1a1f2a; --ink: #e6e9ef; --muted: #9aa2b1; --line: #2c3342;
+    --accent: #9aa6ff; --accent-ink: #11151d;
+    --p0: #1f3a2f; --on-p0: #cdebdb;
+    --p1: #6a5218; --on-p1: #fde8b8;
+    --p2: #8c4519; --on-p2: #ffe1cc;
+    --p3: #a92a3e; --on-p3: #ffffff;
+    --warn-bg: #3a2614; --warn-ink: #f6d2ad;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d; --surface: #1a1f2a; --ink: #e6e9ef; --muted: #9aa2b1; --line: #2c3342;
+  --accent: #9aa6ff; --accent-ink: #11151d;
+  --p0: #1f3a2f; --on-p0: #cdebdb;
+  --p1: #6a5218; --on-p1: #fde8b8;
+  --p2: #8c4519; --on-p2: #ffe1cc;
+  --p3: #a92a3e; --on-p3: #ffffff;
+  --warn-bg: #3a2614; --warn-ink: #f6d2ad;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+header h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+.status { margin: 6px 0 0; color: var(--muted); font-size: 0.875rem; }
+.status.error { color: var(--p3); }
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Day card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.day-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.day-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; line-height: 1.2; margin: 2px 0 0; }
+.link-btn {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.field { display: flex; flex-direction: column; gap: 10px; }
+
+.pain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pain button {
+  appearance: none;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 12px 4px 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 74px;
+  cursor: pointer;
+}
+.pain .sw { width: 18px; height: 18px; border-radius: 50%; background: var(--c); border: 2px solid var(--c); }
+.pain button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--on); font-weight: 600; }
+.pain button[aria-pressed="true"] .sw { background: transparent; border-color: var(--on); }
+.l0 { --c: var(--p0); --on: var(--on-p0); }
+.l1 { --c: var(--p1); --on: var(--on-p1); }
+.l2 { --c: var(--p2); --on: var(--on-p2); }
+.l3 { --c: var(--p3); --on: var(--on-p3); }
+.hint { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.add { display: flex; gap: 8px; }
+input[type="text"], textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+  min-width: 0;
+}
+.add input { flex: 1; }
+textarea { resize: vertical; min-height: 76px; }
+.btn {
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--accent);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button:disabled, input:disabled, textarea:disabled { opacity: 0.5; cursor: default; }
+
+.card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; flex-wrap: wrap; }
+.saved { color: var(--muted); font-size: 0.875rem; transition: opacity 0.4s; }
+.del { background: none; border: 0; color: var(--muted); font-size: 0.875rem; padding: 4px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.del.armed { color: var(--p3); font-weight: 600; }
+
+/* Month */
+.month { display: flex; flex-direction: column; gap: 16px; }
+.month-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.month-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.375rem; margin: 0; }
+.nav { display: flex; gap: 6px; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.wd { text-align: center; font-size: 0.75rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 2px; }
+.cell {
+  aspect-ratio: 1;
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+.cell.blank { visibility: hidden; }
+.cell.future { background: transparent; border-style: dashed; color: var(--muted); cursor: default; opacity: 0.55; }
+.cell.l0, .cell.l1, .cell.l2, .cell.l3 { background: var(--c); color: var(--on); border-color: var(--c); }
+.cell.today { font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.cell.sel { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+.cell .dot { position: absolute; bottom: 5px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: currentColor; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8125rem; color: var(--muted); margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
+.legend .dotkey { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); margin-inline: 3px; }
+
+.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; margin: 0; }
+.totals div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.totals dt { font-size: 0.8125rem; color: var(--muted); order: 2; }
+.totals dd { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.75rem; line-height: 1.1; font-variant-numeric: tabular-nums; order: 1; }
+.totals dd.sub { order: 3; font-family: var(--font-ui); font-weight: 400; font-size: 0.8125rem; line-height: 1.35; color: var(--muted); }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-radius: 12px; padding: 12px 14px; font-size: 0.9375rem; margin: 0; }
+.share { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.share textarea { min-height: 180px; font-size: 0.875rem; }
+.note-small { margin: 0; color: var(--muted); font-size: 0.875rem; }
+
+@media (max-width: 380px) {
+  .pain button { font-size: 0.875rem; }
+  .totals dd { font-size: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { .saved { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Дневник головной боли</h1>
+    <p class="status" id="status">Загружаю записи…</p>
+  </header>
+
+  <section class="card" id="day" aria-labelledby="day-title">
+    <div class="day-head">
+      <div>
+        <p class="label" id="day-eyebrow">Сегодня</p>
+        <h2 id="day-title">—</h2>
+      </div>
+      <button type="button" class="link-btn" id="to-today" hidden>К сегодняшнему дню</button>
+    </div>
+
+    <div class="field">
+      <p class="label" id="pain-label">Болела голова?</p>
+      <div class="pain" id="pain" role="group" aria-labelledby="pain-label">
+        <button type="button" class="l0" data-level="0" aria-pressed="false"><span class="sw"></span>Нет</button>
+        <button type="button" class="l1" data-level="1" aria-pressed="false"><span class="sw"></span>Слабо</button>
+        <button type="button" class="l2" data-level="2" aria-pressed="false"><span class="sw"></span>Средне</button>
+        <button type="button" class="l3" data-level="3" aria-pressed="false"><span class="sw"></span>Сильно</button>
+      </div>
+      <p class="hint" id="pain-hint"></p>
+    </div>
+
+    <div class="field">
+      <p class="label" id="meds-label">Лекарства</p>
+      <div class="chips" id="chips" role="group" aria-labelledby="meds-label"></div>
+      <form class="add" id="add-form" autocomplete="off">
+        <input type="text" id="med-input" placeholder="Другое лекарство" aria-label="Название лекарства" maxlength="60">
+        <button type="submit" class="btn">Добавить</button>
+      </form>
+    </div>
+
+    <div class="field">
+      <label class="label" for="note">Заметка</label>
+      <textarea id="note" placeholder="Что было до приступа, сколько длилось, что помогло" maxlength="2000"></textarea>
+    </div>
+
+    <div class="card-foot">
+      <span class="saved" id="saved" aria-live="polite"></span>
+      <button type="button" class="del" id="del" hidden>Удалить запись</button>
+    </div>
+  </section>
+
+  <section class="month" aria-labelledby="month-title">
+    <div class="month-head">
+      <h2 id="month-title">—</h2>
+      <div class="nav">
+        <button type="button" class="icon-btn" id="prev" aria-label="Предыдущий месяц">‹</button>
+        <button type="button" class="icon-btn" id="next" aria-label="Следующий месяц">›</button>
+      </div>
+    </div>
+
+    <div class="cal" id="cal"></div>
+
+    <ul class="legend">
+      <li><span class="sw l0"></span>не болела</li>
+      <li><span class="sw l1"></span>слабо</li>
+      <li><span class="sw l2"></span>средне</li>
+      <li><span class="sw l3"></span>сильно</li>
+      <li><span class="dotkey"></span>лекарство</li>
+    </ul>
+
+    <dl class="totals">
+      <div><dt>дней с болью</dt><dd id="t-pain">0</dd><dd class="sub" id="t-pain-sub"></dd></div>
+      <div><dt>дней с лекарствами</dt><dd id="t-meds">0</dd><dd class="sub" id="t-meds-sub"></dd></div>
+      <div><dt>дней отмечено</dt><dd id="t-marked">0</dd><dd class="sub" id="t-marked-sub"></dd></div>
+    </dl>
+
+    <p class="warn" id="warn" hidden></p>
+
+    <div class="share">
+      <button type="button" class="btn" id="copy">Скопировать месяц для врача</button>
+      <p class="note-small" id="copy-msg" hidden></p>
+      <textarea id="copy-text" readonly hidden aria-label="Текст для врача"></textarea>
+    </div>
+
+    <p class="note-small">Отмечайте и дни без боли: так видно, как часто она бывает на самом деле.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var MONTHS = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  var MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  var WEEKDAYS = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
+  var WD_SHORT = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
+  var LEVEL_WORDS = ["не болела", "слабая", "средняя", "сильная"];
+  var HINTS = [
+    "Голова не болела.",
+    "Слабо: болит, но дела делать можно.",
+    "Средне: боль мешает делам.",
+    "Сильно: приходится всё бросить."
+  ];
+  var LS_KEY = "headache-diary:v1";
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function keyOf(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parseKey(k) { var p = k.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function todayKey() { return keyOf(new Date()); }
+  function plural(n, forms) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  }
+  var DAY_FORMS = ["день", "дня", "дней"];
+
+  var now = new Date();
+  var state = {
+    days: {},
+    selected: todayKey(),
+    viewY: now.getFullYear(),
+    viewM: now.getMonth(),
+    ready: false,
+    mode: null
+  };
+
+  var daysCol = null;
+  var dirty = new Set();
+  var writing = {};
+  var noteTimer = null;
+  var savedTimer = null;
+
+  var el = {
+    status: document.getElementById("status"),
+    eyebrow: document.getElementById("day-eyebrow"),
+    title: document.getElementById("day-title"),
+    toToday: document.getElementById("to-today"),
+    pain: document.getElementById("pain"),
+    hint: document.getElementById("pain-hint"),
+    chips: document.getElementById("chips"),
+    addForm: document.getElementById("add-form"),
+    medInput: document.getElementById("med-input"),
+    note: document.getElementById("note"),
+    saved: document.getElementById("saved"),
+    del: document.getElementById("del"),
+    monthTitle: document.getElementById("month-title"),
+    prev: document.getElementById("prev"),
+    next: document.getElementById("next"),
+    cal: document.getElementById("cal"),
+    tPain: document.getElementById("t-pain"),
+    tPainSub: document.getElementById("t-pain-sub"),
+    tMeds: document.getElementById("t-meds"),
+    tMedsSub: document.getElementById("t-meds-sub"),
+    tMarked: document.getElementById("t-marked"),
+    tMarkedSub: document.getElementById("t-marked-sub"),
+    warn: document.getElementById("warn"),
+    copy: document.getElementById("copy"),
+    copyMsg: document.getElementById("copy-msg"),
+    copyText: document.getElementById("copy-text")
+  };
+
+  /* ---------- entries ---------- */
+
+  function normalize(key, raw) {
+    raw = raw || {};
+    var pain = (typeof raw.pain === "number" && raw.pain >= 0 && raw.pain <= 3) ? raw.pain : null;
+    return {
+      date: key,
+      pain: pain,
+      meds: Array.isArray(raw.meds) ? raw.meds.filter(function (m) { return typeof m === "string" && m.trim(); }) : [],
+      note: typeof raw.note === "string" ? raw.note : ""
+    };
+  }
+  function getEntry(key) { return state.days[key] ? normalize(key, state.days[key]) : null; }
+  function isEmpty(e) { return e.pain === null && e.meds.length === 0 && !e.note.trim(); }
+
+  function edit(key, fn, opts) {
+    var e = getEntry(key) || normalize(key, null);
+    fn(e);
+    e.t = Date.now();
+    if (isEmpty(e)) delete state.days[key]; else state.days[key] = e;
+    dirty.add(key);
+    if (!(opts && opts.keepNote)) render(); else renderMonth();
+    if (opts && opts.debounce) {
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(function () { noteTimer = null; persist(key); }, 700);
+    } else {
+      persist(key);
+    }
+  }
+
+  /* ---------- storage ---------- */
+
+  function lsLoad() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var obj = raw ? JSON.parse(raw) : {};
+      return (obj && typeof obj === "object") ? obj : {};
+    } catch (e) { return {}; }
+  }
+  function lsSave() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state.days)); return true; } catch (e) { return false; }
+  }
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function withRetry(fn) {
+    return fn().catch(function (err) {
+      if (err && err.code === "unavailable") return sleep(400 + Math.random() * 600).then(fn);
+      throw err;
+    });
+  }
+
+  function persist(key) {
+    if (state.mode === "local") {
+      dirty.delete(key);
+      if (lsSave()) showSaved("Сохранено");
+      else setStatus("Не получилось сохранить: браузер не даёт хранить данные на этой странице.", true);
+      return;
+    }
+    if (state.mode !== "db" || !daysCol) return;
+    var w = writing[key] || (writing[key] = { busy: false, again: false });
+    if (w.busy) { w.again = true; return; }
+    w.busy = true;
+    showSaved("Сохраняю…");
+    (async function loop() {
+      try {
+        do {
+          w.again = false;
+          var entry = state.days[key];
+          var ref = daysCol.doc(key);
+          if (entry) {
+            var body = normalize(key, entry);
+            body.t = entry.t || Date.now();
+            await withRetry(function () { return ref.set(body); });
+          } else {
+            await withRetry(function () { return ref.delete(); });
+          }
+        } while (w.again);
+        if (key !== state.selected || !noteTimer) dirty.delete(key);
+        showSaved("Сохранено");
+      } catch (err) {
+        showSaved("");
+        setStatus(errorText(err), true);
+      } finally {
+        w.busy = false;
+      }
+    })();
+  }
+
+  function errorText(err) {
+    var code = err && err.code;
+    if (code === "invalid_argument") return "Не получилось сохранить: по этой ссылке можно только смотреть.";
+    if (code === "quota_exceeded") return "Не получилось сохранить: место для записей закончилось.";
+    if (code === "revoked") return "Доступ к записям закрыт. Обновите страницу.";
+    return "Не получилось сохранить. Проверьте интернет и попробуйте ещё раз.";
+  }
+
+  function setStatus(text, isError) {
+    el.status.textContent = text;
+    el.status.classList.toggle("error", !!isError);
+  }
+  function showSaved(text) {
+    clearTimeout(savedTimer);
+    el.saved.textContent = text;
+    el.saved.style.opacity = "1";
+    if (text === "Сохранено") {
+      savedTimer = setTimeout(function () { el.saved.style.opacity = "0"; }, 1600);
+    }
+  }
+
+  /* ---------- rendering ---------- */
+
+  function dayTitle(key) {
+    var d = parseKey(key);
+    var t = d.getDate() + " " + MONTHS_GEN[d.getMonth()];
+    if (d.getFullYear() !== new Date().getFullYear()) t += " " + d.getFullYear();
+    return t;
+  }
+  function dayEyebrow(key) {
+    var d = parseKey(key);
+    var today = todayKey();
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    var prefix = key === today ? "Сегодня · " : key === keyOf(y) ? "Вчера · " : "";
+    return prefix + WEEKDAYS[d.getDay()];
+  }
+
+  function knownMeds(current) {
+    var map = new Map();
+    Object.keys(state.days).forEach(function (k) {
+      normalize(k, state.days[k]).meds.forEach(function (n) {
+        var low = n.toLowerCase();
+        var r = map.get(low) || { name: n, count: 0 };
+        r.count++;
+        map.set(low, r);
+      });
+    });
+    var top = Array.from(map.values()).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
+    var names = top.map(function (r) { return r.name; });
+    current.forEach(function (n) {
+      if (!names.some(function (x) { return x.toLowerCase() === n.toLowerCase(); })) names.push(n);
+    });
+    return names.sort(function (a, b) { return a.localeCompare(b, "ru"); });
+  }
+
+  function renderDay() {
+    var key = state.selected;
+    var e = getEntry(key) || normalize(key, null);
+    var disabled = !state.ready;
+
+    el.eyebrow.textContent = dayEyebrow(key);
+    el.title.textContent = dayTitle(key);
+    el.toToday.hidden = key === todayKey();
+
+    Array.prototype.forEach.call(el.pain.querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.level) === e.pain));
+      b.disabled = disabled;
+    });
+    el.hint.textContent = e.pain === null ? "Слабо — дела делать можно, средне — боль мешает, сильно — приходится всё бросить." : HINTS[e.pain];
+
+    el.chips.textContent = "";
+    var lowered = e.meds.map(function (m) { return m.toLowerCase(); });
+    knownMeds(e.meds).forEach(function (name) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = name;
+      b.setAttribute("aria-pressed", String(lowered.indexOf(name.toLowerCase()) !== -1));
+      b.disabled = disabled;
+      b.addEventListener("click", function () { toggleMed(name); });
+      el.chips.appendChild(b);
+    });
+    el.chips.hidden = el.chips.childElementCount === 0;
+    el.medInput.disabled = disabled;
+    el.addForm.querySelector("button").disabled = disabled;
+
+    if (document.activeElement !== el.note) el.note.value = e.note;
+    el.note.disabled = disabled;
+
+    el.del.hidden = !state.days[key];
+    disarmDelete();
+  }
+
+  function renderMonth() {
+    var y = state.viewY, m = state.viewM;
+    var nowD = new Date();
+    var isCurrent = y === nowD.getFullYear() && m === nowD.getMonth();
+    el.monthTitle.textContent = MONTHS[m] + " " + y;
+    el.next.disabled = isCurrent || (y > nowD.getFullYear()) || (y === nowD.getFullYear() && m > nowD.getMonth());
+
+    var frag = document.createDocumentFragment();
+    WD_SHORT.forEach(function (w) {
+      var h = document.createElement("div");
+      h.className = "wd";
+      h.textContent = w;
+      frag.appendChild(h);
+    });
+    var first = new Date(y, m, 1);
+    var offset = (first.getDay() + 6) % 7;
+    var total = new Date(y, m + 1, 0).getDate();
+    var today = todayKey();
+    for (var i = 0; i < offset; i++) {
+      var blank = document.createElement("span");
+      blank.className = "cell blank";
+      blank.setAttribute("aria-hidden", "true");
+      frag.appendChild(blank);
+    }
+    var monthLabel = MONTHS_GEN[m];
+    for (var d = 1; d <= total; d++) {
+      var key = y + "-" + pad(m + 1) + "-" + pad(d);
+      var e = getEntry(key);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cell";
+      b.textContent = String(d);
+      var desc = d + " " + monthLabel;
+      if (key > today) {
+        b.classList.add("future");
+        b.disabled = true;
+      } else {
+        if (e && e.pain !== null) { b.classList.add("l" + e.pain); desc += ", " + LEVEL_WORDS[e.pain]; }
+        if (e && e.meds.length) {
+          var dot = document.createElement("span");
+          dot.className = "dot";
+          b.appendChild(dot);
+          desc += ", лекарство";
+        }
+        b.dataset.key = key;
+      }
+      if (key === today) b.classList.add("today");
+      if (key === state.selected) { b.classList.add("sel"); b.setAttribute("aria-current", "date"); }
+      b.setAttribute("aria-label", desc);
+      frag.appendChild(b);
+    }
+    el.cal.textContent = "";
+    el.cal.appendChild(frag);
+
+    var s = monthStats(y, m);
+    el.tPain.textContent = String(s.painDays);
+    el.tPainSub.textContent = s.painDays ? ("сильно " + s.levels[3] + " · средне " + s.levels[2] + " · слабо " + s.levels[1]) : "";
+    el.tMeds.textContent = String(s.medDays);
+    el.tMedsSub.textContent = s.medList.slice(0, 2).map(function (r) { return r.name + " " + r.days; }).join(" · ");
+    el.tMarked.textContent = String(s.marked);
+    el.tMarkedSub.textContent = "из " + s.daysSoFar;
+
+    if (s.medDays >= 10) {
+      el.warn.hidden = false;
+      el.warn.textContent = "Лекарства в этом месяце — " + s.medDays + " " + plural(s.medDays, DAY_FORMS) +
+        ". Когда обезболивающие нужны 10 и больше дней в месяц, это стоит обсудить с врачом: частый приём сам может поддерживать головную боль.";
+    } else {
+      el.warn.hidden = true;
+    }
+  }
+
+  function monthStats(y, m) {
+    var total = new Date(y, m + 1, 0).getDate();
+    var nowD = new Date();
+    var isCurrent = y === nowD.getFullYear() && m === nowD.getMonth();
+    var daysSoFar = isCurrent ? nowD.getDate() : total;
+    var s = { marked: 0, painDays: 0, levels: [0, 0, 0, 0], medDays: 0, meds: new Map(), entries: [], daysSoFar: daysSoFar };
+    for (var d = 1; d <= total; d++) {
+      var key = y + "-" + pad(m + 1) + "-" + pad(d);
+      var e = getEntry(key);
+      if (!e) continue;
+      s.entries.push(e);
+      if (e.pain !== null) {
+        s.marked++;
+        s.levels[e.pain]++;
+        if (e.pain > 0) s.painDays++;
+      }
+      if (e.meds.length) {
+        s.medDays++;
+        var seen = new Set();
+        e.meds.forEach(function (n) {
+          var low = n.toLowerCase();
+          if (seen.has(low)) return;
+          seen.add(low);
+          var r = s.meds.get(low) || { name: n, days: 0 };
+          r.days++;
+          s.meds.set(low, r);
+        });
+      }
+    }
+    s.medList = Array.from(s.meds.values()).sort(function (a, b) { return b.days - a.days; });
+    return s;
+  }
+
+  function render() {
+    renderDay();
+    renderMonth();
+  }
+
+  /* ---------- actions ---------- */
+
+  function selectDay(key) {
+    if (key === state.selected) return;
+    flushNote();
+    state.selected = key;
+    var d = parseKey(key);
+    state.viewY = d.getFullYear();
+    state.viewM = d.getMonth();
+    el.copyText.hidden = true;
+    el.copyMsg.hidden = true;
+    render();
+  }
+
+  function flushNote() {
+    if (noteTimer) {
+      clearTimeout(noteTimer);
+      noteTimer = null;
+      persist(state.selected);
+    }
+  }
+
+  function toggleMed(name) {
+    if (!state.ready) return;
+    edit(state.selected, function (e) {
+      var low = name.toLowerCase();
+      var idx = e.meds.findIndex(function (m) { return m.toLowerCase() === low; });
+      if (idx === -1) e.meds.push(name); else e.meds.splice(idx, 1);
+    });
+  }
+
+  el.pain.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-level]");
+    if (!b || !state.ready) return;
+    var level = Number(b.dataset.level);
+    edit(state.selected, function (e) { e.pain = level; });
+  });
+
+  el.addForm.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!state.ready) return;
+    var name = el.medInput.value.replace(/\s+/g, " ").trim();
+    if (!name) return;
+    el.medInput.value = "";
+    edit(state.selected, function (e) {
+      var low = name.toLowerCase();
+      if (!e.meds.some(function (m) { return m.toLowerCase() === low; })) e.meds.push(name);
+    });
+  });
+
+  el.note.addEventListener("input", function () {
+    if (!state.ready) return;
+    var v = el.note.value;
+    edit(state.selected, function (e) { e.note = v; }, { keepNote: true, debounce: true });
+    el.del.hidden = !state.days[state.selected];
+  });
+  el.note.addEventListener("blur", flushNote);
+
+  var delTimer = null;
+  function disarmDelete() {
+    clearTimeout(delTimer);
+    el.del.classList.remove("armed");
+    el.del.textContent = "Удалить запись";
+  }
+  el.del.addEventListener("click", function () {
+    if (!el.del.classList.contains("armed")) {
+      el.del.classList.add("armed");
+      el.del.textContent = "Нажмите ещё раз, чтобы удалить";
+      delTimer = setTimeout(disarmDelete, 4000);
+      return;
+    }
+    disarmDelete();
+    clearTimeout(noteTimer);
+    noteTimer = null;
+    var key = state.selected;
+    delete state.days[key];
+    dirty.add(key);
+    el.note.value = "";
+    render();
+    persist(key);
+  });
+
+  el.toToday.addEventListener("click", function () { selectDay(todayKey()); });
+
+  el.cal.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-key]");
+    if (b) selectDay(b.dataset.key);
+  });
+
+  el.prev.addEventListener("click", function () {
+    state.viewM--;
+    if (state.viewM < 0) { state.viewM = 11; state.viewY--; }
+    renderMonth();
+  });
+  el.next.addEventListener("click", function () {
+    state.viewM++;
+    if (state.viewM > 11) { state.viewM = 0; state.viewY++; }
+    renderMonth();
+  });
+
+  function buildReport(y, m) {
+    var s = monthStats(y, m);
+    var lines = [];
+    lines.push("Дневник головной боли: " + MONTHS[m].toLowerCase() + " " + y);
+    lines.push("");
+    lines.push("Отмечено дней: " + s.marked + " из " + s.daysSoFar);
+    lines.push("Дней с головной болью: " + s.painDays +
+      (s.painDays ? " (сильная — " + s.levels[3] + ", средняя — " + s.levels[2] + ", слабая — " + s.levels[1] + ")" : ""));
+    lines.push("Дней с лекарствами: " + s.medDays);
+    s.medList.forEach(function (r) { lines.push("  " + r.name + " — " + r.days + " " + plural(r.days, DAY_FORMS)); });
+    if (s.entries.length) {
+      lines.push("");
+      lines.push("По дням:");
+      s.entries.forEach(function (e) {
+        var d = parseKey(e.date);
+        var parts = [];
+        parts.push(e.pain === null ? "боль не отмечена" : (e.pain === 0 ? "не болела" : LEVEL_WORDS[e.pain]));
+        if (e.meds.length) parts.push(e.meds.join(", "));
+        if (e.note.trim()) parts.push(e.note.trim().replace(/\s+/g, " "));
+        lines.push(d.getDate() + " " + MONTHS_GEN[d.getMonth()] + ", " + WD_SHORT[(d.getDay() + 6) % 7] + " — " + parts.join("; "));
+      });
+    }
+    lines.push("");
+    lines.push("Шкала: слабая — дела делать можно, средняя — мешает, сильная — приходится всё бросить.");
+    return lines.join("\n");
+  }
+
+  el.copy.addEventListener("click", function () {
+    var text = buildReport(state.viewY, state.viewM);
+    function fallback() {
+      el.copyText.hidden = false;
+      el.copyText.value = text;
+      el.copyText.focus();
+      el.copyText.select();
+      el.copyMsg.hidden = false;
+      el.copyMsg.textContent = "Скопировать автоматически не вышло. Текст выделен ниже — скопируйте его вручную.";
+    }
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) { fallback(); return; }
+      navigator.clipboard.writeText(text).then(function () {
+        el.copyText.hidden = true;
+        el.copyMsg.hidden = false;
+        el.copyMsg.textContent = "Скопировано. Вставьте в сообщение врачу или в заметки.";
+      }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  /* ---------- start ---------- */
+
+  function startLocal(message) {
+    state.mode = "local";
+    state.days = lsLoad();
+    state.ready = true;
+    setStatus(message || "Записи хранятся только в этом браузере.");
+    render();
+  }
+
+  async function start() {
+    render();
+    var c = window.claude;
+    if (!c || typeof c.use !== "function") { startLocal(); return; }
+    var db = null, user = null, uid = null;
+    try {
+      var got = await Promise.all([c.use("db"), c.use("user")]);
+      db = got[0]; user = got[1];
+      if (db && user) uid = await user.id();
+    } catch (e) { db = null; }
+    if (!db || !uid) {
+      startLocal("Записи хранятся только в этом браузере. Войдите в аккаунт Claude, чтобы они сохранялись на всех устройствах.");
+      return;
+    }
+    try {
+      daysCol = db.doc("data/users/" + uid + "/diary").collection("days");
+    } catch (e) {
+      startLocal();
+      return;
+    }
+    state.mode = "db";
+    daysCol.onSnapshot(function (snap) {
+      var next = {};
+      snap.docs.forEach(function (d) { if (d.exists) next[d.id] = d.data(); });
+      dirty.forEach(function (k) {
+        if (state.days[k]) next[k] = state.days[k]; else delete next[k];
+      });
+      state.days = next;
+      if (!state.ready) {
+        state.ready = true;
+        setStatus("Записи сохраняются в вашем аккаунте и видны только вам. Ссылка открывается и с телефона, и с компьютера.");
+      }
+      render();
+    }, function (err) {
+      state.ready = false;
+      setStatus(err && err.code === "revoked" ? "Доступ к записям закрыт. Обновите страницу." : "Записи не загрузились. Обновите страницу.", true);
+      render();
+    });
+  }
+
+  start();
+})();
+</script>
