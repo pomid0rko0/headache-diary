@@ -229,6 +229,18 @@ The orchestrator may stop the loop after 64 iterations if it has not converged, 
 
 The loop then continues with iteration 36. The oscillation check after iteration 36 compares items across the restructuring by meaning, using the mapping.
 
+**RATIONALE audit at iteration 41.** The oscillation check after iteration 40 found the following:
+
+- Since the restructuring, reviews have found about one old defect per iteration.
+- One class of defect had not been swept as a whole: `RATIONALE.md` entries whose statements about the model disagree with it.
+
+Review 41 then raised a member of that class (R41-01). The fix of iteration 41 therefore closes the class at once (section 6a):
+
+1. **Audit.** Four new agents each audit one part of the non-quote entries of `RATIONALE.md` (kinds D, S, W, N and X) against the current model. Each writes `audits/rationale-audit-v40-partN.md`, with findings numbered `RA-N-nn`.
+2. **Fix.** The fixer of iteration 41 addresses R41-01 and every audit finding, as it addresses a remark, in `fixes/fix-iter-41.md`.
+
+The loop then continues with iteration 42.
+
 ## 9. What counts as a remark
 
 Raise only issues that require a change:
