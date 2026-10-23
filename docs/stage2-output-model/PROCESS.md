@@ -241,6 +241,16 @@ Review 41 then raised a member of that class (R41-01). The fix of iteration 41 t
 
 The loop then continues with iteration 42.
 
+**Quote verification from iteration 42 on (decided by the human).** By iteration 41, six main reviews in a row had verified every quote verbatim against its source and found no misquote, while the quotes themselves had not changed since v35. A main review now does the following:
+
+- **Changed entries in full.** It verifies, verbatim at the stated URL and location, every quote in a `RATIONALE.md` Q entry that was added or changed since the last full verification. It also checks that entry's source metadata.
+  - It finds those entries with `git diff` of `RATIONALE.md` against the version last fully verified.
+  - The last full verification is review 41, of `RATIONALE.md` v39. Each later full verification moves this baseline.
+- **A random sample of the rest.** It also verifies a random sample of at least 20 other Q entries and states the sample in the review.
+- **The rest of the review is unchanged.** All other checks (values against sources, fidelity, formal soundness, scope, generality) are done in full.
+
+**The re-checks still verify every quote** of every Q entry and check every source for a newer version, so the stop condition of the loop still requires a full fact-check.
+
 ## 9. What counts as a remark
 
 Raise only issues that require a change:
