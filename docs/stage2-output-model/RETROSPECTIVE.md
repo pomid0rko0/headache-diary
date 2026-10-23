@@ -65,10 +65,10 @@ Twelve Stage 1 issues (ISS-01–ISS-06, ISS-08–ISS-13) were found this way. No
 
 ## 2. What went wrong in the process
 
-1. **The stop rule could not be met on an artifact this large.**
-   - The loop ended only when a main review and two re-checks in a row found nothing, and any defect at all counted.
-   - The main review was clean seven times (iterations 8, 10, 19, 21, 22, 25 and 32), and each time a re-check found a narrow new case.
-   - From iteration 12 on, each iteration removed one or two small defects.
+1. **The loop did not fail; the model did.** The same loop, with the same stop rule, converged in Stage 1 (v18, about 13 hours).
+   - In Stage 2, the main review was clean seven times (iterations 8, 10, 19, 21, 22, 25 and 32), and each time a re-check found a narrow new case.
+   - Those cases came mostly from the conception described in section 1: the hidden model of the patient's records, and conformance attached to single conjuncts. A construction like that has no end of edge cases, so each fresh reviewer found another one. The stop rule only made that visible.
+   - An earlier version of this file blamed the stop rule. That was wrong.
 2. **Fixes only added.** Each fix added a clause or a special case. The model grew from 268 KB (v00) to 822 KB (v34) before anything was merged.
 3. **Each iteration was serial and slow, about one hour.**
    - One reviewer read about 1 MB of text and re-verified about 300 quotes every time.
@@ -104,18 +104,12 @@ Twelve Stage 1 issues (ISS-01–ISS-06, ISS-08–ISS-13) were found this way. No
 - **A size budget**, for example 150 KB or less for the model. Rationale and quotes go in a separate file.
 - **Open cases go to an issues list**, not into predicates. Ideally the human decides the Stage 1 issues before the model is written.
 
-### 3.3 A loop that ends
-- **Rounds.** Several reviewers work in parallel, each on a slice of the Stage 1 requirements, plus one checker for scope and formal soundness. One fixer then handles all remarks of the round.
-- **Blocking remarks:**
-  - a factual error against a source;
-  - a value, level or applicability that contradicts, narrows or broadens Stage 1;
-  - any scope violation, which explicitly includes any model of recorded or patient data;
-  - contradictory constraints.
+### 3.3 The loop
+The human's loop stays as it is: review, then up to two re-checks, then a fix, with oscillation checks. What changes is the orchestrator's part:
 
-  Everything else is non-blocking.
-- **When to stop.** Stop after the first round with no blocking remark. Fix the non-blocking remarks once, in a batch. There is a hard cap of four rounds, after which the open remarks go to the human.
-- **Quotes** are verified once, and after that only when they are added or changed.
-- **After each round**, the orchestrator reports to the human: remarks by severity, size, and time used. It proposes a change of approach rather than another round when the same kind of remark keeps coming back.
+- **Check the scope first.** In the first review, and in every re-check, include an explicit check that the model contains no model of the patient, the records or the context. Any element that describes the patient's history rather than what an output shows is a scope violation.
+- **Verify quotes once.** After that, verify only quotes that were added or changed; the re-checks still verify all of them (as the human decided at iteration 41).
+- **Watch the trend and report it.** Track the size and the kind of remark in every iteration. If the size grows steadily, or the same kind of remark keeps coming back, report it to the human with a proposed cause after a few iterations, instead of running on.
 
 ### 3.4 What to take from the first attempt
 - **The structure: nothing.** Start from Stage 1 (`docs/stage1-output-requirements/OUTPUT_REQUIREMENTS.md` v18), not from v40, and work in a new folder.
