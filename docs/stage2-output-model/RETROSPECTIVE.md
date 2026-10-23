@@ -1,93 +1,133 @@
-# Stage 2 — retrospective of the first attempt and brief for a restart
+# Stage 2 — why the first attempt failed, and what a restart must do differently
 
-Date: 2026-10-23. The human stopped the first attempt after iteration 41 and decided to restart the formal output model in a new conversation, without letting it take days again. This file explains what went wrong and how to run the restart. It is input for the restart, not a rule for it.
+Date: 2026-10-23. The human stopped the first attempt after iteration 41 and decided to build the formal output model again, from scratch. The model of the first attempt (v00–v40) is wrong in its conception, not only slow to converge. This file says what is wrong with it and how the restart must differ.
 
-## 1. Outcome in numbers
+## 1. What is wrong with the model itself
 
-| Measure | Value |
-|---|---|
-| Wall-clock time | about 47 hours (2026-10-21 02:14 to 2026-10-23 01:16 UTC) |
-| Iterations | 40 complete; review 41 done; the fix of 41 not started |
-| Reviews / fixes / commits | 49 reviews (incl. re-checks), 41 fix logs, 111 commits |
-| Remarks per main review | 12, 7, 7, 4, 3, 1, 3, 0 (iteration 8), then 0–3 for 33 iterations |
-| Main reviews with NO_REMARKS | iterations 8, 10, 19, 21, 22, 25, 32. Each time a re-check then found a narrow new case |
-| Model size | v00 268 KB, v10 476 KB, v20 647 KB, v34 822 KB; after the restructuring v35 421 KB, plus `RATIONALE.md` 319 KB |
-| Content at v40 | 67 elements, 87 invariants (117 before merging), 160 formal blocks, 13 source-data tables (94 rows), 113 quote entries |
-| Open at the stop | R41-01 and 14 findings of the `RATIONALE.md` audit (`audits/rationale-audit-v40-part*.md`), all about prose, not about values or coverage |
+### 1.1 Input data entered the model under the name "context"
+The human's first constraint was that input data must not appear at any stage. The model broke it from v00 on.
 
-The model was substantively complete by about iteration 8–10, when the first main review found nothing. The remaining 30 iterations each removed one or two narrow defects.
+**What `SubjectProfile` held.** Every output was given an `OutputContext`, whose `SubjectProfile` (E-008) held:
 
-## 2. What went wrong, most important first
+- every preventive and acute treatment course of the patient;
+- every dated course event of each course: start, dose increase or reduction, target dose reached, treatment cycle end, stop or pause, and (from v28) which course resumes which;
+- every acute medication (drug and formulation) the patient has ever used;
+- every start of withdrawal of overused medication;
+- the dates on which instrument and screening results are available;
+- the spans during which the patient menstruates;
+- the date of adulthood and of the 12th birthday.
+
+**Why it is input data.** This is the diary's recorded data under another name.
+
+**How outputs were tied to it.** About 45 places in v40 constrain outputs against this profile. Examples:
+
+- INV-123: a fact an output shows must be a fact the context states;
+- the general rule R-MCF (section 3.8) on "facts the context does not state";
+- `originalStart` and `courseBegunBy`, which work out the start of a treatment from its course events;
+- INV-112 and INV-113: a view refers to the patient's own stop event or withdrawal start;
+- INV-117: a label concerns one of the patient's own treatments.
+
+Each of these is a rule that the output must agree with the recorded data. That is the excluded derivation rule f(input) → output, written as a constraint.
+
+**Why nobody caught it.** The scope rule's test was that a rule is in scope when all its arguments are output elements. That test was passed by calling the recorded data "context" and its contents "properties of the subject". The author, 49 reviews, 10 oscillation checks and the orchestrator all accepted the label. None of them checked what the context actually contained.
+
+**Consequence.** The longest remark cascades were all about the meaning of this hidden input:
+
+- treatment courses: several stops, restarts, resumptions and unstated starts (iterations 25–28);
+- the truth of shown facts against the context (iterations 30–32);
+- the general rule for facts the context does not state (iteration 35).
+
+None of this belongs in an output model.
+
+### 1.2 It became a logic of conformance, not a model of data
+**What a data model answers.** What does each output contain: which fields, of which type, with which values and units, and how many of each.
+
+**What v40 answers.** Mostly a different question: under which conditions, at which conformance level, must which output exist and be placed where. In v40 that takes:
+
+- 87 invariants (117 before merging);
+- conformance levels attached to single conjuncts;
+- level-indexed invariants;
+- placement markers;
+- case tables;
+- an enumeration of catalogue rows.
+
+**The result.** A reader cannot see from it what a report contains. It is a formal restatement of Stage 1's requirement text, not a model of the data those requirements describe.
+
+### 1.3 It tried to make every edge of Stage 1's prose formally exact
+Where Stage 1 left a case open, the model chose one reading and encoded it in predicates. Reviewers then probed each reading. Examples:
+
+- a treatment whose start is unknown;
+- a remission period that has not ended;
+- a cycle line that has not ended;
+- a percentage change over a period shorter than a month.
+
+Twelve Stage 1 issues (ISS-01–ISS-06, ISS-08–ISS-13) were found this way. None was decided.
+
+## 2. What went wrong in the process
 
 1. **The stop rule could not be met on an artifact this large.**
-   - The loop ended only when a main review and two independent re-checks *in a row* all found nothing. There was no severity threshold: any defect counted, whether a misread edge case, a page number or a sentence of prose.
-   - Each fresh reviewer is a new sample of attention over about 1 MB of text: the model, `RATIONALE.md` and Stage 1. In practice, three clean samples in a row never happened. The main review was clean seven times and was beaten by a re-check every time.
-2. **The model was formalised more deeply than the task needed.** It became a full first-order theory with:
-   - contexts;
-   - the lifecycle of treatment courses: stops, restarts, resumptions, unstated starts;
-   - levels attached to individual conjuncts;
-   - satisfiability arguments;
-   - prose readings of every predicate.
+   - The loop ended only when a main review and two re-checks in a row found nothing, and any defect at all counted.
+   - The main review was clean seven times (iterations 8, 10, 19, 21, 22, 25 and 32), and each time a re-check found a narrow new case.
+   - From iteration 12 on, each iteration removed one or two small defects.
+2. **Fixes only added.** Each fix added a clause or a special case. The model grew from 268 KB (v00) to 822 KB (v34) before anything was merged.
+3. **Each iteration was serial and slow, about one hour.**
+   - One reviewer read about 1 MB of text and re-verified about 300 quotes every time.
+   - The full run took about 47 hours, 41 iterations and 111 commits.
+4. **The orchestrator missed the signals.**
+   - It did not question what the "context" contained.
+   - It did not flag the growth before the human asked, at iteration 35.
+   - It kept running the loop toward the iteration limit instead of proposing a change of approach once the remarks had plateaued.
 
-   Every predicate became a surface for script-found counterexamples, and every prose sentence a surface for "prose says more than the predicate" remarks. Treatment-course semantics alone took iterations 25–28.
-3. **Fixes only added.**
-   - The minimal-fix rule made each fix add a clause or a special case. Nothing was merged or removed until the restructuring at iteration 35. By then the model was 822 KB, and an audit found 19 internal inconsistencies.
-   - The orchestrator did not flag the growth until the human asked. It should have done so by iteration 10–12 (v12 was already 546 KB).
-4. **Each iteration was serial and expensive.**
-   - One reviewer read everything and re-verified all ~300 quotes by downloading 28 sources, every time, for about 25–30 minutes. One fixer followed.
-   - That came to about one hour per iteration, so 40 iterations took about two days. The quotes did not change after v35, and six full verifications in a row found no misquote.
-5. **Stage 1 ambiguities were carried into Stage 2.** Twelve Stage 1 issues (ISS-01–ISS-06, ISS-08–ISS-13) were found and recorded during Stage 2, but never decided. The model had to encode one reading of each, and reviewers kept probing those readings.
-6. **Orchestration errors.**
-   - The scope rule was first written stricter than the human intended; the human corrected it.
-   - One re-check (19c) was steered toward particular points, which caused an extra iteration.
-   - The orchestrator kept running the loop toward the iteration limit instead of proposing a change of approach once remarks had plateaued at one or two per iteration (from about iteration 12).
+## 3. What the restart must do
 
-## 3. What worked and is worth keeping
+### 3.1 The model contains outputs and nothing else
+- **What the model consists of.**
+  - Kinds of output (reports, views, summaries, labels, caveats).
+  - Their fields, with type, unit, value set and multiplicity.
+  - A conformance level for each element or field, taken from Stage 1.
+- **Constraints.** Only relations among fields of outputs. Examples:
+  - a number of days in a period does not exceed the period's length;
+  - compared periods have equal length;
+  - a percentage change agrees with the absolute change and the baseline shown with it;
+  - an indicator agrees with the per-class values and reference levels shown with it;
+  - a category agrees with the score shown with it;
+  - a label or caveat is present whenever the element it qualifies is shown.
+- **No model of the patient or of the diary's records.** That means:
+  - no context entity, subject profile, treatment course or course event;
+  - no "facts" that outputs must agree with.
+- **Applicability conditions** ("for patients with migraine", "for patients who menstruate", "where results of validated instruments are available") are named conditions attached to an output, worded as Stage 1 words them. They are not defined further.
+- **The test for every element and constraint.** Can it be checked by looking at the output alone? If it needs anything outside the output, it is out of the model.
 
-- **The scope rule** as finally written: no input data, no storage format, no derivation from input; thresholds, formulas and computed fields that are part of the output data are required (PROCESS.md section 2).
-- **Separating the model from its rationale**, with quotes, reasons and examples in a companion file.
-- **Generality rules**: state a rule once; fix the class, not the case (PROCESS.md section 6a).
-- **An output catalogue** (one row per kind of output) and **source-data tables** for values that sources fix.
-- **Script checks** of IDs, traceability, brace balance and snapshot identity, and small-model witnesses.
-- **Oscillation checks.** None of 10 found oscillation; they were useful mostly as trend reports.
-- **Verified evidence that can be reused** (section 6).
+### 3.2 Keep it small and readable
+- **A plain notation.** Typed records, enumerations, value sets, multiplicities, and short constraint predicates over fields.
+- **One description per output kind** that a clinician or developer can read and that says what the output contains.
+- **A size budget**, for example 150 KB or less for the model. Rationale and quotes go in a separate file.
+- **Open cases go to an issues list**, not into predicates. Ideally the human decides the Stage 1 issues before the model is written.
 
-## 4. How to run the restart
+### 3.3 A loop that ends
+- **Rounds.** Several reviewers work in parallel, each on a slice of the Stage 1 requirements, plus one checker for scope and formal soundness. One fixer then handles all remarks of the round.
+- **Blocking remarks:**
+  - a factual error against a source;
+  - a value, level or applicability that contradicts, narrows or broadens Stage 1;
+  - any scope violation, which explicitly includes any model of recorded or patient data;
+  - contradictory constraints.
 
-### 4.1 Before writing anything
-1. **The human decides the Stage 1 issues** listed in section 5, or accepts the readings that v40 chose. The new model then encodes decisions, not open readings.
-2. **Fix the form and the size of the deliverable in advance.**
-   - **Depth.** A typed information model: records, enumerations, value sets, units, multiplicities, conformance levels and applicability conditions. Add a short list of constraints, and only those Stage 1 states as relations between shown values: co-presence, bounds, equal-length comparisons, a percentage change against its absolute change, the overuse indicator against its reference levels.
-   - **What stays out.** No modelling of the lifecycle of context facts, such as treatment-course events. An applicability condition names a property of the subject or the context and is not defined further.
-   - **Edge cases** that Stage 1 does not decide go to an issues list, not into predicates.
-   - **A size budget**, for example a model of 150 KB or less, plus a rationale file. Every fix reports its size delta, and growth past the budget needs the human's approval.
-3. **Reuse the verified evidence** (section 6) instead of researching it again. Add a new source only for a value that no existing entry supports.
+  Everything else is non-blocking.
+- **When to stop.** Stop after the first round with no blocking remark. Fix the non-blocking remarks once, in a batch. There is a hard cap of four rounds, after which the open remarks go to the human.
+- **Quotes** are verified once, and after that only when they are added or changed.
+- **After each round**, the orchestrator reports to the human: remarks by severity, size, and time used. It proposes a change of approach rather than another round when the same kind of remark keeps coming back.
 
-### 4.2 The loop
-- **Rounds, not single reviews.** One round is:
-  1. **Parallel review.** Four to six reviewers work at the same time, each on one slice of the Stage 1 requirements, together with one cross-cutting checker for formal soundness and scope.
-  2. **Fix.** One fixer then handles every remark of the round.
-- **Classify each remark.**
-  - *Blocking* means: a factual error against a source; a value, level or applicability condition that contradicts, narrows or broadens Stage 1; a scope violation; or contradictory or unsatisfiable constraints.
-  - *Non-blocking* is everything else, including prose that is wrong but changes no value or level, citation locations, and edge cases Stage 1 does not decide.
-- **Stop rule.**
-  - Stop when one full round finds no blocking remark.
-  - The non-blocking remarks are then fixed once, in a batch, and checked by script only.
-  - There is a hard cap of four rounds. After that, the open remarks go to the human.
-- **Quote verification** happens once, by a dedicated agent, at the start. After that, only quotes that were added or changed are verified.
-- **Fixers** fix the class, keep rationale out of the model, report the size delta, and must not add a special case where a general rule exists.
-- **After each round**, the orchestrator reports to the human: remarks by severity, size, and time used. If a round still has blocking remarks of a kind that keeps recurring, the orchestrator proposes a change of approach instead of running another round.
+### 3.4 What to take from the first attempt
+- **The structure: nothing.** Start from Stage 1 (`docs/stage1-output-requirements/OUTPUT_REQUIREMENTS.md` v18), not from v40, and work in a new folder.
+- **Rules worth reading:**
+  - `PROCESS.md` section 2, the scope rule, to be tightened as in section 3.1 above;
+  - `PROCESS.md` section 6a, the generality rules.
+- **Evidence, optional, as a lookup only.** Quotes and source values that the first attempt verified many times may be consulted, not copied as structure:
+  - `RATIONALE.md` Q entries;
+  - section 11 of `OUTPUT_MODEL.md` v40 (ICHD-3 codes and reference levels, instrument value sets and bands, responder criteria, guidance time points).
 
-### 4.3 Time estimate
-- First draft: about 1–1.5 hours.
-- One round: about 1 hour (parallel review 30–40 minutes, fix 20–30 minutes).
-- Three or four rounds: about 5–6 hours in total.
-
-The hard cap of rounds is what keeps the restart from turning into days again.
-
-## 5. Stage 1 issues the human should decide first
-
-Recorded in section 8 of `OUTPUT_MODEL.md` v40, with evidence:
+### 3.5 Stage 1 issues found by the first attempt
+These are recorded with evidence in section 8 of `OUTPUT_MODEL.md` v40.
 
 | ID | Issue |
 |---|---|
@@ -103,25 +143,3 @@ Recorded in section 8 of `OUTPUT_MODEL.md` v40, with evidence:
 | ISS-11 | The NICE CG150 1.3.48 review window for children under 12 |
 | ISS-12 | Cluster remission duration in ICHD-3 |
 | ISS-13 | Residual burden next to a percentage change over a period shorter than a month |
-
-## 6. Reusable assets from the first attempt
-
-All paths are in `docs/stage2-output-model/`. They were checked repeatedly; the counts are from reviews 36–41.
-
-- **`RATIONALE.md` (v39), its Q entries:** 113 entries with about 300 quoted fragments.
-  - Each fragment was verified verbatim at its URL and location in six full reviews, with no misquote.
-  - Sources S-101 to S-106 have verified metadata.
-- **`OUTPUT_MODEL.md` (v40), section 11:** 13 source-data tables with 94 rows, matched against their sources in every review since v35:
-  - ICHD-3 codes and 8.2 reference levels;
-  - fixed definitions;
-  - evaluation rules of guidance;
-  - responder criteria;
-  - control levels;
-  - instrument value sets and grade bands;
-  - screening cut-offs;
-  - early time points.
-- **`OUTPUT_MODEL.md` (v40), section 4:** the output catalogue (45 rows), which is a usable skeleton for the new model.
-- **`restructure/plan-v35.md`:** the families of rules that turned out to be generic.
-- **`PROCESS.md`:** section 2 (scope rule) and section 6a (generality rules).
-
-The first attempt itself (v00–v40, its reviews, fixes, audits and oscillation checks) stays in place as a record. The restart should work in a new folder, so that the two attempts do not mix.
